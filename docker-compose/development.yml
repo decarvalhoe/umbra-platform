@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # Services Backend
+  auth-service:
+    image: ghcr.io/decarvalhoe/umbra-auth-service:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://umbra_auth:dev_password@postgres:5432/umbra_auth
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=dev-secret-key
+    depends_on:
+      - postgres
+      - redis
+
+  player-service:
+    image: ghcr.io/decarvalhoe/umbra-player-service:latest
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=postgresql://umbra_player:dev_password@postgres:5432/umbra_player
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  game-state-service:
+    image: ghcr.io/decarvalhoe/umbra-game-state-service:latest
+    ports:
+      - "5002:5002"
+    environment:
+      - DATABASE_URL=postgresql://umbra_game:dev_password@postgres:5432/umbra_game
+      - REDIS_URL=redis://redis:6379/2
+    depends_on:
+      - postgres
+      - redis
+
+  payment-service:
+    image: ghcr.io/decarvalhoe/umbra-payment-service:latest
+    ports:
+      - "5003:5003"
+    environment:
+      - DATABASE_URL=postgresql://umbra_payment:dev_password@postgres:5432/umbra_payment
+      - REDIS_URL=redis://redis:6379/3
+    depends_on:
+      - postgres
+      - redis
+
+  cloud-profile-service:
+    image: ghcr.io/decarvalhoe/umbra-cloud-profile-service:latest
+    ports:
+      - "5004:5004"
+    environment:
+      - DATABASE_URL=postgresql://umbra_cloud:dev_password@postgres:5432/umbra_cloud
+      - REDIS_URL=redis://redis:6379/4
+    depends_on:
+      - postgres
+      - redis
+
+  security-service:
+    image: ghcr.io/decarvalhoe/umbra-security-service:latest
+    ports:
+      - "5006:5006"
+    environment:
+      - DATABASE_URL=postgresql://umbra_security:dev_password@postgres:5432/umbra_security
+      - REDIS_URL=redis://redis:6379/5
+    depends_on:
+      - postgres
+      - redis
+
+  localization-service:
+    image: ghcr.io/decarvalhoe/umbra-localization-service:latest
+    ports:
+      - "5007:5007"
+    environment:
+      - DATABASE_URL=postgresql://umbra_i18n:dev_password@postgres:5432/umbra_i18n
+      - REDIS_URL=redis://redis:6379/6
+    depends_on:
+      - postgres
+      - redis
+
+  # Client de jeu
+  game-client:
+    image: ghcr.io/decarvalhoe/umbra-game-client:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080/api
+
+  # Infrastructure
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth-service
+      - player-service
+      - game-state-service
+      - payment-service
+      - cloud-profile-service
+      - security-service
+      - localization-service
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  postgres_data:
+  redis_data:
+  grafana_data:
