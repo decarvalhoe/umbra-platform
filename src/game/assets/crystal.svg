@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crystalGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#76ffd5" />
+      <stop offset="100%" stop-color="#0e8f6d" />
+    </linearGradient>
+  </defs>
+  <polygon points="32,6 54,26 32,58 10,26" fill="url(#crystalGradient)" stroke="#e1fff4" stroke-width="2" />
+  <polyline points="32,6 32,58" stroke="#ffffff" stroke-opacity="0.6" stroke-width="2" />
+  <polyline points="10,26 32,32 54,26" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2" fill="none" />
+</svg>
