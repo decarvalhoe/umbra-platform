@@ -27,11 +27,23 @@ Infrastructure et orchestration pour Project Umbra - Gestion centralisée de tou
 
 ### Environnement de Développement
 ```bash
-# Démarrer tous les services
+# Démarrer tous les services (développement)
 ./scripts/start-dev.sh
 
-# Arrêter tous les services
+# Arrêter tous les services (développement)
 ./scripts/stop-dev.sh
+
+# Démarrer l'environnement de staging
+./scripts/start-staging.sh
+
+# Arrêter l'environnement de staging
+./scripts/stop-staging.sh
+
+# Démarrer l'environnement de production
+./scripts/start-production.sh
+
+# Arrêter l'environnement de production
+./scripts/stop-production.sh
 ```
 
 ### Accès aux Services
@@ -44,6 +56,9 @@ Infrastructure et orchestration pour Project Umbra - Gestion centralisée de tou
 
 ### Variables d'Environnement
 Chaque service utilise ses propres variables d'environnement définies dans le docker-compose.
+
+- **Staging :** les URLs de base de données par défaut utilisent les mêmes identifiants que l'environnement de développement (`dev_password`). Surcharger les variables `*_DATABASE_URL`/`*_REDIS_URL` si nécessaire.
+- **Production :** toutes les variables critiques doivent être fournies via l'environnement (`docker-compose/production.yml` refuse de démarrer si elles manquent). Provisionner la base de données en amont ou adapter le script d'initialisation selon vos besoins.
 
 ### Base de Données
 Les bases de données sont automatiquement créées au démarrage via le script `init-databases.sql`.
@@ -65,14 +80,17 @@ Les bases de données sont automatiquement créées au démarrage via le script 
 
 ### Environnements
 - **Development:** `docker-compose/development.yml`
-- **Staging:** `docker-compose/staging.yml` (à créer)
-- **Production:** `docker-compose/production.yml` (à créer)
+- **Staging:** `docker-compose/staging.yml`
+- **Production:** `docker-compose/production.yml`
+
+Chaque environnement dispose d'un script dédié dans `scripts/` pour faciliter le démarrage et l'arrêt.
 
 ## 🤝 Contribution
 
 1. Modifier la configuration dans le bon environnement
 2. Tester localement
 3. Créer une Pull Request
+4. Mettre à jour `GIT_ISSUES.md` pour refléter l'état des issues locales
 
 ## 📄 Licence
 

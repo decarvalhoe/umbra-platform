@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 echo "🚀 Démarrage de l'environnement de développement Project Umbra"
 docker-compose -f docker-compose/development.yml up -d
 echo "✅ Environnement démarré"
