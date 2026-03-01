@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "typeRoots": ["./node_modules"]
+  },
+  "include": ["main.ts", "rpc/**/*.ts", "hooks/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "umbra-nakama-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "nakama-runtime": "^1.30.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}
