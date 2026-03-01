@@ -32,8 +32,6 @@ export class AttackState extends PlayerState {
   private elapsed = 0
   /** Whether the current attack's hit has been applied. */
   private hasHit = false
-  /** Whether we are in the combo input window (after the attack animation). */
-  private _inComboWindow = false
 
   get name(): string {
     return 'ATTACK'
@@ -42,7 +40,6 @@ export class AttackState extends PlayerState {
   enter(): void {
     this.elapsed = 0
     this.hasHit = false
-    this._inComboWindow = false
 
     // Advance combo step
     this.player.comboStep = Math.min(this.player.comboStep + 1, MAX_COMBO)
@@ -86,8 +83,6 @@ export class AttackState extends PlayerState {
     }
 
     // Attack animation finished -- enter combo window
-    this._inComboWindow = true
-
     // Check for next combo input
     if (Phaser.Input.Keyboard.JustDown(this.player.keys.attack)) {
       if (this.player.comboStep < MAX_COMBO) {
@@ -121,6 +116,5 @@ export class AttackState extends PlayerState {
   exit(): void {
     this.elapsed = 0
     this.hasHit = false
-    this._inComboWindow = false
   }
 }
