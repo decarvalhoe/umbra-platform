@@ -14,7 +14,30 @@ class MockLLMClient(LLMClient):
     async def generate(
         self, prompt: str, system: str = "", max_tokens: int = 2000
     ) -> str:
-        if "quest" in prompt.lower():
+        # Check "recommend" before "quest" because recommend prompts may
+        # contain "quest_..." in the recent_content list
+        if "recommend game content" in prompt.lower():
+            return json.dumps(
+                {
+                    "recommendations": [
+                        {
+                            "content_type": "dungeon",
+                            "content_id": "dungeon_1",
+                            "reason": "Matches play style",
+                            "priority": 8,
+                        }
+                    ]
+                }
+            )
+        if "evaluate" in prompt.lower() or "session" in prompt.lower():
+            return json.dumps(
+                {
+                    "difficulty_adjustment": 0.2,
+                    "recommendations": ["Increase enemy density"],
+                    "engagement_score": 0.75,
+                }
+            )
+        if "generate a quest" in prompt.lower() or ("quest" in prompt.lower() and "dungeon" not in prompt.lower()):
             return json.dumps(
                 {
                     "title": "Test Quest",
@@ -64,14 +87,6 @@ class MockLLMClient(LLMClient):
                             "risk_level": "low",
                         },
                     ],
-                }
-            )
-        if "evaluate" in prompt.lower() or "session" in prompt.lower():
-            return json.dumps(
-                {
-                    "difficulty_adjustment": 0.2,
-                    "recommendations": ["Increase enemy density"],
-                    "engagement_score": 0.75,
                 }
             )
         if "recommend" in prompt.lower():
