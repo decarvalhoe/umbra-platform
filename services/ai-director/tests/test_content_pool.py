@@ -1,134 +1,100 @@
+import json
+from unittest.mock import AsyncMock, patch, PropertyMock
+
 import pytest
-import pytest_asyncio
-import fakeredis.aioredis
 
-from app.services.content_pool import ContentPool
+from app.services.content_pool import ContentPool, CONTENT_TTL
 
 
-@pytest_asyncio.fixture
-async def redis_client():
-    """Create a fakeredis async client for testing."""
-    client = fakeredis.aioredis.FakeRedis(decode_responses=True)
-    yield client
-    await client.aclose()
+@pytest.fixture
+def mock_redis():
+    r = AsyncMock()
+    r.rpush = AsyncMock()
+    r.lpop = AsyncMock(return_value=None)
+    r.llen = AsyncMock(return_value=0)
+    r.ttl = AsyncMock(return_value=-1)
+    r.expire = AsyncMock()
+    r.delete = AsyncMock(return_value=1)
+    r.close = AsyncMock()
+
+    async def _scan_iter(match=None):
+        for key in []:
+            yield key
+
+    r.scan_iter = _scan_iter
+    return r
 
 
-@pytest_asyncio.fixture
-async def pool(redis_client):
-    """Create a ContentPool backed by fakeredis."""
-    return ContentPool(redis_client)
+@pytest.fixture
+def pool(mock_redis):
+    p = ContentPool(redis_url="redis://localhost:6379/0")
+    p._redis = mock_redis
+    return p
 
 
-@pytest.mark.asyncio
-async def test_push_and_pop(pool):
-    """Test basic push and pop operations."""
-    content = {"title": "Test Quest", "difficulty": "easy"}
-    await pool.push("pool:quests:easy", content)
+class TestContentPool:
+    @pytest.mark.asyncio
+    async def test_pool_add_and_get(self, pool, mock_redis):
+        content = {"title": "Test Quest", "description": "A test."}
+        await pool.add("quest", content, difficulty="normal")
 
-    result = await pool.pop("pool:quests:easy")
-    assert result == content
+        mock_redis.rpush.assert_called_once()
+        call_args = mock_redis.rpush.call_args
+        assert call_args[0][0] == "pool:quest:normal:1-50"
+        assert json.loads(call_args[0][1]) == content
 
+        mock_redis.lpop.return_value = json.dumps(content)
+        result = await pool.get("quest", difficulty="normal")
+        assert result == content
 
-@pytest.mark.asyncio
-async def test_pop_empty_pool(pool):
-    """Test popping from an empty pool returns None."""
-    result = await pool.pop("pool:quests:easy")
-    assert result is None
+    @pytest.mark.asyncio
+    async def test_pool_empty_returns_none(self, pool, mock_redis):
+        mock_redis.lpop.return_value = None
+        result = await pool.get("quest")
+        assert result is None
 
+    @pytest.mark.asyncio
+    async def test_pool_needs_replenish(self, pool, mock_redis):
+        mock_redis.llen.return_value = 5
+        assert await pool.needs_replenish("quest") is True
 
-@pytest.mark.asyncio
-async def test_size(pool):
-    """Test size reports correct item count."""
-    assert await pool.size("pool:quests:easy") == 0
+        mock_redis.llen.return_value = 25
+        assert await pool.needs_replenish("quest") is False
 
-    await pool.push("pool:quests:easy", {"item": 1})
-    assert await pool.size("pool:quests:easy") == 1
+    @pytest.mark.asyncio
+    async def test_pool_status(self, pool, mock_redis):
+        mock_redis.llen.return_value = 3
+        status = await pool.pool_status()
 
-    await pool.push("pool:quests:easy", {"item": 2})
-    assert await pool.size("pool:quests:easy") == 2
+        assert "quest:normal" in status
+        assert status["quest:normal"]["size"] == 3
+        assert status["quest:normal"]["min_size"] == 20
+        assert status["quest:normal"]["needs_replenish"] is True
 
-    await pool.pop("pool:quests:easy")
-    assert await pool.size("pool:quests:easy") == 1
+    @pytest.mark.asyncio
+    async def test_pool_key_format(self, pool):
+        key = pool._pool_key("quest", "hard", "10-20")
+        assert key == "pool:quest:hard:10-20"
 
+        key = pool._pool_key("dungeon", "normal", "1-50")
+        assert key == "pool:dungeon:normal:1-50"
 
-@pytest.mark.asyncio
-async def test_needs_replenishment(pool):
-    """Test replenishment detection based on min_size threshold."""
-    assert await pool.needs_replenishment("pool:quests:easy") is True
+    @pytest.mark.asyncio
+    async def test_pool_add_sets_ttl_on_new_key(self, pool, mock_redis):
+        mock_redis.ttl.return_value = -1
+        await pool.add("quest", {"title": "Q"})
+        mock_redis.expire.assert_called_once_with(
+            "pool:quest:normal:1-50", CONTENT_TTL
+        )
 
-    for i in range(20):
-        await pool.push("pool:quests:easy", {"item": i})
+    @pytest.mark.asyncio
+    async def test_pool_add_skips_ttl_on_existing_key(self, pool, mock_redis):
+        mock_redis.ttl.return_value = 3600
+        await pool.add("quest", {"title": "Q"})
+        mock_redis.expire.assert_not_called()
 
-    assert await pool.needs_replenishment("pool:quests:easy") is False
-
-
-@pytest.mark.asyncio
-async def test_needs_replenishment_unknown_pool(pool):
-    """Test replenishment check for unknown pool uses default min_size of 10."""
-    assert await pool.needs_replenishment("pool:unknown:type") is True
-
-
-@pytest.mark.asyncio
-async def test_pools_needing_replenishment(pool):
-    """Test that all configured pools start as needing replenishment."""
-    needs = await pool.pools_needing_replenishment()
-    assert len(needs) == len(ContentPool.POOL_CONFIG)
-    for key in ContentPool.POOL_CONFIG:
-        assert key in needs
-
-
-@pytest.mark.asyncio
-async def test_health_report(pool):
-    """Test health report includes all pool types with correct structure."""
-    report = await pool.health_report()
-
-    assert len(report) == len(ContentPool.POOL_CONFIG)
-    for key, config in ContentPool.POOL_CONFIG.items():
-        assert key in report
-        entry = report[key]
-        assert entry["size"] == 0
-        assert entry["min_size"] == config["min_size"]
-        assert entry["healthy"] is False
-        assert entry["description"] == config["description"]
-
-
-@pytest.mark.asyncio
-async def test_health_report_healthy_pool(pool):
-    """Test health report shows healthy when pool meets minimum."""
-    for i in range(5):
-        await pool.push("pool:dungeons:10room", {"room": i})
-
-    report = await pool.health_report()
-    assert report["pool:dungeons:10room"]["healthy"] is True
-    assert report["pool:dungeons:10room"]["size"] == 5
-
-
-@pytest.mark.asyncio
-async def test_fifo_order(pool):
-    """Test that items are popped in FIFO order (first pushed = first popped)."""
-    items = [{"order": i} for i in range(5)]
-
-    for item in items:
-        await pool.push("pool:quests:easy", item)
-
-    for expected in items:
-        result = await pool.pop("pool:quests:easy")
-        assert result == expected
-
-
-@pytest.mark.asyncio
-async def test_flush_pool(pool):
-    """Test flushing a pool removes all items and returns count."""
-    for i in range(10):
-        await pool.push("pool:quests:easy", {"item": i})
-
-    count = await pool.flush_pool("pool:quests:easy")
-    assert count == 10
-    assert await pool.size("pool:quests:easy") == 0
-
-
-@pytest.mark.asyncio
-async def test_flush_empty_pool(pool):
-    """Test flushing an empty pool returns 0."""
-    count = await pool.flush_pool("pool:quests:easy")
-    assert count == 0
+    @pytest.mark.asyncio
+    async def test_pool_not_connected_raises(self):
+        pool = ContentPool(redis_url="redis://localhost:6379/0")
+        with pytest.raises(RuntimeError, match="not connected"):
+            await pool.get("quest")

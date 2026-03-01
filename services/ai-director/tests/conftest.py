@@ -90,6 +90,19 @@ class MockLLMClient(LLMClient):
         return "{}"
 
 
+def _mock_content_pool():
+    """Create a mock ContentPool that behaves like an empty pool."""
+    pool = AsyncMock()
+    pool.get = AsyncMock(return_value=None)
+    pool.add = AsyncMock()
+    pool.pool_size = AsyncMock(return_value=0)
+    pool.pool_status = AsyncMock(return_value={})
+    pool.needs_replenish = AsyncMock(return_value=True)
+    pool.connect = AsyncMock()
+    pool.disconnect = AsyncMock()
+    return pool
+
+
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
@@ -97,8 +110,12 @@ def anyio_backend():
 
 @pytest_asyncio.fixture
 async def client():
+    mock_pool = _mock_content_pool()
+
     with patch(
         "app.main.get_llm_client", return_value=MockLLMClient()
+    ), patch(
+        "app.main.ContentPool", return_value=mock_pool
     ):
         from app.main import app
 

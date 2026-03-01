@@ -1,99 +1,129 @@
 import json
-import time
-from typing import Optional, Dict, Any, List
+import logging
 
 import redis.asyncio as redis
 
+from typing import Optional
+
+from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+CONTENT_TYPES = {
+    "quest": "pool:quest",
+    "dungeon": "pool:dungeon",
+    "narrative": "pool:narrative",
+}
+
+DEFAULT_MIN_POOL = {
+    "quest": 20,
+    "dungeon": 10,
+    "narrative": 15,
+}
+
+CONTENT_TTL = 86400
+
 
 class ContentPool:
-    """Redis-backed content pool for pre-generated AI content.
+    """Redis-backed pool of pre-generated AI content.
 
-    Uses Redis Lists (LPUSH/RPOP) for O(1) push/pop operations.
-    Each pool key has a minimum size threshold for auto-replenishment.
+    Content is stored as Redis lists. New content is pushed to the right (RPUSH),
+    and content is served from the left (LPOP) — FIFO queue.
     """
 
-    POOL_CONFIG = {
-        "pool:quests:easy": {
-            "min_size": 20,
-            "ttl": 86400,
-            "description": "Quests for levels 1-10",
-        },
-        "pool:quests:medium": {
-            "min_size": 15,
-            "ttl": 86400,
-            "description": "Quests for levels 11-25",
-        },
-        "pool:dungeons:5room": {
-            "min_size": 10,
-            "ttl": 86400,
-            "description": "5-room dungeon layouts",
-        },
-        "pool:dungeons:10room": {
-            "min_size": 5,
-            "ttl": 86400,
-            "description": "10-room dungeon layouts",
-        },
-        "pool:narratives:choice": {
-            "min_size": 15,
-            "ttl": 86400,
-            "description": "Narrative choice events",
-        },
-    }
+    def __init__(self, redis_url: str | None = None):
+        self._redis: redis.Redis | None = None
+        self._redis_url = redis_url or settings.redis_url
 
-    def __init__(self, redis_client: redis.Redis):
-        self.redis = redis_client
+    async def connect(self) -> None:
+        self._redis = redis.from_url(self._redis_url, decode_responses=True)
+        logger.info("Content pool connected to Redis")
 
-    async def push(
-        self, pool_key: str, content: dict, ttl_seconds: int = 86400
+    async def disconnect(self) -> None:
+        if self._redis:
+            await self._redis.close()
+            self._redis = None
+
+    @property
+    def redis(self) -> redis.Redis:
+        if not self._redis:
+            raise RuntimeError("Content pool not connected")
+        return self._redis
+
+    async def add(
+        self,
+        content_type: str,
+        content: dict,
+        difficulty: str = "normal",
+        level_range: str = "1-50",
     ) -> None:
-        """Add pre-generated content to the pool."""
-        item = json.dumps({"content": content, "created_at": time.time()})
-        await self.redis.lpush(pool_key, item)
-        if await self.redis.ttl(pool_key) == -1:
-            await self.redis.expire(pool_key, ttl_seconds)
+        key = self._pool_key(content_type, difficulty, level_range)
+        item = json.dumps(content)
+        await self.redis.rpush(key, item)
+        ttl = await self.redis.ttl(key)
+        if ttl == -1:
+            await self.redis.expire(key, CONTENT_TTL)
+        logger.debug("Added %s to pool (key=%s)", content_type, key)
 
-    async def pop(self, pool_key: str) -> Optional[dict]:
-        """Get content from the pool (FIFO). Returns None if empty."""
-        item = await self.redis.rpop(pool_key)
+    async def get(
+        self,
+        content_type: str,
+        difficulty: str = "normal",
+        level_range: str = "1-50",
+    ) -> Optional[dict]:
+        key = self._pool_key(content_type, difficulty, level_range)
+        item = await self.redis.lpop(key)
         if item:
-            parsed = json.loads(item)
-            return parsed.get("content", parsed)
+            return json.loads(item)
         return None
 
-    async def size(self, pool_key: str) -> int:
-        """Return the number of items in a pool."""
-        return await self.redis.llen(pool_key)
+    async def pool_size(
+        self,
+        content_type: str,
+        difficulty: str = "normal",
+        level_range: str = "1-50",
+    ) -> int:
+        key = self._pool_key(content_type, difficulty, level_range)
+        return await self.redis.llen(key)
 
-    async def needs_replenishment(self, pool_key: str) -> bool:
-        """Check if a pool is below its minimum size threshold."""
-        config = self.POOL_CONFIG.get(pool_key, {})
-        min_size = config.get("min_size", 10)
-        current = await self.size(pool_key)
-        return current < min_size
+    async def pool_status(self) -> dict:
+        status = {}
+        for content_type in CONTENT_TYPES:
+            for difficulty in ["easy", "normal", "hard"]:
+                key = self._pool_key(content_type, difficulty)
+                size = await self.redis.llen(key)
+                min_size = DEFAULT_MIN_POOL.get(content_type, 10)
+                status[f"{content_type}:{difficulty}"] = {
+                    "size": size,
+                    "min_size": min_size,
+                    "needs_replenish": size < min_size,
+                }
+        return status
 
-    async def pools_needing_replenishment(self) -> List[str]:
-        """Return list of pool keys that are below minimum size."""
-        result = []
-        for key in self.POOL_CONFIG:
-            if await self.needs_replenishment(key):
-                result.append(key)
-        return result
+    async def needs_replenish(
+        self,
+        content_type: str,
+        difficulty: str = "normal",
+        level_range: str = "1-50",
+    ) -> bool:
+        size = await self.pool_size(content_type, difficulty, level_range)
+        min_size = DEFAULT_MIN_POOL.get(content_type, 10)
+        return size < min_size
 
-    async def health_report(self) -> Dict[str, Any]:
-        """Returns pool sizes and health status for /health endpoint."""
-        report = {}
-        for key, config in self.POOL_CONFIG.items():
-            current_size = await self.size(key)
-            report[key] = {
-                "size": current_size,
-                "min_size": config["min_size"],
-                "healthy": current_size >= config["min_size"],
-                "description": config["description"],
-            }
-        return report
-
-    async def flush_pool(self, pool_key: str) -> int:
-        """Remove all items from a pool. Returns number of items removed."""
-        count = await self.size(pool_key)
-        await self.redis.delete(pool_key)
+    async def flush(self, content_type: str | None = None) -> int:
+        count = 0
+        pattern = f"pool:{content_type}:*" if content_type else "pool:*"
+        async for key in self.redis.scan_iter(match=pattern):
+            deleted = await self.redis.delete(key)
+            count += deleted
+        logger.info("Flushed %d pool keys (pattern=%s)", count, pattern)
         return count
+
+    def _pool_key(
+        self,
+        content_type: str,
+        difficulty: str = "normal",
+        level_range: str = "1-50",
+    ) -> str:
+        prefix = CONTENT_TYPES.get(content_type, f"pool:{content_type}")
+        return f"{prefix}:{difficulty}:{level_range}"
