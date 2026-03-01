@@ -60,6 +60,16 @@ async def client(gacha_pools_file):
     settings.gacha_pools_path = gacha_pools_file
 
     from app.main import app
+    from app.services.combat_engine import CombatEngine
+    from app.services.gacha_system import GachaSystem
+    from app.services.progression import ProgressionService
+    from app.services.anomaly_detector import AnomalyDetector
+
+    # Manually initialize app.state (ASGITransport doesn't trigger lifespan)
+    app.state.combat_engine = CombatEngine()
+    app.state.gacha_system = GachaSystem(gacha_pools_file)
+    app.state.progression_service = ProgressionService()
+    app.state.anomaly_detector = AnomalyDetector()
 
     transport = ASGITransport(app=app)
     async with AsyncClient(

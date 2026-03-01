@@ -24,6 +24,25 @@ declare namespace nkruntime {
     debug(format: string, ...args: any[]): void;
   }
 
+  interface Session {
+    userId: string;
+    username: string;
+    token: string;
+    created: boolean;
+  }
+
+  interface AuthenticateEmailRequest {
+    account: { email: string; password: string };
+    create: boolean;
+    username: string;
+  }
+
+  interface AuthenticateDeviceRequest {
+    account: { id: string };
+    create: boolean;
+    username: string;
+  }
+
   interface StorageObject {
     collection: string;
     key: string;
@@ -80,17 +99,11 @@ declare namespace nkruntime {
   interface Nakama {
     storageRead(reads: StorageReadRequest[]): StorageObject[];
     storageWrite(writes: StorageWriteRequest[]): void;
-    walletUpdate(userId: string, changeset: { [key: string]: number }, metadata?: { [key: string]: any }): WalletUpdateResult;
-    leaderboardCreate(id: string, authoritative: boolean, sortOrder?: string, operator?: string, resetSchedule?: string, metadata?: { [key: string]: any }): void;
+    walletUpdate(userId: string, changeset: { [key: string]: number }, metadata?: { [key: string]: any }, updateLedger?: boolean): WalletUpdateResult;
+    leaderboardCreate(id: string, authoritative: boolean, sortOrder?: number, operator?: number, resetSchedule?: string, metadata?: { [key: string]: any }): void;
     leaderboardRecordWrite(id: string, ownerId: string, username?: string, score?: number, subscore?: number, metadata?: { [key: string]: any }): LeaderboardRecord;
     leaderboardRecordsList(id: string, ownerIds?: string[], limit?: number, cursor?: string, overrideExpiry?: number): LeaderboardRecordList;
     accountGetId(userId: string): any;
-  }
-
-  interface AuthResult {
-    userId: string;
-    username: string;
-    created: boolean;
   }
 
   type RpcFunction = (
@@ -100,18 +113,18 @@ declare namespace nkruntime {
     payload: string
   ) => string | void;
 
-  type AfterHookFunction = (
+  type AfterHookFunction<TData = any, TRequest = any> = (
     ctx: Context,
     logger: Logger,
     nk: Nakama,
-    data: any,
-    request: any
+    data: TData,
+    request: TRequest
   ) => void;
 
   interface Initializer {
     registerRpc(id: string, fn: RpcFunction): void;
-    registerAfterAuthenticateEmail(fn: AfterHookFunction): void;
-    registerAfterAuthenticateDevice(fn: AfterHookFunction): void;
+    registerAfterAuthenticateEmail(fn: AfterHookFunction<Session, AuthenticateEmailRequest>): void;
+    registerAfterAuthenticateDevice(fn: AfterHookFunction<Session, AuthenticateDeviceRequest>): void;
   }
 
   type InitModule = (
@@ -120,4 +133,16 @@ declare namespace nkruntime {
     nk: Nakama,
     initializer: Initializer
   ) => void;
+
+  const enum SortOrder {
+    ASCENDING = 0,
+    DESCENDING = 1,
+  }
+
+  const enum Operator {
+    BEST = 0,
+    SET = 1,
+    INCREMENT = 2,
+    DECREMENT = 3,
+  }
 }

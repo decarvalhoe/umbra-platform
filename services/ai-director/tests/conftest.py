@@ -97,13 +97,15 @@ def anyio_backend():
 
 @pytest_asyncio.fixture
 async def client():
-    with patch(
-        "app.main.get_llm_client", return_value=MockLLMClient()
-    ):
-        from app.main import app
+    from app.main import app
+    from app.services.content_generator import ContentGenerator
 
-        transport = ASGITransport(app=app)
-        async with AsyncClient(
-            transport=transport, base_url="http://testserver"
-        ) as ac:
-            yield ac
+    # Manually initialize app.state (ASGITransport doesn't trigger lifespan)
+    mock_llm = MockLLMClient()
+    app.state.content_generator = ContentGenerator(mock_llm)
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport, base_url="http://testserver"
+    ) as ac:
+        yield ac
