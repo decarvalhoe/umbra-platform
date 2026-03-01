@@ -1,22 +1,22 @@
 import type { Enemy } from '../Enemy'
 import { EnemyState } from '../EnemyFSM'
-import { EnemyIdleState } from './EnemyIdleState'
-import { EnemyPatrolState } from './EnemyPatrolState'
-import { EnemyChaseState } from './EnemyChaseState'
-import { EnemyAttackState } from './EnemyAttackState'
-import { EnemyRetreatState } from './EnemyRetreatState'
-import { EnemyHurtState } from './EnemyHurtState'
-import { EnemyDeadState } from './EnemyDeadState'
+import { IdleState } from './IdleState'
+import { AlertState } from './AlertState'
+import { ChaseState } from './ChaseState'
+import { TelegraphState } from './TelegraphState'
+import { AttackState } from './AttackState'
+import { HurtState } from './HurtState'
+import { DeadState } from './DeadState'
 
 /** All valid enemy state names for type safety. */
 export type EnemyStateName =
   | 'IDLE'
-  | 'PATROL'
+  | 'ALERT'
   | 'CHASE'
+  | 'TELEGRAPH'
   | 'ATTACK'
   | 'HURT'
   | 'DEAD'
-  | 'RETREAT'
 
 /**
  * Factory for creating EnemyState instances by name.
@@ -25,23 +25,23 @@ export type EnemyStateName =
  * states reference each other by string name through the factory
  * rather than importing each other directly.
  */
-export class EnemyStateFactory {
+export class StateFactory {
   static create(name: EnemyStateName, enemy: Enemy): EnemyState {
     switch (name) {
       case 'IDLE':
-        return new EnemyIdleState(enemy)
-      case 'PATROL':
-        return new EnemyPatrolState(enemy)
+        return new IdleState(enemy)
+      case 'ALERT':
+        return new AlertState(enemy)
       case 'CHASE':
-        return new EnemyChaseState(enemy)
+        return new ChaseState(enemy)
+      case 'TELEGRAPH':
+        return new TelegraphState(enemy)
       case 'ATTACK':
-        return new EnemyAttackState(enemy)
-      case 'RETREAT':
-        return new EnemyRetreatState(enemy)
+        return new AttackState(enemy)
       case 'HURT':
-        return new EnemyHurtState(enemy)
+        return new HurtState(enemy)
       case 'DEAD':
-        return new EnemyDeadState(enemy)
+        return new DeadState(enemy)
       default: {
         const exhaustive: never = name
         throw new Error(`Unknown enemy state: ${exhaustive}`)

@@ -1,6 +1,19 @@
 import type { Enemy } from './Enemy'
 
 /**
+ * All valid enemy state identifiers.
+ */
+export enum EnemyStateType {
+  IDLE = 'IDLE',
+  ALERT = 'ALERT',
+  CHASE = 'CHASE',
+  TELEGRAPH = 'TELEGRAPH',
+  ATTACK = 'ATTACK',
+  HURT = 'HURT',
+  DEAD = 'DEAD',
+}
+
+/**
  * Abstract base class for all enemy states.
  * Each concrete state controls enemy behavior during that phase
  * (movement, detection, combat, etc.).
@@ -22,14 +35,13 @@ export abstract class EnemyState {
   abstract exit(): void
 
   /** Human-readable state identifier for debugging. */
-  abstract get name(): string
+  abstract get name(): EnemyStateType
 }
 
 /**
  * Finite State Machine controller for Enemy entities.
  *
  * Manages state lifecycle (enter/update/exit) and transitions.
- * Mirrors the PlayerFSM pattern for consistency across the codebase.
  * Enable `debug` to log every transition to the console.
  */
 export class EnemyFSM {
@@ -68,7 +80,7 @@ export class EnemyFSM {
   }
 
   /** String name of the currently active state. */
-  get stateName(): string {
+  get stateName(): EnemyStateType {
     return this.currentState.name
   }
 

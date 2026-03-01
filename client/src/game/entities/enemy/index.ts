@@ -1,6 +1,0 @@
-export { Enemy } from './Enemy'
-export type { EnemyConfig } from './Enemy'
-export { EnemyFSM, EnemyState } from './EnemyFSM'
-export { EnemyStateFactory } from './states/EnemyStateFactory'
-export type { EnemyStateName } from './states/EnemyStateFactory'
-export { ENEMY_PRESETS } from './EnemyPresets'
