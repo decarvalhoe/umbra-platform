@@ -1,0 +1,29 @@
+[
+  {
+    "id": 101,
+    "title": "Health check endpoint",
+    "status": "closed",
+    "implemented": true,
+    "priority": "P1",
+    "description": "Expose a /health endpoint reporting service status.",
+    "notes": "Endpoint implemented in src/main.py and covered by tests/test_health.py."
+  },
+  {
+    "id": 102,
+    "title": "List supported locales",
+    "status": "closed",
+    "implemented": true,
+    "priority": "P2",
+    "description": "Provide an endpoint returning all locales supported by the localization service.",
+    "notes": "Resolved by the /locales endpoint which serves locales from data/translations.json."
+  },
+  {
+    "id": 103,
+    "title": "Fetch translations by locale and key",
+    "status": "closed",
+    "implemented": true,
+    "priority": "P1",
+    "description": "Allow clients to retrieve translations for a locale or a specific key.",
+    "notes": "Implemented via /translations/<locale> and /translations/<locale>/<key> endpoints."
+  }
+]
