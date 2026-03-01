@@ -12,6 +12,6 @@
     "declaration": false,
     "typeRoots": ["./node_modules"]
   },
-  "include": ["main.ts", "rpc/**/*.ts", "hooks/**/*.ts"],
+  "include": ["main.ts", "rpc/**/*.ts", "hooks/**/*.ts", "nakama-runtime.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
