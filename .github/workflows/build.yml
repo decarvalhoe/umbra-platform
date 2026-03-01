@@ -1,70 +1,101 @@
-name: Build & Push Images
+name: Build & Push Docker Images
 
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ["v*"]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/umbra
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      services: ${{ steps.filter.outputs.changes }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            auth: 'services/auth/**'
-            player: 'services/player/**'
-            game-state: 'services/game-state/**'
-            payment: 'services/payment/**'
-            cloud-profile: 'services/cloud-profile/**'
-            security: 'services/security/**'
-            localization: 'services/localization/**'
-            client: 'client/**'
-
-  build:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.services != '[]'
+  build-nakama:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set context path
-        id: ctx
-        run: |
-          if [ "${{ matrix.service }}" = "client" ]; then
-            echo "path=client" >> $GITHUB_OUTPUT
-            echo "image=umbra-game-client" >> $GITHUB_OUTPUT
-          else
-            echo "path=services/${{ matrix.service }}" >> $GITHUB_OUTPUT
-            echo "image=umbra-${{ matrix.service }}-service" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v5
         with:
-          context: ${{ steps.ctx.outputs.path }}
+          context: ./nakama
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/${{ steps.ctx.outputs.image }}:latest
-            ${{ env.IMAGE_PREFIX }}/${{ steps.ctx.outputs.image }}:${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}-nakama:${{ github.ref_name }}
+
+  build-ai-director:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/ai-director
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-ai-director:${{ github.ref_name }}
+
+  build-game-logic:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/game-logic
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-game-logic:${{ github.ref_name }}
+
+  build-payment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/payment
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-payment:${{ github.ref_name }}
+
+  build-client:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-client:${{ github.ref_name }}

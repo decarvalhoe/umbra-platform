@@ -1,0 +1,21 @@
+name: umbra-platform
+data_dir: ./data
+
+logger:
+  level: INFO
+  stdout: true
+
+session:
+  token_expiry_sec: 7200
+  refresh_token_expiry_sec: 604800
+
+runtime:
+  js_entrypoint: modules/main.js
+  http_key: defaulthttpkey
+
+socket:
+  server_key: defaultserverkey
+
+console:
+  username: admin
+  password: password

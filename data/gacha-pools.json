@@ -1,0 +1,29 @@
+[
+  {
+    "id": "standard",
+    "name": "Standard Banner",
+    "pity_threshold": 90,
+    "items": [
+      {"id": "sword_common_1", "name": "Lame Rouillée", "rarity": "common", "weight": 50.0, "element": null},
+      {"id": "sword_common_2", "name": "Épée de Recrue", "rarity": "common", "weight": 45.0, "element": null},
+      {"id": "shield_rare_1", "name": "Bouclier d'Ombre", "rarity": "rare", "weight": 20.0, "element": "shadow"},
+      {"id": "staff_rare_1", "name": "Bâton de Sang", "rarity": "rare", "weight": 18.0, "element": "blood"},
+      {"id": "bow_rare_1", "name": "Arc du Néant", "rarity": "rare", "weight": 15.0, "element": "void"},
+      {"id": "axe_epic_1", "name": "Hache Incandescente", "rarity": "epic", "weight": 5.0, "element": "fire"},
+      {"id": "dagger_epic_1", "name": "Dague Spectrale", "rarity": "epic", "weight": 4.5, "element": "shadow"},
+      {"id": "greatsword_legendary_1", "name": "Lame du Crépuscule", "rarity": "legendary", "weight": 0.8, "element": "void"},
+      {"id": "scythe_legendary_1", "name": "Faux de l'Ancien", "rarity": "legendary", "weight": 0.6, "element": "blood"}
+    ]
+  },
+  {
+    "id": "fire_banner",
+    "name": "Bannière des Flammes",
+    "pity_threshold": 90,
+    "items": [
+      {"id": "fire_sword_1", "name": "Lame Embrasée", "rarity": "common", "weight": 40.0, "element": "fire"},
+      {"id": "fire_shield_1", "name": "Égide de Braise", "rarity": "rare", "weight": 20.0, "element": "fire"},
+      {"id": "fire_staff_1", "name": "Sceptre Volcanique", "rarity": "epic", "weight": 5.0, "element": "fire"},
+      {"id": "fire_crown_1", "name": "Couronne du Phoenix", "rarity": "legendary", "weight": 1.0, "element": "fire"}
+    ]
+  }
+]

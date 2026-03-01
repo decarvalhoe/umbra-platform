@@ -1,81 +1,73 @@
 # Umbra Platform
 
-Monorepo for the Umbra game platform — a multiplayer game with cloud services for authentication, player management, game state, payments, cloud profiles, security, and localization.
+Dark fantasy roguelike with AI-driven narrative, dual-weapon combat, rune corruption mechanics, and gacha economy.
 
 ## Architecture
 
-```
-umbra-platform/
-├── client/                # Game client (TypeScript, React, Phaser 3)
-├── services/
-│   ├── auth/              # Authentication service (Python, Flask, JWT)
-│   ├── player/            # Player management service
-│   ├── game-state/        # Game state service
-│   ├── payment/           # Payment processing service
-│   ├── cloud-profile/     # Cloud save/profile service
-│   ├── security/          # Security & anti-cheat service
-│   └── localization/      # Localization (i18n) service
-├── infrastructure/        # Nginx, Prometheus, Grafana configs, DB init scripts
-├── docs/                  # Project documentation
-├── docker-compose.yml     # Full development stack
-└── Makefile               # Orchestration commands
-```
+| Service | Port | Description |
+|---------|------|-------------|
+| Nakama | 7350/7351 | Game server (auth, storage, leaderboards, realtime) |
+| AI Director | 8001 | LLM-powered quest/dungeon/narrative generation |
+| Game Logic | 8002 | Combat engine, gacha system, progression, anti-cheat |
+| Payment | 8003 | Stripe checkout, receipt validation, Battle Pass |
+| Client | 3000 | React 18 + Phaser 3.70 game client |
+| Nginx | 8080 | API gateway |
+| PostgreSQL | 5432 | Payment database |
+| CockroachDB | 26257 | Nakama database |
+| Redis | 6379 | Cache layer |
+| Prometheus | 9090 | Metrics collection |
+| Grafana | 3001 | Monitoring dashboards |
 
 ## Quick Start
 
 ```bash
-# Start the full stack (all services + postgres + redis + nginx)
+# 1. Configure environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# 2. Start everything
 make dev
 
-# View logs
-make logs
-
-# Run all tests
-make test
-
-# Stop everything
-make stop
-```
-
-## Services
-
-| Service | Port | Description |
-|---------|------|-------------|
-| auth | 5000 | Authentication, JWT, session management |
-| player | 5001 | Player profiles and management |
-| game-state | 5002 | Game state persistence |
-| payment | 5003 | Payment processing |
-| cloud-profile | 5004 | Cloud saves and profiles |
-| security | 5006 | Security and anti-cheat |
-| localization | 5007 | Internationalization |
-| game-client | 3000 | Web game client (Vite dev server) |
-| nginx | 8080 | API gateway |
-| postgres | 5432 | PostgreSQL 15 |
-| redis | 6379 | Redis 7 |
-| prometheus | 9090 | Metrics collection |
-| grafana | 3001 | Monitoring dashboards |
-
-## Development
-
-```bash
-# Install all dependencies (Python + Node)
-make install
-
-# Test a specific service
-make test-auth
-make test-player
-make test-client
-
-# Lint all backend services
-make lint
-
-# Format all backend code
-make format
+# 3. Verify
+make health
 ```
 
 ## Tech Stack
 
-- **Backend**: Python 3.11, Flask, SQLAlchemy, JWT
-- **Client**: TypeScript, React 18, Phaser 3.70, Vite, Capacitor
-- **Infrastructure**: PostgreSQL 15, Redis 7, Nginx, Docker Compose
+- **Game Server**: Nakama 3.21.1 (TypeScript runtime)
+- **Backend**: FastAPI + Python 3.12 (3 microservices)
+- **Frontend**: React 18 + Phaser 3.70 + Vite
+- **Databases**: CockroachDB (Nakama), PostgreSQL 16 (payments)
+- **Cache**: Redis 7
+- **Gateway**: Nginx
+- **Payments**: Stripe
+- **AI**: OpenAI / Anthropic (pluggable)
 - **Monitoring**: Prometheus + Grafana
+
+## Development
+
+```bash
+make test          # Run all tests
+make test-nakama   # Type-check Nakama TS
+make test-client   # Build client
+make lint          # Lint Python services
+make format        # Format Python services
+make logs          # Tail service logs
+make health        # Check all endpoints
+make clean         # Stop + remove volumes
+```
+
+## Project Structure
+
+```
+umbra-platform/
+├── nakama/          # Nakama game server + TypeScript runtime
+├── services/
+│   ├── ai-director/ # LLM orchestration (FastAPI)
+│   ├── game-logic/  # Combat, gacha, progression (FastAPI)
+│   └── payment/     # Stripe, Battle Pass (FastAPI + SQLAlchemy)
+├── client/          # React + Phaser game client
+├── data/            # Shared static data (translations, gacha pools)
+├── infrastructure/  # Nginx, scripts, monitoring
+└── docs/            # Game design + architecture docs
+```
