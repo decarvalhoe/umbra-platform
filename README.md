@@ -57,6 +57,19 @@ make health        # Check all endpoints
 make clean         # Stop + remove volumes
 ```
 
+## Security
+
+This project uses [detect-secrets](https://github.com/Yelp/detect-secrets) to prevent accidental secret commits.
+
+```bash
+# Install pre-commit hooks
+pip install pre-commit detect-secrets
+pre-commit install
+
+# Update baseline after intentional changes
+detect-secrets scan > .secrets.baseline
+```
+
 ## Project Structure
 
 ```

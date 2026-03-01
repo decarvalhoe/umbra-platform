@@ -1,0 +1,13 @@
+repos:
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock$|
+            .*package-lock\.json$|
+            .*\.env\.example$|
+            data/.*\.json$
+          )$
