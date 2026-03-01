@@ -5,7 +5,11 @@ export async function getPlayerProfile(): Promise<PlayerProfile | null> {
   const session = getSession();
   if (!session) return null;
   const result = await nakamaClient.rpc(session, "get_player_profile", "");
-  return result.payload ? JSON.parse(result.payload as string) : null;
+  if (!result.payload) return null;
+  const data = typeof result.payload === "string"
+    ? JSON.parse(result.payload)
+    : result.payload;
+  return data as PlayerProfile;
 }
 
 export async function savePlayerProfile(
@@ -18,14 +22,22 @@ export async function savePlayerProfile(
     "save_player_profile",
     JSON.stringify(profile)
   );
-  return JSON.parse(result.payload as string);
+  if (!result.payload) throw new Error("No response from server");
+  const data = typeof result.payload === "string"
+    ? JSON.parse(result.payload)
+    : result.payload;
+  return data as PlayerProfile;
 }
 
 export async function getGameState(): Promise<GameState | null> {
   const session = getSession();
   if (!session) return null;
   const result = await nakamaClient.rpc(session, "get_game_state", "");
-  return result.payload ? JSON.parse(result.payload as string) : null;
+  if (!result.payload) return null;
+  const data = typeof result.payload === "string"
+    ? JSON.parse(result.payload)
+    : result.payload;
+  return data as GameState;
 }
 
 export async function saveGameState(state: GameState): Promise<void> {
