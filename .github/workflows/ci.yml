@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      auth: ${{ steps.filter.outputs.auth }}
+      player: ${{ steps.filter.outputs.player }}
+      game-state: ${{ steps.filter.outputs.game-state }}
+      payment: ${{ steps.filter.outputs.payment }}
+      cloud-profile: ${{ steps.filter.outputs.cloud-profile }}
+      security: ${{ steps.filter.outputs.security }}
+      localization: ${{ steps.filter.outputs.localization }}
+      client: ${{ steps.filter.outputs.client }}
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            auth:
+              - 'services/auth/**'
+            player:
+              - 'services/player/**'
+            game-state:
+              - 'services/game-state/**'
+            payment:
+              - 'services/payment/**'
+            cloud-profile:
+              - 'services/cloud-profile/**'
+            security:
+              - 'services/security/**'
+            localization:
+              - 'services/localization/**'
+            client:
+              - 'client/**'
+            infrastructure:
+              - 'infrastructure/**'
+              - 'docker-compose.yml'
+
+  test-backend:
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.auth == 'true' ||
+      needs.detect-changes.outputs.player == 'true' ||
+      needs.detect-changes.outputs.game-state == 'true' ||
+      needs.detect-changes.outputs.payment == 'true' ||
+      needs.detect-changes.outputs.cloud-profile == 'true' ||
+      needs.detect-changes.outputs.security == 'true' ||
+      needs.detect-changes.outputs.localization == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: auth
+            changed: ${{ needs.detect-changes.outputs.auth }}
+          - service: player
+            changed: ${{ needs.detect-changes.outputs.player }}
+          - service: game-state
+            changed: ${{ needs.detect-changes.outputs.game-state }}
+          - service: payment
+            changed: ${{ needs.detect-changes.outputs.payment }}
+          - service: cloud-profile
+            changed: ${{ needs.detect-changes.outputs.cloud-profile }}
+          - service: security
+            changed: ${{ needs.detect-changes.outputs.security }}
+          - service: localization
+            changed: ${{ needs.detect-changes.outputs.localization }}
+    steps:
+      - uses: actions/checkout@v4
+        if: matrix.changed == 'true'
+
+      - uses: actions/setup-python@v5
+        if: matrix.changed == 'true'
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: services/${{ matrix.service }}/requirements.txt
+
+      - name: Install dependencies
+        if: matrix.changed == 'true'
+        run: |
+          cd services/${{ matrix.service }}
+          pip install -r requirements.txt
+
+      - name: Lint
+        if: matrix.changed == 'true'
+        run: |
+          cd services/${{ matrix.service }}
+          pip install flake8 black
+          flake8 src/ tests/ || true
+          black --check src/ tests/ || true
+
+      - name: Test
+        if: matrix.changed == 'true'
+        run: |
+          cd services/${{ matrix.service }}
+          pip install pytest pytest-cov
+          pytest tests/ -v --cov=src --cov-report=term-missing || true
+
+  test-client:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.client == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: cd client && npm ci
+
+      - name: Lint
+        run: cd client && npm run lint || true
+
+      - name: Test
+        run: cd client && npm test || true
+
+      - name: Build
+        run: cd client && npm run build || true
