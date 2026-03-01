@@ -1,0 +1,200 @@
+version: "3.8"
+
+services:
+  # === Nakama Game Server ===
+  nakama:
+    build: ./nakama
+    container_name: umbra-nakama
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+    ports:
+      - "7350:7350"
+      - "7351:7351"
+    environment:
+      - NAKAMA_CONSOLE_USERNAME=admin
+      - NAKAMA_CONSOLE_PASSWORD=password
+    volumes:
+      - nakama-data:/nakama/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7350/healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  cockroachdb:
+    image: cockroachdb/cockroach:v23.2.0
+    container_name: umbra-cockroachdb
+    command: start-single-node --insecure --store=attrs=ssd,path=/var/lib/cockroach/
+    ports:
+      - "26257:26257"
+    volumes:
+      - cockroach-data:/var/lib/cockroach
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # === FastAPI Services ===
+  ai-director:
+    build: ./services/ai-director
+    container_name: umbra-ai-director
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - SERVICE_PORT=8001
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  game-logic:
+    build: ./services/game-logic
+    container_name: umbra-game-logic
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    environment:
+      - SERVICE_PORT=8002
+      - GACHA_POOLS_PATH=/app/data/gacha-pools.json
+    volumes:
+      - ./data:/app/data:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  payment:
+    build: ./services/payment
+    container_name: umbra-payment
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
+    environment:
+      - SERVICE_PORT=8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # === Databases ===
+  postgres:
+    image: postgres:16-alpine
+    container_name: umbra-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: umbra
+      POSTGRES_PASSWORD: umbra
+      POSTGRES_DB: umbra_payment
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umbra"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: umbra-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # === Client ===
+  client:
+    build: ./client
+    container_name: umbra-client
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_NAKAMA_HOST=nakama
+      - VITE_NAKAMA_PORT=7350
+      - VITE_NAKAMA_SERVER_KEY=defaultserverkey
+      - VITE_API_BASE_URL=http://nginx:8080
+    depends_on:
+      - nakama
+    restart: unless-stopped
+
+  # === Gateway ===
+  nginx:
+    image: nginx:alpine
+    container_name: umbra-nginx
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - nakama
+      - ai-director
+      - game-logic
+      - payment
+      - client
+    restart: unless-stopped
+
+  # === Monitoring ===
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: umbra-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: umbra-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  nakama-data:
+  cockroach-data:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "nakama"
+    static_configs:
+      - targets: ["nakama:7350"]
+
+  - job_name: "ai-director"
+    static_configs:
+      - targets: ["ai-director:8001"]
+    metrics_path: /health
+
+  - job_name: "game-logic"
+    static_configs:
+      - targets: ["game-logic:8002"]
+    metrics_path: /health
+
+  - job_name: "payment"
+    static_configs:
+      - targets: ["payment:8003"]
+    metrics_path: /health

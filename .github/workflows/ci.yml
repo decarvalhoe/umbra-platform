@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  nakama:
+    name: Nakama TypeScript
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, 'nakama/') ||
+      github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Install & Type-check
+        working-directory: nakama/data
+        run: |
+          npm ci
+          npx tsc --noEmit
+
+  ai-director:
+    name: AI Director Tests
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, 'services/ai-director/') ||
+      github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install & Test
+        working-directory: services/ai-director
+        run: |
+          pip install -r requirements.txt
+          pytest tests/ -v
+
+  game-logic:
+    name: Game Logic Tests
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, 'services/game-logic/') ||
+      github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install & Test
+        working-directory: services/game-logic
+        run: |
+          pip install -r requirements.txt
+          pytest tests/ -v
+
+  payment:
+    name: Payment Tests
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, 'services/payment/') ||
+      github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install & Test
+        working-directory: services/payment
+        run: |
+          pip install -r requirements.txt
+          pytest tests/ -v
+
+  client:
+    name: Client Build
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, 'client/') ||
+      github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Install & Build
+        working-directory: client
+        run: |
+          npm ci
+          npm run build
