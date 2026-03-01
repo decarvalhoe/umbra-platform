@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { PlayerFSM } from './PlayerFSM'
 import { IdleState } from './states/IdleState'
 import { StateFactory } from './states/StateFactory'
+import type { DualWieldConfig, Hand } from '../../../types/combat'
 
 /** Key bindings for player actions. */
 export interface PlayerKeys {
@@ -37,6 +38,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   public attackDamage = 15
   public comboStep = 0
   public comboTimer = 0
+
+  // Dual-wield system
+  public dualWield: DualWieldConfig = {
+    leftWeapon: { hand: 'left', baseDamage: 15 },
+    rightWeapon: { hand: 'right', baseDamage: 15 },
+  }
+  /** Tracks which hand performed the last attack for alternation. */
+  public lastAttackHand: Hand = 'right'
 
   // Dodge system
   private dodgeCharges = 2
@@ -185,6 +194,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.isInvulnerable = false
     this.comboStep = 0
     this.comboTimer = 0
+    this.lastAttackHand = 'right'
     this.dodgeCharges = this.maxDodgeCharges
     this.dodgeRechargeTimer = 0
 
