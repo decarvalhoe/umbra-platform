@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'umbra-services'
+    static_configs:
+      - targets: [
+          'auth-service:5000',
+          'player-service:5001',
+          'game-state-service:5002',
+          'payment-service:5003',
+          'cloud-profile-service:5004',
+          'security-service:5006',
+          'localization-service:5007'
+        ]
+    metrics_path: '/metrics'
