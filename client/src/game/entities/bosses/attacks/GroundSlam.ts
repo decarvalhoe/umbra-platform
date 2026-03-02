@@ -19,7 +19,6 @@ import type { BossAttackConfig } from '../BossConfig'
  * graphics object that self-destructs after the attack resolves.
  */
 export class GroundSlam {
-  private scene: Phaser.Scene
   private config: BossAttackConfig
   private targetX: number
   private targetY: number
@@ -33,7 +32,6 @@ export class GroundSlam {
     targetX: number,
     targetY: number
   ) {
-    this.scene = scene
     this.config = config
     this.targetX = targetX
     this.targetY = targetY
