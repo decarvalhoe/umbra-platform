@@ -1,7 +1,7 @@
 import { RoomTemplate, roomTemplates } from './RoomTemplates';
 
 export class DungeonGenerator {
-    generateDungeon(seed: string): RoomTemplate[] {
+    generateDungeon(_seed: string): RoomTemplate[] {
         // For now, a simple static dungeon
         return [
             roomTemplates.find(t => t.id === 'start_room')!,

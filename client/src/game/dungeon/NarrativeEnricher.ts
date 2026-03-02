@@ -1,16 +1,15 @@
-import { NakamaService } from "../../nakama/nakama.service";
+import { nakamaClient, getSession } from "../../nakama/client";
 
 export class NarrativeEnricher {
-    private nakamaService: NakamaService;
-
-    constructor(nakamaService: NakamaService) {
-        this.nakamaService = nakamaService;
-    }
-
     async getRoomDescription(roomId: string): Promise<string> {
         try {
-            const response = await this.nakamaService.rpc('get_room_narrative', { room_id: roomId });
-            return response.payload.description;
+            const session = getSession();
+            if (!session) {
+                return 'An ancient room, heavy with the dust of ages.';
+            }
+            const response = await nakamaClient.rpc(session, 'get_room_narrative', { room_id: roomId });
+            const payload = response.payload as { description?: string } | undefined;
+            return payload?.description ?? 'An ancient room, heavy with the dust of ages.';
         } catch (error) {
             console.error('Failed to get room narrative:', error);
             return 'An ancient room, heavy with the dust of ages.';
