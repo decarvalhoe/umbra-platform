@@ -7,7 +7,7 @@ primary_region = "cdg"
   dockerfile = "Dockerfile"
 
 [http_service]
-  internal_port = 8002
+  internal_port = 8003
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
