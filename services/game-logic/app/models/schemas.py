@@ -10,6 +10,37 @@ class Element(str, Enum):
     VOID = "void"
 
 
+class StatusEffectType(str, Enum):
+    BURN = "burn"        # Fire DoT: 5% max HP per tick, 3 ticks
+    WEAKEN = "weaken"    # Shadow debuff: -20% defense, 8 seconds
+    BLEED = "bleed"      # Blood DoT: 3% max HP per tick, 5 ticks, stacks x3
+    TEAR = "tear"        # Void debuff: -15% elemental resistance, 10 seconds
+
+
+# Maps each element to the status effect it can inflict
+ELEMENT_STATUS_MAP: dict[Element, StatusEffectType] = {
+    Element.FIRE: StatusEffectType.BURN,
+    Element.SHADOW: StatusEffectType.WEAKEN,
+    Element.BLOOD: StatusEffectType.BLEED,
+    Element.VOID: StatusEffectType.TEAR,
+}
+
+
+class StatusEffect(BaseModel):
+    """A single active status effect on a combatant."""
+    effect_type: StatusEffectType
+    source_element: Element
+    remaining_ticks: int = 0       # For DoT effects (Burn, Bleed)
+    remaining_seconds: float = 0.0  # For duration-based debuffs (Weaken, Tear)
+    stacks: int = 1                # Only Bleed stacks (max 3)
+
+
+class ActiveStatusEffects(BaseModel):
+    """All active status effects on a single target."""
+    effects: list[StatusEffect] = Field(default_factory=list)
+    max_hp: int = Field(description="Target's maximum HP for DoT calculations")
+
+
 # ---------------------------------------------------------------------------
 # Combat
 # ---------------------------------------------------------------------------
@@ -29,6 +60,7 @@ class CombatResult(BaseModel):
     is_critical: bool
     combo_triggered: bool
     effects: list[str]
+    applied_status: StatusEffect | None = None
 
 
 class DamageCalcRequest(BaseModel):
@@ -44,6 +76,32 @@ class DamageCalcResponse(BaseModel):
     element_multiplier: float
     is_critical: bool
     breakdown: dict
+
+
+# ---------------------------------------------------------------------------
+# Status Effect Processing
+# ---------------------------------------------------------------------------
+
+class StatusTickRequest(BaseModel):
+    """Request to process one tick of status effects on a target."""
+    active_effects: ActiveStatusEffects
+    tick_interval: float = Field(
+        default=2.0, description="Seconds per tick (default 2s)"
+    )
+
+
+class StatusTickResult(BaseModel):
+    """Result of processing one tick of status effects."""
+    dot_damage: int = 0
+    defense_modifier: float = Field(
+        default=1.0, description="Multiplier on defense (e.g. 0.8 for Weaken)"
+    )
+    resistance_modifier: float = Field(
+        default=1.0,
+        description="Multiplier on elemental resistance (e.g. 0.85 for Tear)",
+    )
+    remaining_effects: list[StatusEffect] = Field(default_factory=list)
+    expired_effects: list[StatusEffectType] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

@@ -1,12 +1,15 @@
 import random
 
 from app.models.schemas import (
+    ActiveStatusEffects,
     CombatAction,
     CombatResult,
     DamageCalcRequest,
     DamageCalcResponse,
     Element,
+    StatusEffect,
 )
+from app.services.status_effects import StatusEffectManager
 
 
 class CombatEngine:
@@ -38,6 +41,9 @@ class CombatEngine:
         "ultimate": 2.5,
     }
 
+    def __init__(self) -> None:
+        self.status_manager = StatusEffectManager()
+
     def _get_element_multiplier(
         self, attacker: Element | None, defender: Element | None
     ) -> float:
@@ -51,13 +57,39 @@ class CombatEngine:
         return random.random() < critical_rate
 
     def resolve_combat(self, action: CombatAction) -> CombatResult:
-        """Resolve a single combat action and return the result."""
+        """Resolve a single combat action and return the result.
+
+        When the attacker has an element, a status effect application is
+        attempted using the base 20% chance scaled by the attacker's
+        ``elemental_power`` stat.  If the defender has active status effects
+        (passed via ``defender_stats["active_effects"]``), Weaken and Tear
+        modifiers are applied to defense and elemental multiplier
+        respectively.
+        """
         base_atk = int(action.attacker_stats.get("attack", 10))
         base_def = int(action.defender_stats.get("defense", 5))
         crit_rate = float(action.attacker_stats.get("critical_rate", 0.1))
 
-        # Base damage = attacker's attack minus defender's defense (minimum 1)
-        raw_damage = max(1, base_atk - base_def)
+        # Parse defender's active status effects (if provided)
+        defender_active: ActiveStatusEffects | None = None
+        if "active_effects" in action.defender_stats:
+            defender_active = ActiveStatusEffects(
+                **action.defender_stats["active_effects"]
+            )
+
+        # Apply debuff modifiers from active status effects
+        defense_modifier = 1.0
+        resistance_modifier = 1.0
+        if defender_active:
+            mods = self.status_manager.get_active_modifiers(defender_active)
+            defense_modifier = mods["defense_modifier"]
+            resistance_modifier = mods["resistance_modifier"]
+
+        # Apply Weaken defense reduction
+        effective_def = int(base_def * defense_modifier)
+
+        # Base damage = attacker's attack minus effective defense (minimum 1)
+        raw_damage = max(1, base_atk - effective_def)
 
         # Action type multiplier
         action_mult = self.ACTION_MULTIPLIERS.get(action.action_type, 1.0)
@@ -69,6 +101,12 @@ class CombatEngine:
             if "element" in action.defender_stats
             else None,
         )
+
+        # Apply Tear resistance reduction (amplifies elemental damage)
+        if element_mult != 1.0 and resistance_modifier < 1.0:
+            # Tear makes elemental advantages stronger and disadvantages worse
+            bonus = element_mult - 1.0
+            element_mult = 1.0 + bonus / resistance_modifier
 
         # Dual wield bonus
         dw_mult = 1.0
@@ -100,6 +138,24 @@ class CombatEngine:
             effects.append("dual_wield")
         if combo_triggered:
             effects.append("combo")
+        if defense_modifier < 1.0:
+            effects.append("weakened")
+        if resistance_modifier < 1.0:
+            effects.append("torn")
+
+        # Attempt status effect application
+        applied_status: StatusEffect | None = None
+        if action.element is not None:
+            elemental_power = float(
+                action.attacker_stats.get("elemental_power", 0.0)
+            )
+            applied_status = self.status_manager.try_apply(
+                element=action.element,
+                elemental_power=elemental_power,
+                active_effects=defender_active,
+            )
+            if applied_status is not None:
+                effects.append(f"applied_{applied_status.effect_type.value}")
 
         return CombatResult(
             damage=final_damage,
@@ -107,6 +163,7 @@ class CombatEngine:
             is_critical=is_crit,
             combo_triggered=combo_triggered,
             effects=effects,
+            applied_status=applied_status,
         )
 
     def calculate_damage(self, request: DamageCalcRequest) -> DamageCalcResponse:
