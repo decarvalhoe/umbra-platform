@@ -2,6 +2,7 @@ import { Types } from 'phaser'
 import { MainScene } from './scenes/MainScene'
 import { CombatScene } from './scenes/CombatScene'
 import { DungeonScene } from './scenes/DungeonScene'
+import { HubScene } from './scenes/HubScene'
 
 export const gameConfig: Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -15,7 +16,7 @@ export const gameConfig: Types.Core.GameConfig = {
       debug: false
     }
   },
-  scene: [MainScene, CombatScene, DungeonScene],
+  scene: [MainScene, CombatScene, DungeonScene, HubScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
