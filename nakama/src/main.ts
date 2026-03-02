@@ -19,3 +19,21 @@ const rpcGetRoomNarrative: nkruntime.RpcFunction = function (
 
     return JSON.stringify({ description });
 };
+
+const rpcCreateClan: nkruntime.RpcFunction = function (
+    ctx: nkruntime.Context,
+    logger: nkruntime.Logger,
+    nk: nkruntime.Nakama,
+    payload: string
+): string {
+    const { name, description } = JSON.parse(payload);
+
+    const metadata = {
+        reputation: 0,
+        tier: 1,
+    };
+
+    const groupId = nk.groupCreate(ctx.userId, name, ctx.username, null, description, 50, true, metadata);
+
+    return JSON.stringify({ groupId });
+};
