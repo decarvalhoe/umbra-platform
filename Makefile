@@ -1,4 +1,4 @@
-.PHONY: dev stop clean test lint format build help
+.PHONY: dev dev-down stop clean test lint format build seed health logs help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -46,8 +46,17 @@ build: ## Build all Docker images
 logs: ## Show logs from all services
 	docker compose logs -f
 
+dev-down: stop ## Alias for stop
+
+seed: ## Seed test data (Nakama users, gacha pools, AI content)
+	python scripts/seed-data.py
+
 health: ## Check health of all services
-	@echo "Nakama:" && curl -sf http://localhost:7350/healthcheck && echo
-	@echo "AI Director:" && curl -sf http://localhost:8001/health && echo
-	@echo "Game Logic:" && curl -sf http://localhost:8002/health && echo
-	@echo "Payment:" && curl -sf http://localhost:8003/health && echo
+	@echo "=== Service Health ==="
+	@echo -n "Nakama:       " && (curl -sf http://localhost:7350/healthcheck && echo " OK") || echo " FAIL"
+	@echo -n "AI Director:  " && (curl -sf http://localhost:8001/health && echo " OK") || echo " FAIL"
+	@echo -n "Game Logic:   " && (curl -sf http://localhost:8002/health && echo " OK") || echo " FAIL"
+	@echo -n "Payment:      " && (curl -sf http://localhost:8003/health && echo " OK") || echo " FAIL"
+	@echo -n "Client:       " && (curl -sf http://localhost:3000 -o /dev/null && echo "OK") || echo "FAIL"
+	@echo -n "Nginx:        " && (curl -sf http://localhost:8080 -o /dev/null && echo "OK") || echo "FAIL"
+	@echo "=== Done ==="
