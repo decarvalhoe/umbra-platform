@@ -160,6 +160,51 @@ const SKILLS: SkillDefinition[] = [
   },
 ]
 
+
+// ---------------------------------------------------------------------------
+// Rune buff system
+// ---------------------------------------------------------------------------
+
+interface RuneBuff {
+  stat: string
+  value: number
+  type: string // 'flat' | 'percent'
+}
+
+/** Resolves cumulative stat bonuses from active rune buffs. */
+class RuneBuffResolver {
+  private buffs: RuneBuff[]
+
+  constructor(buffs: RuneBuff[]) {
+    this.buffs = buffs
+  }
+
+  /** Get flat bonus for a stat. */
+  getFlat(stat: string): number {
+    return this.buffs
+      .filter(b => b.stat === stat && b.type === 'flat')
+      .reduce((sum, b) => sum + b.value, 0)
+  }
+
+  /** Get percent bonus for a stat (returns multiplier, e.g. 1.25 for +25%). */
+  getMultiplier(stat: string): number {
+    const pct = this.buffs
+      .filter(b => b.stat === stat && b.type === 'percent')
+      .reduce((sum, b) => sum + b.value, 0)
+    return 1 + pct / 100
+  }
+
+  /** Combined: (base + flat) * percentMultiplier */
+  apply(stat: string, base: number): number {
+    return (base + this.getFlat(stat)) * this.getMultiplier(stat)
+  }
+
+  /** Check if any buff exists for a stat. */
+  has(stat: string): boolean {
+    return this.buffs.some(b => b.stat === stat)
+  }
+}
+
 /**
  * CombatScene -- the core playable combat loop.
  *
@@ -179,6 +224,8 @@ const SKILLS: SkillDefinition[] = [
 export class CombatScene extends Phaser.Scene {
   // Dungeon context (set when entering from DungeonScene)
   private fromDungeon = false
+  private runeBuffs: RuneBuffResolver = new RuneBuffResolver([])
+
   private dungeonContext: { floor: number; roomType: string; corruption: number; nodeId: number; runeBuffs: { stat: string; value: number; type: string }[] } | null = null
 
   // Entities
@@ -217,6 +264,7 @@ export class CombatScene extends Phaser.Scene {
   private gameOverText: Phaser.GameObjects.Text | null = null
   private restartText: Phaser.GameObjects.Text | null = null
   private xpText!: Phaser.GameObjects.Text
+  private runeBuffText!: Phaser.GameObjects.Text
 
   // Pause menu
   private pauseMenu!: PauseMenu
@@ -235,12 +283,16 @@ export class CombatScene extends Phaser.Scene {
   init(data: Record<string, unknown>): void {
     this.fromDungeon = !!data.fromDungeon
     this.dungeonContext = (data.dungeonContext as typeof this.dungeonContext) ?? null
+    this.runeBuffs = new RuneBuffResolver(
+      (this.dungeonContext?.runeBuffs as RuneBuff[]) ?? []
+    )
   }
 
   create(): void {
     this.resetState()
     this.createArena()
     this.createPlayer()
+    this.applyRuneBuffsToPlayer()
     this.createEnemyGroup()
     this.createHUD()
     this.registerSkillKeys()
@@ -382,6 +434,23 @@ export class CombatScene extends Phaser.Scene {
     this.player.setDepth(5)
   }
 
+  private applyRuneBuffsToPlayer(): void {
+    // Max HP buff
+    const hpBonus = this.runeBuffs.getFlat('max_hp')
+    if (hpBonus > 0) {
+      this.player.maxHealth += hpBonus
+      this.player.health = this.player.maxHealth
+    }
+
+    // Extra dodge charges
+    const dodgeBonus = this.runeBuffs.getFlat('dodge_charges')
+    if (dodgeBonus > 0) {
+      // Expose via a public setter — we adjust the private fields through reassignment
+      (this.player as unknown as { maxDodgeCharges: number }).maxDodgeCharges += dodgeBonus;
+      (this.player as unknown as { dodgeCharges: number }).dodgeCharges += dodgeBonus
+    }
+  }
+
   private createEnemyGroup(): void {
     this.enemies = this.physics.add.group({
       classType: Enemy,
@@ -429,6 +498,16 @@ export class CombatScene extends Phaser.Scene {
     this.xpText.setOrigin(1, 0)
     this.xpText.setDepth(101)
     this.xpText.setScrollFactor(0)
+
+    // Rune buff indicator
+    this.runeBuffText = this.add.text(this.scale.width - HUD_MARGIN, HUD_MARGIN + 20, '', {
+      ...textStyle,
+      fontSize: '11px',
+      color: '#cc88ff',
+    })
+    this.runeBuffText.setOrigin(1, 0)
+    this.runeBuffText.setDepth(101)
+    this.runeBuffText.setScrollFactor(0)
 
     // Skill cooldown text displays
     let skillY = SKILL_COOLDOWN_Y
@@ -630,10 +709,20 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onPlayerAttackHit(_comboHit: unknown, damage: number): void {
-    // Check all active enemies for range-based hit detection
+    // Apply rune ATK + all_damage buffs
+    let buffedDamage = this.runeBuffs.apply('atk', damage)
+    buffedDamage = Math.round(buffedDamage * this.runeBuffs.getMultiplier('all_damage'))
+
+    // Crit check
+    const critChance = this.runeBuffs.getFlat('crit_chance') / 100
+    if (critChance > 0 && Math.random() < critChance) {
+      buffedDamage = Math.round(buffedDamage * 1.5)
+    }
+
     const attackRange = 60
     const px = this.player.x
     const py = this.player.y
+    let totalDealt = 0
 
     this.enemies.getChildren().forEach((child) => {
       const enemy = child as Enemy
@@ -644,7 +733,8 @@ export class CombatScene extends Phaser.Scene {
       const dist = Math.sqrt(dx * dx + dy * dy)
 
       if (dist <= attackRange) {
-        enemy.takeDamage(damage)
+        enemy.takeDamage(buffedDamage)
+        totalDealt += buffedDamage
       }
     })
 
@@ -655,19 +745,29 @@ export class CombatScene extends Phaser.Scene {
       const dist = Math.sqrt(dx * dx + dy * dy)
 
       if (dist <= attackRange + 32) {
-        this.boss.takeDamage(damage)
+        this.boss.takeDamage(buffedDamage)
+        totalDealt += buffedDamage
       }
+    }
+
+    // Lifesteal
+    const lifestealPct = this.runeBuffs.getFlat('lifesteal')
+    if (lifestealPct > 0 && totalDealt > 0) {
+      const heal = Math.round(totalDealt * lifestealPct / 100)
+      this.player.health = Math.min(this.player.maxHealth, this.player.health + heal)
     }
   }
 
   private onEnemyAttackHit(enemy: Enemy, damage: number): void {
-    // Check if the enemy is close enough to the player to deal damage
     const dx = this.player.x - enemy.x
     const dy = this.player.y - enemy.y
     const dist = Math.sqrt(dx * dx + dy * dy)
 
     if (dist <= enemy.config.attackRange + 20) {
-      this.player.takeDamage(damage)
+      // Apply DEF rune buff: reduce damage by flat defense
+      const defBonus = this.runeBuffs.getFlat('def')
+      const reduced = Math.max(1, damage - defBonus)
+      this.player.takeDamage(reduced)
     }
   }
 
@@ -678,7 +778,8 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onLootDrop(loot: { xpReward: number }): void {
-    this.totalXp += loot.xpReward
+    const xp = Math.round(loot.xpReward * this.runeBuffs.getMultiplier('xp_bonus'))
+    this.totalXp += xp
   }
 
   private onPlayerDead(): void {
@@ -741,7 +842,8 @@ export class CombatScene extends Phaser.Scene {
       const dist = Math.sqrt(dx * dx + dy * dy)
 
       if (dist <= attackConfig.range) {
-        this.player.takeDamage(attackConfig.damage)
+        const defBonus = this.runeBuffs.getFlat('def')
+        this.player.takeDamage(Math.max(1, attackConfig.damage - defBonus))
       }
     }
   }
@@ -797,11 +899,13 @@ export class CombatScene extends Phaser.Scene {
 
           if (dist <= hitbox.radius + 16) {
             attack.explode()
-            this.player.takeDamage(30) // Shadow bolt base damage
+            const boltDef = this.runeBuffs.getFlat('def')
+            this.player.takeDamage(Math.max(1, 30 - boltDef))
           }
         } else if (attack instanceof CorruptionWave) {
           if (attack.isPointInDamageZone(this.player.x, this.player.y)) {
-            this.player.takeDamage(45) // Corruption wave damage
+            const waveDef = this.runeBuffs.getFlat('def')
+            this.player.takeDamage(Math.max(1, 45 - waveDef))
           }
         }
       }
@@ -855,6 +959,9 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private executeAoESkill(damage: number, range: number, color: number): void {
+    const skillDmg = Math.round(
+      this.runeBuffs.apply('skill_damage', damage) * this.runeBuffs.getMultiplier('all_damage')
+    )
     const px = this.player.x
     const py = this.player.y
 
@@ -882,7 +989,7 @@ export class CombatScene extends Phaser.Scene {
       const dy = enemy.y - py
       const dist = Math.sqrt(dx * dx + dy * dy)
       if (dist <= range) {
-        enemy.takeDamage(damage)
+        enemy.takeDamage(skillDmg)
       }
     })
 
@@ -892,12 +999,15 @@ export class CombatScene extends Phaser.Scene {
       const dy = this.boss.y - py
       const dist = Math.sqrt(dx * dx + dy * dy)
       if (dist <= range) {
-        this.boss.takeDamage(damage)
+        this.boss.takeDamage(skillDmg)
       }
     }
   }
 
   private executeMeleeSkill(damage: number, range: number, color: number): void {
+    const meleeDmg = Math.round(
+      this.runeBuffs.apply('skill_damage', damage) * this.runeBuffs.getMultiplier('all_damage')
+    )
     const px = this.player.x
     const py = this.player.y
     const dir = this.player.flipX ? -1 : 1
@@ -931,7 +1041,7 @@ export class CombatScene extends Phaser.Scene {
       // Check direction -- only hit enemies in the facing direction
       const inFront = (dir > 0 && dx > 0) || (dir < 0 && dx < 0)
       if (dist <= range && inFront) {
-        enemy.takeDamage(damage)
+        enemy.takeDamage(meleeDmg)
       }
     })
 
@@ -942,7 +1052,7 @@ export class CombatScene extends Phaser.Scene {
       const dist = Math.sqrt(dx * dx + dy * dy)
       const inFront = (dir > 0 && dx > 0) || (dir < 0 && dx < 0)
       if (dist <= range && inFront) {
-        this.boss.takeDamage(damage)
+        this.boss.takeDamage(meleeDmg)
       }
     }
   }
@@ -1039,6 +1149,9 @@ export class CombatScene extends Phaser.Scene {
       rs.xpEarned = this.totalXp
     }
 
+    // -- Active rune buffs --
+    this.updateRuneBuffDisplay()
+
     // -- Skill cooldowns --
     for (const skill of SKILLS) {
       const sText = this.skillTexts.get(skill.id)
@@ -1106,6 +1219,23 @@ export class CombatScene extends Phaser.Scene {
       }
       this.hudGraphics.fillCircle(pipX, pipY, pipSize / 2)
     }
+  }
+
+  private updateRuneBuffDisplay(): void {
+    const parts: string[] = []
+    const atkMul = this.runeBuffs.getMultiplier('atk')
+    if (atkMul > 1) parts.push(`ATK+${Math.round((atkMul - 1) * 100)}%`)
+    const defFlat = this.runeBuffs.getFlat('def')
+    if (defFlat > 0) parts.push(`DEF+${defFlat}`)
+    const critFlat = this.runeBuffs.getFlat('crit_chance')
+    if (critFlat > 0) parts.push(`CRIT+${critFlat}%`)
+    const ls = this.runeBuffs.getFlat('lifesteal')
+    if (ls > 0) parts.push(`LS ${ls}%`)
+    const allDmg = this.runeBuffs.getMultiplier('all_damage')
+    if (allDmg > 1) parts.push(`DMG+${Math.round((allDmg - 1) * 100)}%`)
+    const skillDmg = this.runeBuffs.getMultiplier('skill_damage')
+    if (skillDmg > 1) parts.push(`SKILL+${Math.round((skillDmg - 1) * 100)}%`)
+    this.runeBuffText.setText(parts.length > 0 ? parts.join('  ') : '')
   }
 
   private drawBar(
@@ -1250,7 +1380,8 @@ export class CombatScene extends Phaser.Scene {
     if (!keyboard) return
 
     if (Phaser.Input.Keyboard.JustDown(keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))) {
-      const cendresEarned = this.totalKills * 5 + (this.isVictory ? 20 : 0)
+      const baseCendres = this.totalKills * 5 + (this.isVictory ? 20 : 0)
+      const cendresEarned = Math.round(baseCendres * this.runeBuffs.getMultiplier('cendres_bonus'))
 
       if (this.fromDungeon) {
         const dungeonState = this.game.registry.get('dungeonState')
