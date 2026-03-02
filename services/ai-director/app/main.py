@@ -13,6 +13,7 @@ from app.services.content_generator import ContentGenerator
 from app.services.content_pool import ContentPool
 from app.worker import celery_app
 from app.tasks.generation import ping
+from app.tasks.pool_monitor import monitor_pool_levels  # noqa: F401 -- register task
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,13 @@ async def health():
 async def task_ping():
     """Dispatch a ping task to verify Celery is running."""
     result = ping.delay()
+    return {"task_id": result.id, "status": "dispatched"}
+
+
+@app.post("/tasks/monitor-pools")
+async def trigger_pool_monitor():
+    """Manually dispatch a pool monitoring cycle (outside of Beat schedule)."""
+    result = monitor_pool_levels.delay()
     return {"task_id": result.id, "status": "dispatched"}
 
 
