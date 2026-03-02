@@ -6,9 +6,11 @@ interface HUDProps {
   wallet: Wallet | null;
   health: number;
   maxHealth: number;
+  dodgeCharges: number;
+  maxDodgeCharges: number;
 }
 
-export function HUD({ profile, wallet, health, maxHealth }: HUDProps) {
+export function HUD({ profile, wallet, health, maxHealth, dodgeCharges, maxDodgeCharges }: HUDProps) {
   if (!profile) return null;
 
   const xpForNextLevel = profile.level * profile.level * 100;
@@ -29,6 +31,14 @@ export function HUD({ profile, wallet, health, maxHealth }: HUDProps) {
         <div className="hud-bar xp-bar">
           <div className="hud-bar-fill xp-fill" style={{ width: `${xpPercent}%` }} />
           <span className="hud-bar-text">{profile.xp} / {xpForNextLevel} XP</span>
+        </div>
+        <div className="hud-dodge-charges">
+          {Array.from({ length: maxDodgeCharges }, (_, i) => (
+            <span
+              key={i}
+              className={`dodge-charge ${i < dodgeCharges ? 'dodge-charge--active' : 'dodge-charge--empty'}`}
+            />
+          ))}
         </div>
       </div>
       {wallet && (

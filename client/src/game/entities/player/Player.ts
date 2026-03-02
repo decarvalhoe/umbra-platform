@@ -81,6 +81,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Initialize FSM -- starts in IDLE
     this.fsm = new PlayerFSM(new IdleState(this), true)
+
+    // Emit initial dodge charge count so UI can display on load
+    this.scene.events.emit(
+      'player-dodge-charges-changed',
+      this.dodgeCharges,
+      this.maxDodgeCharges
+    )
   }
 
   /**
@@ -107,6 +114,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.dodgeCharges > 0) {
       this.dodgeCharges--
       this.dodgeRechargeTimer = 0 // Reset recharge progress on use
+      this.scene.events.emit(
+        'player-dodge-charges-changed',
+        this.dodgeCharges,
+        this.maxDodgeCharges
+      )
     }
   }
 
@@ -128,6 +140,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.dodgeRechargeTimer = 0
         this.scene.events.emit(
           'player-dodge-recharged',
+          this.dodgeCharges,
+          this.maxDodgeCharges
+        )
+        this.scene.events.emit(
+          'player-dodge-charges-changed',
           this.dodgeCharges,
           this.maxDodgeCharges
         )
@@ -203,5 +220,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.fsm.transition(StateFactory.create('IDLE', this))
 
     this.scene.events.emit('player-health-changed', this.health, this.maxHealth)
+    this.scene.events.emit(
+      'player-dodge-charges-changed',
+      this.dodgeCharges,
+      this.maxDodgeCharges
+    )
   }
 }

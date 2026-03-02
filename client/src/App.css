@@ -13,3 +13,30 @@
   max-width: 1024px;
   max-height: 768px;
 }
+
+/* Dodge charge indicators */
+.hud-dodge-charges {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.dodge-charge {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(100, 200, 255, 0.6);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.dodge-charge--active {
+  background-color: rgba(68, 170, 255, 0.9);
+  border-color: rgba(100, 200, 255, 0.9);
+  box-shadow: 0 0 6px rgba(68, 170, 255, 0.5);
+}
+
+.dodge-charge--empty {
+  background-color: rgba(40, 40, 60, 0.6);
+  border-color: rgba(80, 80, 100, 0.4);
+}
