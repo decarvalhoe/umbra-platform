@@ -35,6 +35,7 @@ app.include_router(combat_router)
 app.include_router(gacha_router)
 app.include_router(progression_router)
 app.include_router(anomaly_router)
+app.include_router(boss_router)
 
 
 @app.get("/health")
