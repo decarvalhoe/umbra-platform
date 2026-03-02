@@ -8,10 +8,12 @@ from app.api.combat import router as combat_router
 from app.api.gacha import router as gacha_router
 from app.api.progression import router as progression_router
 from app.api.anomaly import router as anomaly_router
+from app.api.boss import router as boss_router
 from app.services.combat_engine import CombatEngine
 from app.services.gacha_system import GachaSystem
 from app.services.progression import ProgressionService
 from app.services.anomaly_detector import AnomalyDetector
+from app.services.boss_engine import BossEngine
 
 logging.basicConfig(level=settings.log_level)
 logger = logging.getLogger(__name__)
@@ -23,6 +25,7 @@ async def lifespan(app: FastAPI):
     app.state.gacha_system = GachaSystem(settings.gacha_pools_path)
     app.state.progression_service = ProgressionService()
     app.state.anomaly_detector = AnomalyDetector()
+    app.state.boss_engine = BossEngine()
     logger.info("Game logic services initialized")
     yield
 
