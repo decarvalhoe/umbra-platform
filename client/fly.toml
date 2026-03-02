@@ -4,16 +4,11 @@ app = "umbra-client"
 primary_region = "cdg"
 
 [build]
-  builder = "paketobuildpacks/builder:base"
-  buildpacks = ["gcr.io/paketo-buildpacks/web-servers"] # Use web-servers buildpack for static sites
+  dockerfile = "Dockerfile"
 
 [http_service]
-  internal_port = 8080 # Default for web-servers buildpack
+  internal_port = 8080
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 1
-
-[[statics]]
-  guest_path = "/usr/share/nginx/html"
-  url_prefix = "/"
