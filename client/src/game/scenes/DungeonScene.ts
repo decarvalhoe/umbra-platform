@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { PauseMenu } from '../ui/PauseMenu'
+import { audioManager } from '../audio/AudioManager'
 import { DungeonGenerator, DungeonGraph, DungeonNode } from '../dungeon/DungeonGenerator'
 import { RuneInventory, selectRuneCards, RuneCard } from '../dungeon/RuneCardSystem'
 import { generateDungeon as fetchAIDungeon } from '../../services/ai-director'
@@ -151,6 +152,7 @@ export class DungeonScene extends Phaser.Scene {
       },
     })
 
+    audioManager.crossFadeTo('dungeon')
         this.cameras.main.setBackgroundColor(COLORS.bg)
         this.mapGraphics = this.add.graphics()
         this.roomInfoGroup = this.add.group()

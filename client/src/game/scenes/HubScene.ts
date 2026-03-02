@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { getGachaPools, drawGacha } from '../../services/game-logic'
 import type { GachaPool, GachaItem, GachaDrawResult } from '../../types/economy'
+import { audioManager } from '../audio/AudioManager'
 import { nakamaClient, getSession } from '../../nakama/client'
 
 // ---------------------------------------------------------------------------
@@ -123,8 +124,8 @@ export class HubScene extends Phaser.Scene {
         this.drawPlayerStats()
 
         // Three interactive zones
-        this.createZone(170, 400, 'SHOP', 0x4a2545, () => this.openShop())
-        this.createZone(512, 400, 'TALENTS', 0x2a4a3a, () => this.openTalents())
+        this.createZone(170, 400, 'SHOP', 0x4a2545, () => { audioManager.playSfx('ui_click'); this.openShop() })
+        this.createZone(512, 400, 'TALENTS', 0x2a4a3a, () => { audioManager.playSfx('ui_click'); this.openTalents() })
         this.createZone(854, 400, 'ENTER\nDUNGEON', 0x4a2a2a, () => this.startRun())
 
         // Zone labels
