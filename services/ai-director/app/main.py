@@ -8,12 +8,18 @@ from app.config import settings
 from app.api.generate import router as generate_router
 from app.api.director import router as director_router
 from app.api.pool import router as pool_router
+from app.api.content import router as content_router
 from app.services.llm_client import get_llm_client
 from app.services.content_generator import ContentGenerator
 from app.services.content_pool import ContentPool
 from app.worker import celery_app
 from app.tasks.generation import ping
 from app.tasks.pool_monitor import monitor_pool_levels  # noqa: F401 -- register task
+from app.tasks.pool_generation import (  # noqa: F401 -- register tasks
+    generate_and_store,
+    batch_generate_pool,
+    generate_on_demand,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +50,7 @@ app = FastAPI(title="Umbra AI Director", version="1.0.0", lifespan=lifespan)
 app.include_router(generate_router)
 app.include_router(director_router)
 app.include_router(pool_router)
+app.include_router(content_router)
 
 
 @app.get("/health")
