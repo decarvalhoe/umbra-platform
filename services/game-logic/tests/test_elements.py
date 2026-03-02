@@ -509,8 +509,10 @@ class TestCombatEngineStatusIntegration:
         effect should be applied and listed in effects."""
         from app.models.schemas import CombatAction
 
-        with patch("app.services.status_effects.random.random", return_value=0.1), \
-             patch("app.services.combat_engine.random.random", return_value=0.99):
+        # Both modules share the same random module object, so use a single
+        # patch with side_effect: first call = critical check (0.99 = no crit),
+        # second call = status effect check (0.1 < 0.2 = apply).
+        with patch("app.services.combat_engine.random.random", side_effect=[0.99, 0.1]):
             result = self.engine.resolve_combat(
                 CombatAction(
                     attacker_stats={"attack": 50, "critical_rate": 0.0},
