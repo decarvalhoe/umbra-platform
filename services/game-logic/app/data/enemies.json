@@ -1,0 +1,53 @@
+[
+  {
+    "id": "shadow_wraith", "name": "Shadow Wraith", "hp": 100, "atk": 15, "def": 5, "speed": 80,
+    "element": "shadow", "ai_behavior": "chase",
+    "description": "A spectral figure that phases in and out of the shadows, relentlessly pursuing its prey.",
+    "attacks": [{ "name": "Shadow Swipe", "damage_multiplier": 1.0, "cooldown": 1.5, "range": 50 }],
+    "xp_reward": 10, "cendres_reward": 5,
+    "drop_table": [{ "item_id": "shadow_essence", "chance": 0.3 }, { "item_id": "common_weapon", "chance": 0.05 }]
+  },
+  {
+    "id": "blood_wraith", "name": "Blood Wraith", "hp": 150, "atk": 20, "def": 8, "speed": 70,
+    "element": "blood", "ai_behavior": "aggressive",
+    "description": "A crimson apparition that feeds on the lifeblood of its victims.",
+    "attacks": [
+      { "name": "Crimson Slash", "damage_multiplier": 1.2, "cooldown": 2.0, "range": 50 },
+      { "name": "Blood Drain", "damage_multiplier": 0.8, "cooldown": 5.0, "range": 40, "effect": "bleed" }
+    ],
+    "xp_reward": 15, "cendres_reward": 8,
+    "drop_table": [{ "item_id": "blood_essence", "chance": 0.3 }, { "item_id": "rare_weapon", "chance": 0.03 }]
+  },
+  {
+    "id": "fire_imp", "name": "Fire Imp", "hp": 80, "atk": 25, "def": 3, "speed": 100,
+    "element": "fire", "ai_behavior": "kite",
+    "description": "A mischievous ember creature that hurls fireballs from afar.",
+    "attacks": [
+      { "name": "Fireball", "damage_multiplier": 1.5, "cooldown": 2.5, "range": 250, "projectile": true },
+      { "name": "Flame Dash", "damage_multiplier": 0.5, "cooldown": 4.0, "range": 100, "effect": "burn" }
+    ],
+    "xp_reward": 12, "cendres_reward": 7,
+    "drop_table": [{ "item_id": "fire_essence", "chance": 0.3 }, { "item_id": "rare_armor", "chance": 0.03 }]
+  },
+  {
+    "id": "void_sentinel", "name": "Void Sentinel", "hp": 200, "atk": 10, "def": 15, "speed": 50,
+    "element": "void", "ai_behavior": "tactical",
+    "description": "An armored construct from the Void, wielding spatial distortion to control the battlefield.",
+    "attacks": [
+      { "name": "Void Bolt", "damage_multiplier": 1.3, "cooldown": 3.0, "range": 200, "projectile": true },
+      { "name": "Spatial Warp", "damage_multiplier": 0.0, "cooldown": 8.0, "range": 0, "effect": "teleport" },
+      { "name": "Gravity Pull", "damage_multiplier": 0.6, "cooldown": 6.0, "range": 150, "effect": "slow" }
+    ],
+    "xp_reward": 20, "cendres_reward": 12,
+    "drop_table": [{ "item_id": "void_essence", "chance": 0.3 }, { "item_id": "legendary_shard", "chance": 0.01 }]
+  },
+  {
+    "id": "corruption_spawn", "name": "Corruption Spawn", "hp": 60, "atk": 30, "def": 2, "speed": 120,
+    "element": "shadow", "ai_behavior": "swarm",
+    "description": "A writhing mass of corrupted matter. Weak alone, lethal in packs of 3-5.",
+    "attacks": [{ "name": "Lunge", "damage_multiplier": 1.0, "cooldown": 1.0, "range": 30 }],
+    "spawn_count": { "min": 3, "max": 5 },
+    "xp_reward": 5, "cendres_reward": 3,
+    "drop_table": [{ "item_id": "shadow_essence", "chance": 0.15 }]
+  }
+]
