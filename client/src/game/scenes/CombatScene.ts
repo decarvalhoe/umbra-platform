@@ -176,6 +176,10 @@ const SKILLS: SkillDefinition[] = [
  * (collision, spawning, HUD, wave management) live here.
  */
 export class CombatScene extends Phaser.Scene {
+  // Dungeon context (set when entering from DungeonScene)
+  private fromDungeon = false
+  private dungeonContext: { floor: number; roomType: string; corruption: number; nodeId: number; runeBuffs: { stat: string; value: number; type: string }[] } | null = null
+
   // Entities
   private player!: Player
   private enemies!: Phaser.Physics.Arcade.Group
@@ -223,6 +227,11 @@ export class CombatScene extends Phaser.Scene {
   // ---------------------------------------------------------------------------
   // Lifecycle
   // ---------------------------------------------------------------------------
+
+  init(data: Record<string, unknown>): void {
+    this.fromDungeon = !!data.fromDungeon
+    this.dungeonContext = (data.dungeonContext as typeof this.dungeonContext) ?? null
+  }
 
   create(): void {
     this.resetState()
@@ -1149,7 +1158,7 @@ export class CombatScene extends Phaser.Scene {
     this.restartText = this.add.text(
       width / 2,
       height / 2 + 50,
-      'Press ENTER to restart',
+      this.fromDungeon ? 'Press ENTER to return to hub' : 'Press ENTER to restart',
       {
         fontSize: '18px',
         color: '#aaaaff',
@@ -1193,7 +1202,7 @@ export class CombatScene extends Phaser.Scene {
     this.restartText = this.add.text(
       width / 2,
       height / 2 + 50,
-      'Press ENTER to play again',
+      this.fromDungeon ? 'Press ENTER to continue dungeon' : 'Press ENTER to return to hub',
       {
         fontSize: '18px',
         color: '#aaaaff',
@@ -1209,7 +1218,41 @@ export class CombatScene extends Phaser.Scene {
     if (!keyboard) return
 
     if (Phaser.Input.Keyboard.JustDown(keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER))) {
-      this.scene.restart()
+      const cendresEarned = this.totalKills * 5 + (this.isVictory ? 20 : 0)
+
+      if (this.fromDungeon) {
+        const dungeonState = this.game.registry.get('dungeonState')
+
+        if (this.isVictory && dungeonState) {
+          // Victory: return to dungeon with combat result
+          this.scene.start('DungeonScene', {
+            ...dungeonState.playerData,
+            combatResult: {
+              victory: true,
+              nodeId: dungeonState.currentNodeId,
+              xpEarned: this.totalXp,
+              cendresEarned: cendresEarned,
+            },
+            restoreState: dungeonState,
+          })
+        } else {
+          // Defeat from dungeon: return to hub
+          this.scene.start('HubScene', {
+            xpEarned: this.totalXp,
+            cendresEarned: cendresEarned,
+          })
+        }
+      } else {
+        // Standalone combat
+        if (this.isVictory) {
+          this.scene.start('HubScene', {
+            xpEarned: this.totalXp,
+            cendresEarned: cendresEarned + 30,
+          })
+        } else {
+          this.scene.restart()
+        }
+      }
     }
   }
 }

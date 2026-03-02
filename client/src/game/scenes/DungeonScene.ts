@@ -15,6 +15,26 @@ interface DungeonSceneData {
     seed?: string
 }
 
+
+interface CombatResult {
+    victory: boolean
+    nodeId: number
+    xpEarned: number
+    cendresEarned: number
+}
+
+interface DungeonRestoreState {
+    seed: string
+    floor: number
+    currentNodeId: number
+    roomsCleared: number
+    visitedNodes: number[]
+    clearedNodes: number[]
+    activeRunes: RuneCard[]
+    playerData: DungeonSceneData
+    totalXpEarned: number
+    totalCendresEarned: number
+}
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -54,6 +74,14 @@ export class DungeonScene extends Phaser.Scene {
     private floor: number = 1
     private roomsCleared: number = 0
 
+    // Accumulated run rewards
+    private totalXpEarned: number = 0
+    private totalCendresEarned: number = 0
+
+    // Pending combat result
+    private pendingCombatResult?: CombatResult
+    private pendingRestoreState?: DungeonRestoreState
+
     // Graphics
     private mapGraphics!: Phaser.GameObjects.Graphics
     private roomInfoGroup!: Phaser.GameObjects.Group
@@ -72,17 +100,32 @@ export class DungeonScene extends Phaser.Scene {
     // Lifecycle
     // -----------------------------------------------------------------------
 
-    init(data: DungeonSceneData): void {
-        this.playerData = {
-            playerLevel: data.playerLevel ?? 1,
-            talents: data.talents ?? [],
-            inventory: data.inventory ?? [],
-            floor: data.floor ?? 1,
-            seed: data.seed ?? `run_${Date.now()}`,
+    init(data: DungeonSceneData & { combatResult?: CombatResult; restoreState?: DungeonRestoreState }): void {
+        if (data.restoreState && data.combatResult) {
+            const state = data.restoreState
+            this.playerData = state.playerData
+            this.floor = state.floor
+            this.roomsCleared = state.roomsCleared
+            this.totalXpEarned = state.totalXpEarned
+            this.totalCendresEarned = state.totalCendresEarned
+            this.pendingCombatResult = data.combatResult
+            this.pendingRestoreState = state
+        } else {
+            this.playerData = {
+                playerLevel: data.playerLevel ?? 1,
+                talents: data.talents ?? [],
+                inventory: data.inventory ?? [],
+                floor: data.floor ?? 1,
+                seed: data.seed ?? 'run_' + Date.now(),
+            }
+            this.floor = this.playerData.floor!
+            this.roomsCleared = 0
+            this.totalXpEarned = 0
+            this.totalCendresEarned = 0
+            this.runeInventory.reset()
+            this.pendingCombatResult = undefined
+            this.pendingRestoreState = undefined
         }
-        this.floor = this.playerData.floor!
-        this.roomsCleared = 0
-        this.runeInventory.reset()
     }
 
     create(): void {
@@ -100,13 +143,95 @@ export class DungeonScene extends Phaser.Scene {
         // Create seeded RNG for rune card draws
         this.rng = this.createRng(this.playerData.seed! + '_runes')
 
+        // Restore state if returning from combat
+        if (this.pendingRestoreState) {
+            this.restoreDungeonState(this.pendingRestoreState)
+        }
+
         // Try fetching AI-enhanced layout (non-blocking)
         this.fetchAILayout()
 
         // Draw initial state
         this.drawMap()
         this.drawHUD()
-        this.drawRoomInfo(this.dungeon.nodes[0])
+        this.drawRoomInfo(this.dungeon.nodes[this.currentNodeId])
+
+        // Handle pending combat result after scene is drawn
+        if (this.pendingCombatResult) {
+            this.time.delayedCall(300, () => {
+                this.handleCombatResult(this.pendingCombatResult!)
+                this.pendingCombatResult = undefined
+                this.pendingRestoreState = undefined
+            })
+        }
+    }
+
+
+    // -----------------------------------------------------------------------
+    // State save / restore
+    // -----------------------------------------------------------------------
+
+    private saveDungeonState(combatNodeId: number): void {
+        const state: DungeonRestoreState = {
+            seed: this.playerData.seed!,
+            floor: this.floor,
+            currentNodeId: combatNodeId,
+            roomsCleared: this.roomsCleared,
+            visitedNodes: this.dungeon.nodes.filter(n => n.visited).map(n => n.id),
+            clearedNodes: this.dungeon.nodes.filter(n => n.cleared).map(n => n.id),
+            activeRunes: [...this.runeInventory.getActiveRunes()],
+            playerData: { ...this.playerData },
+            totalXpEarned: this.totalXpEarned,
+            totalCendresEarned: this.totalCendresEarned,
+        }
+        this.game.registry.set('dungeonState', state)
+    }
+
+    private restoreDungeonState(state: DungeonRestoreState): void {
+        this.currentNodeId = state.currentNodeId
+        for (const node of this.dungeon.nodes) {
+            if (state.visitedNodes.includes(node.id)) node.visited = true
+            if (state.clearedNodes.includes(node.id)) node.cleared = true
+        }
+        this.runeInventory.reset()
+        for (const rune of state.activeRunes) {
+            this.runeInventory.addRune(rune)
+        }
+        for (let i = 0; i < state.activeRunes.length * 2; i++) {
+            this.rng()
+        }
+    }
+
+    private handleCombatResult(result: CombatResult): void {
+        this.totalXpEarned += result.xpEarned
+        this.totalCendresEarned += result.cendresEarned
+
+        if (result.victory) {
+            const node = this.dungeon.nodes.find(n => n.id === result.nodeId)
+            if (node) {
+                node.cleared = true
+                node.visited = true
+                this.roomsCleared++
+            }
+            if (node && node.type === 'boss') {
+                this.scene.start('HubScene', {
+                    xpEarned: this.totalXpEarned,
+                    cendresEarned: this.totalCendresEarned,
+                })
+                return
+            }
+            this.drawMap()
+            this.drawHUD()
+            if (node) this.drawRoomInfo(node)
+            if (node && node.type === 'elite') {
+                this.time.delayedCall(500, () => this.showRuneCardSelection())
+            }
+        } else {
+            this.scene.start('HubScene', {
+                xpEarned: this.totalXpEarned,
+                cendresEarned: this.totalCendresEarned,
+            })
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -374,7 +499,9 @@ export class DungeonScene extends Phaser.Scene {
 
     private enterRoom(node: DungeonNode): void {
         if (node.type === 'combat' || node.type === 'elite' || node.type === 'boss') {
-            // Transition to CombatScene with room context
+            // Save dungeon state before transitioning to combat
+            this.saveDungeonState(node.id)
+
             this.scene.start('CombatScene', {
                 playerLevel: this.playerData.playerLevel,
                 talents: this.playerData.talents,
@@ -383,6 +510,7 @@ export class DungeonScene extends Phaser.Scene {
                     floor: this.floor,
                     roomType: node.type,
                     corruption: node.corruption,
+                    nodeId: node.id,
                     runeBuffs: this.runeInventory.getActiveRunes().map(r => ({
                         stat: r.effect.stat,
                         value: r.effect.value,
@@ -560,8 +688,8 @@ export class DungeonScene extends Phaser.Scene {
 
     private abandonRun(): void {
         this.scene.start('HubScene', {
-            xpEarned: this.roomsCleared * 15,
-            cendresEarned: this.roomsCleared * 10,
+            xpEarned: this.totalXpEarned + this.roomsCleared * 15,
+            cendresEarned: this.totalCendresEarned + this.roomsCleared * 10,
         })
     }
 
