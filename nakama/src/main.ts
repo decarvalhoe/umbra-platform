@@ -37,3 +37,33 @@ const rpcCreateClan: nkruntime.RpcFunction = function (
 
     return JSON.stringify({ groupId });
 };
+
+const rpcPurchaseBattlePass: nkruntime.RpcFunction = function (
+    ctx: nkruntime.Context,
+    logger: nkruntime.Logger,
+    nk: nkruntime.Nakama,
+    payload: string
+): string {
+    const { tier } = JSON.parse(payload);
+
+    // In a real implementation, this would integrate with the payment service
+    // and Stripe to verify the purchase.
+
+    const battlePass = {
+        level: 1,
+        premium: tier === 'premium',
+    };
+
+    nk.storageWrite([
+        {
+            collection: 'player_data',
+            key: 'battle_pass',
+            userId: ctx.userId,
+            value: battlePass,
+            permissionRead: 1,
+            permissionWrite: 0,
+        },
+    ]);
+
+    return JSON.stringify({ success: true });
+};
