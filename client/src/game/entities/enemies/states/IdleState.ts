@@ -17,6 +17,7 @@ export class IdleState extends EnemyState {
   }
 
   enter(): void {
+    this.enemy.playAnim('idle')
     this.enemy.setVelocity(0, 0)
     // this.enemy.anims.play('enemy-idle', true)  // Enable when sprites are ready
   }

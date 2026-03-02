@@ -15,6 +15,23 @@ const ELEMENT_TINTS: Record<string, number> = {
 /** Default tint for enemies with no elemental affinity. */
 const DEFAULT_TINT = 0xcc4444
 
+/** Map enemy element to sprite sheet key. */
+const ELEMENT_SHEETS: Record<string, string> = {
+  fire: 'fire_imp_sheet',
+  shadow: 'shadow_wraith_sheet',
+  blood: 'blood_wraith_sheet',
+  void: 'void_sentinel_sheet',
+}
+
+/** Map enemy element to animation prefix. */
+const ELEMENT_ANIM_PREFIX: Record<string, string> = {
+  fire: 'fire_imp',
+  shadow: 'shadow_wraith',
+  blood: 'blood_wraith',
+  void: 'void_sentinel',
+}
+
+
 /**
  * Enemy entity -- Phaser Arcade Sprite with FSM-driven AI behavior.
  *
@@ -31,6 +48,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   public fsm!: EnemyFSM
   public config: EnemyConfig
   public baseTint: number
+  public animPrefix: string
 
   // Combat
   public health: number
@@ -45,8 +63,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     y: number,
     config: EnemyConfig
   ) {
-    // Create a placeholder texture if 'enemy' doesn't exist yet
-    if (!scene.textures.exists('enemy')) {
+    // Determine sprite sheet from element type
+    const sheetKey = config.element ? (ELEMENT_SHEETS[config.element] ?? '') : ''
+    const texKey = sheetKey && scene.textures.exists(sheetKey) ? sheetKey : 'enemy'
+
+    // Fallback: create basic rect texture if no sheet generated
+    if (texKey === 'enemy' && !scene.textures.exists('enemy')) {
       const gfx = scene.add.graphics()
       gfx.fillStyle(0xcc4444, 1)
       gfx.fillRect(0, 0, 32, 48)
@@ -54,13 +76,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       gfx.destroy()
     }
 
-    super(scene, x, y, 'enemy')
+    super(scene, x, y, texKey, 0)
 
     this.config = config
     this.health = config.hp
     this.maxHealth = config.hp
+    this.animPrefix = config.element ? (ELEMENT_ANIM_PREFIX[config.element] ?? '') : ''
 
-    // Determine tint from element
     this.baseTint = config.element
       ? (ELEMENT_TINTS[config.element] ?? DEFAULT_TINT)
       : DEFAULT_TINT
@@ -71,7 +93,8 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(true)
     this.setSize(32, 48)
     this.setOrigin(0.5, 0.5)
-    this.setTint(this.baseTint)
+    // Only apply tint for fallback texture
+    if (texKey === 'enemy') this.setTint(this.baseTint)
 
     // Initialize FSM -- starts in IDLE
     this.fsm = new EnemyFSM(new IdleState(this), true)
@@ -80,6 +103,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   // ---------------------------------------------------------------------------
   // Lifecycle
   // ---------------------------------------------------------------------------
+
+  /** Play a named animation if available. */
+  playAnim(key: string, ignoreIfPlaying = true): void {
+    const animKey = this.animPrefix ? `${this.animPrefix}-${key}` : ''
+    if (animKey && this.scene.anims.exists(animKey)) {
+      this.anims.play(animKey, ignoreIfPlaying)
+    }
+  }
 
   /**
    * Called every frame by the scene's update().

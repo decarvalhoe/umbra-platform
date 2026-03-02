@@ -19,7 +19,7 @@ export class RunState extends PlayerState {
   }
 
   enter(): void {
-    // this.player.anims.play('player-run', true)  // Enable when sprites are ready
+    this.player.playAnim('player-run')
   }
 
   update(_delta: number): void {
