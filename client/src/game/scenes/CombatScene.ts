@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { PauseMenu } from '../ui/PauseMenu'
 import { Player } from '../entities/player/Player'
 import { Enemy } from '../entities/enemies/Enemy'
 import { shadowWraithConfig } from '../entities/enemies/EnemyConfig'
@@ -213,6 +214,9 @@ export class CombatScene extends Phaser.Scene {
   private restartText: Phaser.GameObjects.Text | null = null
   private xpText!: Phaser.GameObjects.Text
 
+  // Pause menu
+  private pauseMenu!: PauseMenu
+
   // Arena
   private arenaGraphics!: Phaser.GameObjects.Graphics
 
@@ -232,10 +236,31 @@ export class CombatScene extends Phaser.Scene {
     this.createHUD()
     this.registerSkillKeys()
     this.registerEventListeners()
+
+    // Pause menu
+    this.pauseMenu = new PauseMenu({
+      scene: this,
+      onResume: () => { /* physics resumed by PauseMenu */ },
+      onAbandon: () => {
+        const cendresEarned = this.totalKills * 5
+        this.scene.start('HubScene', { xpEarned: this.totalXp, cendresEarned })
+      },
+      onQuit: () => {
+        this.scene.start('HubScene')
+      },
+      runStats: {
+        kills: this.totalKills,
+        xpEarned: this.totalXp,
+      },
+    })
+
     this.startWave(0)
   }
 
   update(time: number, delta: number): void {
+    this.pauseMenu.update()
+    if (this.pauseMenu.paused) return
+
     if (this.isGameOver || this.isVictory) {
       this.handleEndScreenInput()
       return
@@ -997,6 +1022,13 @@ export class CombatScene extends Phaser.Scene {
 
     // -- XP --
     this.xpText.setText(`XP: ${this.totalXp}  |  Kills: ${this.totalKills}`)
+
+    // Keep pause menu stats up to date
+    if (this.pauseMenu && (this.pauseMenu as unknown as { config: { runStats: { kills: number; xpEarned: number } } }).config.runStats) {
+      const rs = (this.pauseMenu as unknown as { config: { runStats: { kills: number; xpEarned: number } } }).config.runStats
+      rs.kills = this.totalKills
+      rs.xpEarned = this.totalXp
+    }
 
     // -- Skill cooldowns --
     for (const skill of SKILLS) {
