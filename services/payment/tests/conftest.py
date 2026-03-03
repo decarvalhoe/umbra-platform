@@ -36,8 +36,16 @@ def anyio_backend():
 @pytest_asyncio.fixture(autouse=True)
 async def setup_db():
     """Create and drop tables for each test."""
+    from app.services.stripe_service import StripeService
+    from app.services.receipt_validator import ReceiptValidator
+
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Manually initialize app.state (ASGITransport doesn't trigger lifespan)
+    app.state.stripe_service = StripeService()
+    app.state.receipt_validator = ReceiptValidator()
+
     yield
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

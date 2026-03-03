@@ -1,0 +1,81 @@
+[
+  {
+    "id": "corrupted_guardian", "name": "Corrupted Guardian", "hp": 2000, "atk": 35, "def": 20, "speed": 40, "element": "shadow",
+    "description": "A once-noble protector consumed by the Corruption.",
+    "phases": [
+      { "phase": 1, "hp_threshold": 1.0, "name": "Awakening", "attacks": [
+        { "name": "Ground Slam", "damage_multiplier": 2.0, "cooldown": 4.0, "range": 150, "type": "aoe", "telegraph": 1.0 },
+        { "name": "Shadow Bolt", "damage_multiplier": 1.5, "cooldown": 2.5, "range": 300, "type": "projectile", "telegraph": 0.5 }
+      ]},
+      { "phase": 2, "hp_threshold": 0.6, "name": "Corruption Surge", "on_enter": "summon_minions", "minion_type": "corruption_spawn", "minion_count": 3, "attacks": [
+        { "name": "Ground Slam", "damage_multiplier": 2.5, "cooldown": 3.5, "range": 180, "type": "aoe", "telegraph": 0.8 },
+        { "name": "Shadow Bolt", "damage_multiplier": 1.8, "cooldown": 2.0, "range": 300, "type": "projectile", "telegraph": 0.4 },
+        { "name": "Corruption Wave", "damage_multiplier": 1.2, "cooldown": 6.0, "range": 400, "type": "cone", "telegraph": 1.2 }
+      ]},
+      { "phase": 3, "hp_threshold": 0.25, "name": "Death Throes", "on_enter": "enrage", "enrage_atk_bonus": 1.5, "enrage_speed_bonus": 1.3, "attacks": [
+        { "name": "Ground Slam", "damage_multiplier": 3.0, "cooldown": 3.0, "range": 200, "type": "aoe", "telegraph": 0.6 },
+        { "name": "Corruption Wave", "damage_multiplier": 2.0, "cooldown": 4.0, "range": 500, "type": "cone", "telegraph": 0.8 },
+        { "name": "Umbral Eruption", "damage_multiplier": 4.0, "cooldown": 10.0, "range": 250, "type": "full_aoe", "telegraph": 2.0 }
+      ]}
+    ],
+    "loot_table": [
+      { "item_id": "guardian_core", "chance": 1.0, "rarity": "legendary" },
+      { "item_id": "shadow_blade", "chance": 0.25, "rarity": "legendary" },
+      { "item_id": "void_fragment", "chance": 1.0, "quantity_min": 3, "quantity_max": 5 },
+      { "item_id": "cendres", "chance": 1.0, "quantity_min": 50, "quantity_max": 100 }
+    ]
+  },
+  {
+    "id": "flame_tyrant", "name": "Flame Tyrant", "hp": 2500, "atk": 40, "def": 15, "speed": 35, "element": "fire",
+    "description": "An ancient fire elemental lord entombed beneath the Ashen Wastes.",
+    "phases": [
+      { "phase": 1, "hp_threshold": 1.0, "name": "Smoldering", "attacks": [
+        { "name": "Flame Pillar", "damage_multiplier": 2.0, "cooldown": 3.5, "range": 100, "type": "ground_target", "telegraph": 1.5, "effect": "burn" },
+        { "name": "Magma Spit", "damage_multiplier": 1.5, "cooldown": 2.0, "range": 250, "type": "projectile", "telegraph": 0.3 }
+      ]},
+      { "phase": 2, "hp_threshold": 0.55, "name": "Inferno", "on_enter": "create_lava_zones", "attacks": [
+        { "name": "Flame Pillar", "damage_multiplier": 2.5, "cooldown": 3.0, "range": 120, "type": "ground_target", "count": 3, "telegraph": 1.2 },
+        { "name": "Magma Pool", "damage_multiplier": 0.5, "cooldown": 8.0, "range": 200, "type": "persistent_aoe", "duration": 5.0, "effect": "burn" },
+        { "name": "Fire Charge", "damage_multiplier": 3.0, "cooldown": 6.0, "range": 350, "type": "dash", "telegraph": 0.8 }
+      ]},
+      { "phase": 3, "hp_threshold": 0.2, "name": "Supernova", "on_enter": "enrage", "enrage_atk_bonus": 1.4, "attacks": [
+        { "name": "Inferno Breath", "damage_multiplier": 2.0, "cooldown": 4.0, "range": 300, "type": "cone", "telegraph": 1.0, "effect": "burn" },
+        { "name": "Eruption", "damage_multiplier": 5.0, "cooldown": 12.0, "range": 300, "type": "full_aoe", "telegraph": 2.5 },
+        { "name": "Flame Pillar", "damage_multiplier": 3.0, "cooldown": 2.0, "range": 150, "type": "ground_target", "count": 5, "telegraph": 0.8 }
+      ]}
+    ],
+    "loot_table": [
+      { "item_id": "tyrant_crown", "chance": 1.0, "rarity": "legendary" },
+      { "item_id": "inferno_blade", "chance": 0.2, "rarity": "legendary" },
+      { "item_id": "fire_essence", "chance": 1.0, "quantity_min": 5, "quantity_max": 8 },
+      { "item_id": "cendres", "chance": 1.0, "quantity_min": 75, "quantity_max": 150 }
+    ]
+  },
+  {
+    "id": "void_harbinger", "name": "Void Harbinger", "hp": 3000, "atk": 30, "def": 25, "speed": 45, "element": "void",
+    "description": "An entity from beyond the Void Rift. Reality warps around it.",
+    "phases": [
+      { "phase": 1, "hp_threshold": 1.0, "name": "Incursion", "attacks": [
+        { "name": "Void Rift", "damage_multiplier": 1.8, "cooldown": 4.0, "range": 150, "type": "ground_target", "telegraph": 1.5, "effect": "tear" },
+        { "name": "Gravity Well", "damage_multiplier": 1.0, "cooldown": 6.0, "range": 200, "type": "pull_aoe", "telegraph": 1.0 }
+      ]},
+      { "phase": 2, "hp_threshold": 0.65, "name": "Dimensional Collapse", "on_enter": "summon_minions", "minion_type": "void_sentinel", "minion_count": 2, "attacks": [
+        { "name": "Void Rift", "damage_multiplier": 2.5, "cooldown": 3.0, "range": 180, "type": "ground_target", "count": 3, "telegraph": 1.0 },
+        { "name": "Reality Tear", "damage_multiplier": 3.0, "cooldown": 8.0, "range": 400, "type": "line", "telegraph": 1.5, "effect": "tear" },
+        { "name": "Phase Shift", "damage_multiplier": 0.0, "cooldown": 10.0, "type": "teleport_behind" }
+      ]},
+      { "phase": 3, "hp_threshold": 0.3, "name": "Annihilation", "on_enter": "enrage", "enrage_atk_bonus": 1.6, "attacks": [
+        { "name": "Void Collapse", "damage_multiplier": 6.0, "cooldown": 15.0, "range": 350, "type": "full_aoe", "telegraph": 3.0, "effect": "tear" },
+        { "name": "Reality Tear", "damage_multiplier": 4.0, "cooldown": 5.0, "range": 500, "type": "line", "telegraph": 1.0, "count": 2 },
+        { "name": "Gravity Well", "damage_multiplier": 2.0, "cooldown": 4.0, "range": 250, "type": "pull_aoe", "telegraph": 0.5 }
+      ]}
+    ],
+    "loot_table": [
+      { "item_id": "harbinger_eye", "chance": 1.0, "rarity": "legendary" },
+      { "item_id": "reality_render", "chance": 0.15, "rarity": "legendary" },
+      { "item_id": "oblivion_shard", "chance": 1.0, "quantity_min": 1, "quantity_max": 3 },
+      { "item_id": "void_fragment", "chance": 1.0, "quantity_min": 8, "quantity_max": 12 },
+      { "item_id": "cendres", "chance": 1.0, "quantity_min": 100, "quantity_max": 200 }
+    ]
+  }
+]

@@ -75,7 +75,7 @@ function App() {
 
   return (
     <div className="App">
-      <HUD profile={profile} wallet={wallet} health={100} maxHealth={100} />
+      <HUD profile={profile} wallet={wallet} health={100} maxHealth={100} dodgeCharges={2} maxDodgeCharges={2} />
       <div id="game-container" ref={gameRef} />
       <div className="game-controls">
         <button onClick={() => setShowInventory(true)}>Inventaire</button>

@@ -1,0 +1,6 @@
+export { Enemy } from './Enemy'
+export { EnemyFSM, EnemyState, EnemyStateType } from './EnemyFSM'
+export { StateFactory } from './states/StateFactory'
+export type { EnemyStateName } from './states/StateFactory'
+export type { EnemyConfig } from './EnemyConfig'
+export { shadowWraithConfig } from './EnemyConfig'

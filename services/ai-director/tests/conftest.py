@@ -14,7 +14,30 @@ class MockLLMClient(LLMClient):
     async def generate(
         self, prompt: str, system: str = "", max_tokens: int = 2000
     ) -> str:
-        if "quest" in prompt.lower():
+        # Check "recommend" before "quest" because recommend prompts may
+        # contain "quest_..." in the recent_content list
+        if "recommend game content" in prompt.lower():
+            return json.dumps(
+                {
+                    "recommendations": [
+                        {
+                            "content_type": "dungeon",
+                            "content_id": "dungeon_1",
+                            "reason": "Matches play style",
+                            "priority": 8,
+                        }
+                    ]
+                }
+            )
+        if "evaluate" in prompt.lower() or "session" in prompt.lower():
+            return json.dumps(
+                {
+                    "difficulty_adjustment": 0.2,
+                    "recommendations": ["Increase enemy density"],
+                    "engagement_score": 0.75,
+                }
+            )
+        if "generate a quest" in prompt.lower() or ("quest" in prompt.lower() and "dungeon" not in prompt.lower()):
             return json.dumps(
                 {
                     "title": "Test Quest",
@@ -66,14 +89,6 @@ class MockLLMClient(LLMClient):
                     ],
                 }
             )
-        if "evaluate" in prompt.lower() or "session" in prompt.lower():
-            return json.dumps(
-                {
-                    "difficulty_adjustment": 0.2,
-                    "recommendations": ["Increase enemy density"],
-                    "engagement_score": 0.75,
-                }
-            )
         if "recommend" in prompt.lower():
             return json.dumps(
                 {
@@ -97,13 +112,15 @@ def anyio_backend():
 
 @pytest_asyncio.fixture
 async def client():
-    with patch(
-        "app.main.get_llm_client", return_value=MockLLMClient()
-    ):
-        from app.main import app
+    from app.main import app
+    from app.services.content_generator import ContentGenerator
 
-        transport = ASGITransport(app=app)
-        async with AsyncClient(
-            transport=transport, base_url="http://testserver"
-        ) as ac:
-            yield ac
+    # Manually initialize app.state (ASGITransport doesn't trigger lifespan)
+    mock_llm = MockLLMClient()
+    app.state.content_generator = ContentGenerator(mock_llm)
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport, base_url="http://testserver"
+    ) as ac:
+        yield ac

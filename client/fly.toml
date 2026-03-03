@@ -1,0 +1,14 @@
+# fly.toml file generated for umbra-client on 2026-03-02T00:01:23Z
+
+app = "umbra-client"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
