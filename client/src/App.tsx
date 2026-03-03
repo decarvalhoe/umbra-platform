@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Game } from "phaser";
 import { gameConfig } from "./game/config";
+import { LandingPage } from "./components/LandingPage";
 import { LoginScreen } from "./components/LoginScreen";
 import { HUD } from "./components/HUD";
 import { InventoryPanel } from "./components/InventoryPanel";
@@ -11,10 +12,12 @@ import type { PlayerProfile, InventoryItem } from "./types/game";
 import type { Wallet } from "./types/economy";
 import "./App.css";
 
+type AppState = "landing" | "login" | "game";
+
 function App() {
   const gameRef = useRef<HTMLDivElement>(null);
   const phaserGameRef = useRef<Game | null>(null);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [appState, setAppState] = useState<AppState>("landing");
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [wallet] = useState<Wallet | null>({ cendres: 500, eclats_ombre: 50, essence_antique: 0 });
   const [inventory] = useState<InventoryItem[]>([]);
@@ -25,25 +28,25 @@ function App() {
   useEffect(() => {
     const session = restoreSession();
     if (session) {
-      setAuthenticated(true);
+      setAppState("game");
       loadProfile();
     }
   }, []);
 
   useEffect(() => {
-    if (authenticated && gameRef.current && !phaserGameRef.current) {
+    if (appState === "game" && gameRef.current && !phaserGameRef.current) {
       phaserGameRef.current = new Game({
         ...gameConfig,
         parent: gameRef.current,
       });
     }
     return () => {
-      if (phaserGameRef.current) {
+      if (appState !== "game" && phaserGameRef.current) {
         phaserGameRef.current.destroy(true);
         phaserGameRef.current = null;
       }
     };
-  }, [authenticated]);
+  }, [appState]);
 
   const loadProfile = async () => {
     try {
@@ -54,14 +57,18 @@ function App() {
     }
   };
 
+  const handleEnterFromLanding = () => {
+    setAppState("login");
+  };
+
   const handleLogin = () => {
-    setAuthenticated(true);
+    setAppState("game");
     loadProfile();
   };
 
   const handleLogout = () => {
     logout();
-    setAuthenticated(false);
+    setAppState("landing");
     setProfile(null);
     if (phaserGameRef.current) {
       phaserGameRef.current.destroy(true);
@@ -69,13 +76,24 @@ function App() {
     }
   };
 
-  if (!authenticated) {
+  if (appState === "landing") {
+    return <LandingPage onEnter={handleEnterFromLanding} />;
+  }
+
+  if (appState === "login") {
     return <LoginScreen onLogin={handleLogin} />;
   }
 
   return (
     <div className="App">
-      <HUD profile={profile} wallet={wallet} health={100} maxHealth={100} dodgeCharges={2} maxDodgeCharges={2} />
+      <HUD
+        profile={profile}
+        wallet={wallet}
+        health={100}
+        maxHealth={100}
+        dodgeCharges={2}
+        maxDodgeCharges={2}
+      />
       <div id="game-container" ref={gameRef} />
       <div className="game-controls">
         <button onClick={() => setShowInventory(true)}>Inventaire</button>
