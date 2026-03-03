@@ -21,12 +21,16 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    """Get the database URL from environment, converting asyncpg to sync driver."""
-    url = os.environ.get(
+    """Get the database URL from environment."""
+    return os.environ.get(
         "PAYMENT_DATABASE_URL",
-        config.get_main_option("sqlalchemy.url", "sqlite:///./test.db"),
+        config.get_main_option("sqlalchemy.url", "sqlite+aiosqlite:///./test.db"),
     )
-    # Convert async driver to sync for Alembic migrations
+
+
+def get_sync_url() -> str:
+    """Get the database URL converted to sync driver for offline migrations."""
+    url = get_url()
     if "+asyncpg" in url:
         url = url.replace("+asyncpg", "")
     elif "+aiosqlite" in url:
@@ -36,7 +40,7 @@ def get_url() -> str:
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = get_url()
+    url = get_sync_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
