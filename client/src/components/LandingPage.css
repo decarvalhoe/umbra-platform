@@ -57,13 +57,7 @@
 
 .lp-root * { box-sizing: border-box; }
 
-/* Custom cursor only on fine-pointer (mouse) devices */
-@media (pointer: fine) {
-  .lp-root { cursor: none; }
-  .lp-root *:not(.lp-skip-link):not(a):not(button):not([role="button"]):not(input):not(select):not(textarea) {
-    cursor: none;
-  }
-}
+/* Custom cursor only on fine-pointer (mouse) devices — decorative overlay, native cursor stays */
 
 /* ── Custom Cursor ─────────────────────────────────────────────── */
 .lp-cursor {
@@ -971,7 +965,6 @@
   transition: transform 0.3s var(--transition-smooth), border-color 0.3s, box-shadow 0.3s;
   opacity: 0;
   transform: translateY(30px);
-  cursor: none;
 }
 
 .lp-romance-card.lp-card-in {
@@ -1093,6 +1086,264 @@
 .lp-stat-row { list-style: none; margin: 0; padding: 0; }
 .lp-stat dt.lp-stat-label { font-size: 0.75rem; color: var(--umbra-text-dim); text-transform: uppercase; letter-spacing: 0.08em; order: 2; margin: 0; }
 .lp-stat dd.lp-stat-num   { font-size: 2.2rem; font-weight: 900; margin: 0; order: 1; }
+
+/* ── Loaded state ─────────────────────────────────────────────── */
+.lp-root:not(.lp-loaded) { opacity: 0; }
+.lp-root.lp-loaded { opacity: 1; transition: opacity 0.4s ease; }
+
+/* ── Mascot ───────────────────────────────────────────────────── */
+.lp-mascot {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  cursor: pointer;
+  transition: transform 0.3s var(--transition-smooth);
+}
+
+.lp-mascot:hover { transform: scale(1.1); }
+
+.lp-mascot--bounce {
+  animation: mascotBounce 0.6s ease;
+}
+
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0); }
+  30%      { transform: translateY(-20px) scale(1.1); }
+  50%      { transform: translateY(-10px); }
+  70%      { transform: translateY(-15px); }
+}
+
+.lp-mascot-img {
+  width: 80px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(155, 89, 182, 0.5));
+}
+
+.lp-speech-bubble {
+  position: absolute;
+  bottom: 90px;
+  right: 0;
+  background: rgba(10, 10, 15, 0.9);
+  border: 1px solid var(--umbra-purple-glow);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  color: var(--umbra-text);
+  white-space: nowrap;
+  box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+.lp-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 30px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--umbra-purple-glow);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Speed Lines ──────────────────────────────────────────────── */
+.lp-speed-lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 48%,
+    rgba(255, 255, 255, 0.015) 48%,
+    rgba(255, 255, 255, 0.015) 50%,
+    transparent 50%
+  );
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Halftone ─────────────────────────────────────────────────── */
+.lp-halftone {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(155, 89, 182, 0.08) 1px, transparent 1px);
+  background-size: 6px 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Manga Panel Border ───────────────────────────────────────── */
+.lp-manga-panel-border {
+  position: absolute;
+  inset: 20px;
+  border: 2px solid rgba(155, 89, 182, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Eyebrow Tags ─────────────────────────────────────────────── */
+.lp-eyebrow-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+}
+
+.lp-eyebrow-sep {
+  display: inline-block;
+  margin: 0 12px;
+  color: rgba(155, 89, 182, 0.5);
+  font-size: 0.6rem;
+}
+
+/* ── Logo ─────────────────────────────────────────────────────── */
+.lp-logo-wrap {
+  margin-bottom: 24px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.lp-logo-wrap.lp-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lp-logo-img {
+  max-width: 360px;
+  height: auto;
+  filter: drop-shadow(0 0 40px rgba(155, 89, 182, 0.5));
+}
+
+/* ── Button Sparkles ──────────────────────────────────────────── */
+.lp-btn-sparkle {
+  margin: 0 8px;
+  font-size: 0.7em;
+  opacity: 0.7;
+}
+
+/* ── Scroll Bounce / Text ─────────────────────────────────────── */
+.lp-scroll-bounce {
+  font-size: 1.2rem;
+  display: inline-block;
+}
+
+.lp-scroll-text {
+  text-transform: uppercase;
+}
+
+/* ── Manga Tag ────────────────────────────────────────────────── */
+.lp-manga-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--umbra-purple-glow);
+  border: 1px solid rgba(155, 89, 182, 0.4);
+  padding: 6px 16px;
+  margin-bottom: 24px;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+/* ── Title Accent ─────────────────────────────────────────────── */
+.lp-title-accent {
+  color: var(--umbra-purple-glow);
+  text-shadow: 0 0 30px rgba(155, 89, 182, 0.4);
+}
+
+/* ── Wink ─────────────────────────────────────────────────────── */
+.lp-wink {
+  color: var(--umbra-purple-glow);
+  font-style: italic;
+}
+
+/* ── Mascot Large (Lore Section) ──────────────────────────────── */
+.lp-mascot-large-wrap {
+  position: relative;
+  text-align: center;
+}
+
+.lp-mascot-large {
+  width: 300px;
+  height: auto;
+  filter: drop-shadow(0 0 40px rgba(155, 89, 182, 0.5));
+}
+
+.lp-mascot-bubble-static {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--umbra-purple-glow);
+  text-align: center;
+}
+
+/* ── Feature Tag & Sparkles ───────────────────────────────────── */
+.lp-feature-tag {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--card-color, var(--umbra-purple-glow));
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.lp-feature-sparkles {
+  margin-top: 16px;
+  font-size: 0.6rem;
+  color: var(--card-color, var(--umbra-purple-glow));
+  opacity: 0.3;
+  letter-spacing: 0.3em;
+}
+
+.lp-feature-card:hover .lp-feature-sparkles { opacity: 0.8; }
+
+/* ── Class Emoji ──────────────────────────────────────────────── */
+.lp-class-emoji {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: block;
+  filter: drop-shadow(0 0 10px var(--class-color, var(--umbra-purple)));
+}
+
+/* ── AI Icon ──────────────────────────────────────────────────── */
+.lp-ai-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ── Final Mascot ─────────────────────────────────────────────── */
+.lp-final-mascot {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 30px rgba(155, 89, 182, 0.5));
+}
+
+/* ── Footer Logo Image ────────────────────────────────────────── */
+.lp-footer-logo-img {
+  max-width: 120px;
+  height: auto;
+  opacity: 0.5;
+  filter: grayscale(0.5);
+  transition: opacity 0.3s;
+}
+
+.lp-footer-logo-img:hover { opacity: 0.8; }
+
+/* ── Responsive mascot ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .lp-mascot { bottom: 16px; right: 16px; }
+  .lp-mascot-img { width: 60px; }
+  .lp-mascot-large { width: 200px; }
+}
 
 /* ── prefers-reduced-motion ────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
