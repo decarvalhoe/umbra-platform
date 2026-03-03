@@ -442,7 +442,7 @@ const InitModule: nkruntime.InitModule = function (
   // Seasonal leaderboard
   var q2 = Math.ceil((new Date().getMonth() + 1) / 3);
   var seasonId = "season_" + new Date().getFullYear() + "_" + (q2 < 10 ? "0" + q2 : "" + q2);
-  nk.leaderboardCreate(seasonId, true, "desc", "best");
+  nk.leaderboardCreate(seasonId, true, "desc" as any, "best" as any);
 
   logger.info("Umbra Platform initialized — Season: %s", seasonId);
 };
