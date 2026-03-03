@@ -3,16 +3,17 @@ import { Game } from "phaser";
 import { gameConfig } from "./game/config";
 import { LandingPage } from "./components/LandingPage";
 import { LoginScreen } from "./components/LoginScreen";
+import { IdentitySetup } from "./components/IdentitySetup";
 import { HUD } from "./components/HUD";
 import { InventoryPanel } from "./components/InventoryPanel";
 import { GachaModal } from "./components/GachaModal";
 import { restoreSession, logout } from "./nakama/auth";
-import { getPlayerProfile } from "./nakama/storage";
+import { getPlayerProfile, getPlayerIdentity } from "./nakama/storage";
 import type { PlayerProfile, InventoryItem } from "./types/game";
 import type { Wallet } from "./types/economy";
 import "./App.css";
 
-type AppState = "landing" | "login" | "game";
+type AppState = "landing" | "login" | "identity-setup" | "game";
 
 function App() {
   const gameRef = useRef<HTMLDivElement>(null);
@@ -28,8 +29,7 @@ function App() {
   useEffect(() => {
     const session = restoreSession();
     if (session) {
-      setAppState("game");
-      loadProfile();
+      checkIdentityAndEnter();
     }
   }, []);
 
@@ -66,11 +66,31 @@ function App() {
     }
   };
 
+  const checkIdentityAndEnter = async () => {
+    try {
+      const identity = await getPlayerIdentity();
+      if (identity) {
+        setAppState("game");
+        loadProfile();
+      } else {
+        setAppState("identity-setup");
+      }
+    } catch {
+      // If identity check fails (e.g., server not available), go straight to game
+      setAppState("game");
+      loadProfile();
+    }
+  };
+
   const handleEnterFromLanding = () => {
     setAppState("login");
   };
 
   const handleLogin = () => {
+    checkIdentityAndEnter();
+  };
+
+  const handleIdentityComplete = () => {
     setAppState("game");
     loadProfile();
   };
@@ -91,6 +111,10 @@ function App() {
 
   if (appState === "login") {
     return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  if (appState === "identity-setup") {
+    return <IdentitySetup onComplete={handleIdentityComplete} />;
   }
 
   return (
