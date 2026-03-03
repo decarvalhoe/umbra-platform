@@ -95,3 +95,32 @@ export interface Quest {
   rewards: Record<string, number>;
   difficulty: string;
 }
+
+// ── Companion / Romance System ─────────────────────────────────
+
+export type RelationshipPreference = "romance" | "friendship" | "neutral";
+
+export type AffinityThreshold = "unknown" | "familiar" | "close_friend" | "romantic_interest" | "deep_bond";
+
+export type CompanionEmotion = "neutral" | "happy" | "sad" | "flustered" | "angry";
+
+export interface Companion {
+  id: string;
+  name: string;
+  pronouns: string;
+  role: string;
+  element: Element | "arcane" | "healing";
+  color: string;
+  glyph: string;
+  description: string;
+}
+
+export interface CompanionBond {
+  companionId: string;
+  affinity: number;
+  threshold: AffinityThreshold;
+  relationshipPreference: RelationshipPreference;
+  resonanceLevel: number;
+  lastDialogueAt: string | null;
+  hasNewEvent: boolean;
+}
