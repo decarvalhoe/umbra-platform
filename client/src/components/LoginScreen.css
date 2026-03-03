@@ -1,0 +1,338 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UMBRA — LOGIN SCREEN  v2
+   Design intégré dans l'univers dark fantasy de la landing page
+═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700;900&family=Raleway:wght@300;400;600&display=swap');
+
+:root {
+  --ls-black:        #050508;
+  --ls-dark:         #0a0a12;
+  --ls-purple:       #6c3483;
+  --ls-purple-light: #9b59b6;
+  --ls-purple-glow:  #b07fd4;
+  --ls-red:          #c0392b;
+  --ls-text:         #ede5f5;
+  --ls-text-dim:     #8e7a9e;
+  --ls-border:       rgba(176, 127, 212, 0.22);
+  --ls-border-focus: rgba(176, 127, 212, 0.75);
+  --ls-panel-bg:     rgba(8, 6, 16, 0.88);
+  --font-title: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-body:  'Raleway', sans-serif;
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Root ──────────────────────────────────────────────────────── */
+.ls-root {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-body);
+  background: var(--ls-black);
+  overflow: hidden;
+  cursor: default;
+}
+
+/* ── Canvas ────────────────────────────────────────────────────── */
+.ls-canvas {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 5;
+  mix-blend-mode: screen;
+}
+
+/* ── Fond hero ─────────────────────────────────────────────────── */
+.ls-bg {
+  position: absolute; inset: 0;
+  background: url('/assets/hero_bg.jpg') center center / cover no-repeat;
+  filter: brightness(.3) saturate(1.2) blur(2px);
+  transform: scale(1.05);
+}
+
+/* Dégradé centré pour faire ressortir le panneau */
+.ls-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 90% at 50% 50%, rgba(5,5,8,.55) 30%, rgba(5,5,8,.92) 100%);
+}
+
+/* ── Runes de fond ─────────────────────────────────────────────── */
+.ls-rune-bg {
+  position: absolute;
+  width: min(70vw, 750px); height: min(70vw, 750px);
+  left: 50%; top: 50%;
+  background: url('/assets/rune_circle.png') center / contain no-repeat;
+  pointer-events: none; z-index: 1;
+  opacity: .055;
+}
+.ls-rune-bg--inner {
+  width: min(45vw, 480px); height: min(45vw, 480px);
+  opacity: .035;
+  filter: hue-rotate(180deg) saturate(2);
+}
+
+/* ── Brume bas ─────────────────────────────────────────────────── */
+.ls-fog {
+  position: absolute; bottom: 0; left: -5%;
+  width: 110%; height: 28%;
+  background: url('/assets/fog_layer.png') center bottom / cover no-repeat;
+  opacity: .18; mix-blend-mode: screen;
+  pointer-events: none; z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PANNEAU CENTRAL
+═══════════════════════════════════════════════════════════════ */
+.ls-panel {
+  position: relative; z-index: 10;
+  width: min(460px, 92vw);
+  background: var(--ls-panel-bg);
+  border: 1px solid var(--ls-border);
+  padding: 48px 44px 40px;
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow:
+    0 0 0 1px rgba(176,127,212,.06),
+    0 32px 80px rgba(0,0,0,.75),
+    0 0 60px rgba(108,52,131,.12),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  /* Coins biseautés style Umbra */
+  clip-path: polygon(
+    0 0,
+    calc(100% - 20px) 0,
+    100% 20px,
+    100% 100%,
+    20px 100%,
+    0 calc(100% - 20px)
+  );
+  opacity: 0;
+  transform: translateY(28px) scale(.98);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.ls-panel--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Logo ──────────────────────────────────────────────────────── */
+.ls-logo-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 18px;
+  position: relative;
+}
+.ls-logo-rune {
+  width: 72px; height: 72px;
+  position: relative; margin-bottom: -12px;
+}
+.ls-logo-rune-img {
+  width: 100%; height: 100%; object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(176,127,212,.55));
+  opacity: .7;
+}
+.ls-logo {
+  font-family: var(--font-title);
+  font-size: 3.2rem; font-weight: 900;
+  letter-spacing: .22em;
+  /* Dégradé texte identique à la landing */
+  background: linear-gradient(160deg, #fff 0%, var(--ls-purple-glow) 40%, #fff 60%, var(--ls-purple-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 28px rgba(176,127,212,.45));
+  animation: logoShimmer 6s ease-in-out infinite;
+  margin: 0;
+}
+@keyframes logoShimmer {
+  0%, 100% { filter: drop-shadow(0 0 28px rgba(176,127,212,.45)); }
+  50%       { filter: drop-shadow(0 0 44px rgba(176,127,212,.8)) drop-shadow(0 0 70px rgba(108,52,131,.35)); }
+}
+
+.ls-tagline {
+  text-align: center;
+  font-size: .78rem; font-weight: 300;
+  letter-spacing: .12em; color: var(--ls-text-dim);
+  margin-bottom: 28px;
+  font-style: italic;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.ls-tabs {
+  display: flex; gap: 0; margin-bottom: 30px;
+  border: 1px solid var(--ls-border);
+  overflow: hidden;
+  clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+}
+.ls-tab {
+  flex: 1; padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: .7rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  background: transparent; border: none;
+  color: var(--ls-text-dim);
+  cursor: pointer;
+  transition: all .3s var(--ease);
+  position: relative;
+}
+.ls-tab::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--ls-purple-glow);
+  transform: scaleX(0);
+  transition: transform .3s var(--ease);
+  box-shadow: 0 0 8px var(--ls-purple-glow);
+}
+.ls-tab--active {
+  color: var(--ls-text);
+  background: rgba(108,52,131,.18);
+}
+.ls-tab--active::after { transform: scaleX(1); }
+.ls-tab:hover:not(.ls-tab--active) { color: var(--ls-purple-glow); background: rgba(108,52,131,.08); }
+
+/* ── Formulaire ────────────────────────────────────────────────── */
+.ls-form { display: flex; flex-direction: column; gap: 18px; }
+
+.ls-field { display: flex; flex-direction: column; gap: 7px; }
+.ls-label {
+  font-size: .62rem; font-weight: 600;
+  letter-spacing: .25em; text-transform: uppercase;
+  color: var(--ls-text-dim);
+}
+
+.ls-input-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.ls-input-icon {
+  position: absolute; left: 14px;
+  font-size: .9rem; color: var(--ls-text-dim);
+  pointer-events: none;
+  transition: color .3s;
+}
+.ls-input {
+  width: 100%; padding: 13px 42px 13px 40px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--ls-border);
+  color: var(--ls-text);
+  font-family: var(--font-body); font-size: .9rem;
+  outline: none;
+  transition: border-color .3s, background .3s, box-shadow .3s;
+  clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+}
+.ls-input::placeholder { color: rgba(142,122,158,.45); }
+.ls-input:focus {
+  border-color: var(--ls-border-focus);
+  background: rgba(108,52,131,.08);
+  box-shadow: 0 0 0 1px rgba(176,127,212,.25), 0 0 20px rgba(108,52,131,.15);
+}
+.ls-input:focus + .ls-input-icon,
+.ls-input-wrap:focus-within .ls-input-icon { color: var(--ls-purple-glow); }
+
+.ls-pwd-toggle {
+  position: absolute; right: 12px;
+  background: none; border: none;
+  color: var(--ls-text-dim); font-size: 1rem;
+  cursor: pointer; padding: 4px;
+  transition: color .3s;
+}
+.ls-pwd-toggle:hover { color: var(--ls-purple-glow); }
+
+/* ── Erreur ────────────────────────────────────────────────────── */
+.ls-error {
+  display: flex; align-items: center; gap: 9px;
+  background: rgba(192,57,43,.12);
+  border: 1px solid rgba(192,57,43,.35);
+  padding: 10px 14px;
+  font-size: .82rem; color: #e74c3c;
+  clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+  animation: errorShake .35s ease;
+}
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-5px); }
+  75%       { transform: translateX(5px); }
+}
+.ls-error-icon { font-size: 1rem; flex-shrink: 0; }
+
+/* ── Bouton submit ─────────────────────────────────────────────── */
+.ls-submit {
+  position: relative; overflow: hidden;
+  width: 100%; padding: 16px;
+  font-family: var(--font-body);
+  font-size: .78rem; font-weight: 700;
+  letter-spacing: .22em; text-transform: uppercase;
+  background: linear-gradient(135deg, var(--ls-purple) 0%, var(--ls-red) 100%);
+  color: #fff; border: none;
+  cursor: pointer;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  box-shadow: 0 0 28px rgba(108,52,131,.4), 0 4px 18px rgba(0,0,0,.45);
+  transition: all .3s var(--ease);
+  margin-top: 4px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.ls-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--ls-purple-glow) 0%, #e74c3c 100%);
+  box-shadow: 0 0 48px rgba(176,127,212,.65), 0 8px 28px rgba(0,0,0,.5);
+  transform: translateY(-2px);
+}
+.ls-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.ls-submit-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.14), transparent 70%);
+  opacity: 0; transition: opacity .3s;
+}
+.ls-submit:hover .ls-submit-glow { opacity: 1; }
+.ls-submit-arrow { display: inline-block; transition: transform .3s; }
+.ls-submit:hover .ls-submit-arrow { transform: translateX(4px); }
+.ls-submit--loading { pointer-events: none; }
+
+/* Spinner */
+.ls-spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Séparateur ────────────────────────────────────────────────── */
+.ls-divider {
+  display: flex; align-items: center; gap: 14px;
+  margin: 22px 0 16px;
+}
+.ls-divider-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(to right, transparent, var(--ls-border), transparent);
+}
+.ls-divider-text { font-size: .68rem; color: var(--ls-text-dim); letter-spacing: .1em; }
+
+/* ── Bouton invité ─────────────────────────────────────────────── */
+.ls-guest {
+  width: 100%; padding: 13px;
+  background: transparent;
+  border: 1px solid var(--ls-border);
+  color: var(--ls-text-dim);
+  font-family: var(--font-body); font-size: .75rem;
+  font-weight: 600; letter-spacing: .15em; text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+  transition: all .3s var(--ease);
+}
+.ls-guest:hover {
+  border-color: var(--ls-purple-glow);
+  color: var(--ls-text);
+  background: rgba(108,52,131,.12);
+}
+
+/* ── Note footer ───────────────────────────────────────────────── */
+.ls-footer-note {
+  text-align: center;
+  font-size: .62rem; color: rgba(255,255,255,.2);
+  line-height: 1.6; margin-top: 18px;
+}
+.ls-link { color: var(--ls-purple-glow); cursor: pointer; }
+.ls-link:hover { text-decoration: underline; }
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 500px) {
+  .ls-panel { padding: 36px 24px 32px; }
+  .ls-logo  { font-size: 2.6rem; }
+}
