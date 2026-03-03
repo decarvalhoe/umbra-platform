@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { PauseMenu } from '../ui/PauseMenu'
 import { DungeonGenerator, DungeonGraph, DungeonNode } from '../dungeon/DungeonGenerator'
 import { RuneInventory, selectRuneCards, RuneCard } from '../dungeon/RuneCardSystem'
 import { generateDungeon as fetchAIDungeon } from '../../services/ai-director'
@@ -47,6 +48,7 @@ const COLORS = {
 // ---------------------------------------------------------------------------
 
 export class DungeonScene extends Phaser.Scene {
+  private pauseMenu!: PauseMenu
     private dungeon!: DungeonGraph
     private currentNodeId: number = 0
     private runeInventory: RuneInventory = new RuneInventory()
@@ -85,7 +87,27 @@ export class DungeonScene extends Phaser.Scene {
         this.runeInventory.reset()
     }
 
-    create(): void {
+    update(): void {
+    this.pauseMenu.update()
+    if (this.pauseMenu.paused) return
+  }
+
+  create(): void {
+    // Pause menu
+    this.pauseMenu = new PauseMenu({
+      scene: this,
+      onResume: () => { /* resumed */ },
+      onAbandon: () => {
+        this.scene.start('HubScene', {
+          xpEarned: (this as unknown as { totalXpEarned?: number }).totalXpEarned ?? 0,
+          cendresEarned: (this as unknown as { totalCendresEarned?: number }).totalCendresEarned ?? 0,
+        })
+      },
+      onQuit: () => {
+        this.scene.start('HubScene')
+      },
+    })
+
         this.cameras.main.setBackgroundColor(COLORS.bg)
         this.mapGraphics = this.add.graphics()
         this.roomInfoGroup = this.add.group()
