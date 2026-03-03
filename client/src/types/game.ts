@@ -153,21 +153,50 @@ export interface ResonanceReward {
 
 export type CraftingMaterial = "shadow_dust" | "void_crystal" | "abyssal_dust" | "resonance_crystal";
 
-export type CorruptionSet = "voidheart" | "shadowflame" | "bloodtide" | "abyssal";
+export type CorruptionSet = "voidheart" | "shadowedge" | "wraith_swift" | "soulbound" | "ironveil" | "despairs_echo" | "bloodpact";
 
 export type RuneSlot = 1 | 2 | 3 | 4 | 5 | 6;
 
-export type RuneMainStat = "ATK%" | "DEF%" | "HP%" | "SPD" | "CRIT%" | "CRIT_DMG%" | "EFF%" | "RES%";
+export type RuneMainStat = "ATK" | "ATK%" | "DEF" | "DEF%" | "HP" | "HP%" | "SPD" | "CRIT%" | "CRIT_DMG%" | "EFF%" | "RES%";
+
+export type RuneRarity = "tainted" | "corrupted" | "defiled" | "accursed" | "abyssal";
+
+export interface RuneSubStat {
+  stat: RuneMainStat;
+  value: number;
+}
+
+export interface CorruptionSeal {
+  id: string;
+  name: string;
+  description: string;
+  effect: string;
+}
 
 export interface Rune {
   id: string;
   set: CorruptionSet;
   slot: RuneSlot;
-  rarity: "common" | "rare" | "epic" | "legendary";
+  rarity: RuneRarity;
   level: number;
   mainStat: RuneMainStat;
   mainValue: number;
-  subStats: { stat: RuneMainStat; value: number }[];
+  subStats: RuneSubStat[];
+  seal?: CorruptionSeal;
+}
+
+export interface SetBonus {
+  set: CorruptionSet;
+  piecesRequired: number;
+  bonus: string;
+  bonusValue: number;
+  bonusStat: string;
+}
+
+export interface CompanionRuneLoadout {
+  companionId: string;
+  slots: (Rune | null)[];
+  activeBonuses: SetBonus[];
 }
 
 export interface Equipment {

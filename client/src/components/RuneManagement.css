@@ -1,0 +1,495 @@
+/* ── Corruption Rune Management ────────────────────────────── */
+
+.rm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+
+.rm-modal {
+  background: linear-gradient(180deg, #0a0a1a 0%, #15102a 50%, #0a0a1a 100%);
+  border: 1px solid #2a1a4a;
+  border-radius: 12px;
+  width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 60px rgba(80, 20, 160, 0.25);
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+
+.rm-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #221240;
+  gap: 12px;
+}
+
+.rm-title {
+  font-size: 20px;
+  color: #b388ff;
+  margin: 0;
+  flex: 1;
+  font-family: monospace;
+}
+
+.rm-dust {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(80, 20, 160, 0.15);
+  border: 1px solid #3a1a6a;
+  border-radius: 20px;
+  padding: 4px 14px;
+}
+
+.rm-dust-icon {
+  color: #b388ff;
+  font-size: 14px;
+}
+
+.rm-dust-count {
+  color: #d4b8ff;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.rm-dust-label {
+  color: #888;
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.rm-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.rm-close:hover { color: #ff6666; }
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+
+.rm-tabs {
+  display: flex;
+  border-bottom: 1px solid #221240;
+}
+
+.rm-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #888;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.rm-tab:hover { color: #b388ff; }
+
+.rm-tab.active {
+  color: #b388ff;
+  border-bottom-color: #7c4dff;
+}
+
+/* ── Companion selector ───────────────────────────────────── */
+
+.rm-companions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.rm-companion-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #221240;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.rm-companion-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.rm-companion-btn.active {
+  border-color: var(--comp-color, #7c4dff);
+  background: rgba(124, 77, 255, 0.1);
+}
+
+.rm-comp-glyph {
+  font-size: 18px;
+}
+
+.rm-comp-name {
+  color: #ccc;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ── Rune slots grid ──────────────────────────────────────── */
+
+.rm-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+
+.rm-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-height: 72px;
+}
+
+.rm-slot:hover {
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.rm-slot.selected {
+  border-color: #7c4dff;
+  border-style: solid;
+  background: rgba(124, 77, 255, 0.08);
+}
+
+.rm-slot.filled {
+  border-style: solid;
+  border-color: #3a2060;
+}
+
+.rm-slot-set { font-size: 20px; }
+.rm-slot-level { font-family: monospace; font-size: 12px; font-weight: bold; }
+.rm-slot-main { font-family: monospace; font-size: 10px; color: #aaa; }
+.rm-slot-seal { position: absolute; top: 2px; right: 4px; font-size: 10px; }
+.rm-slot-empty { color: #555; font-family: monospace; font-size: 11px; }
+
+/* ── Set bonuses ──────────────────────────────────────────── */
+
+.rm-set-bonuses {
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  background: rgba(124, 77, 255, 0.06);
+  border: 1px solid #2a1a4a;
+  border-radius: 8px;
+}
+
+.rm-bonuses-title {
+  font-family: monospace;
+  font-size: 12px;
+  color: #b388ff;
+  margin-bottom: 6px;
+}
+
+.rm-bonus-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.rm-bonus-icon { font-size: 14px; }
+.rm-bonus-name { color: #ccc; flex: 1; }
+.rm-bonus-value { color: #66ff88; }
+
+/* ── Slot detail / equip list ─────────────────────────────── */
+
+.rm-slot-detail {
+  padding: 0 16px 16px;
+}
+
+.rm-rune-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rm-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rm-upgrade-btn {
+  flex: 1;
+  padding: 10px;
+  background: linear-gradient(180deg, #2a1a5a, #1a0a40);
+  border: 1px solid #5c3daa;
+  border-radius: 6px;
+  color: #d4b8ff;
+  font-family: monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.rm-upgrade-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3a2a7a, #2a1a60);
+}
+
+.rm-upgrade-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rm-unequip-btn {
+  padding: 10px 16px;
+  background: rgba(255, 60, 60, 0.1);
+  border: 1px solid #663333;
+  border-radius: 6px;
+  color: #ff8888;
+  font-family: monospace;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rm-unequip-btn:hover {
+  background: rgba(255, 60, 60, 0.2);
+}
+
+.rm-equip-list-title {
+  font-family: monospace;
+  font-size: 13px;
+  color: #b388ff;
+  margin-bottom: 8px;
+}
+
+.rm-equip-option {
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: transform 0.1s;
+}
+
+.rm-equip-option:hover {
+  transform: translateX(4px);
+}
+
+.rm-empty {
+  color: #555;
+  font-family: monospace;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ── Inventory grid ───────────────────────────────────────── */
+
+.rm-inventory-content {
+  padding: 16px;
+}
+
+.rm-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.rm-inv-item {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.rm-inv-item:hover {
+  transform: scale(1.02);
+}
+
+.rm-rune-preview {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #221240;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Rune card ────────────────────────────────────────────── */
+
+.rm-card {
+  background: rgba(10, 5, 25, 0.9);
+  border: 2px solid #333;
+  border-radius: 8px;
+  font-family: monospace;
+}
+
+.rm-card-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.rm-card-compact .rm-card-set-icon { font-size: 16px; }
+.rm-card-compact .rm-card-main { display: flex; gap: 8px; flex: 1; }
+.rm-card-compact .rm-card-stat { color: #ccc; font-size: 12px; }
+.rm-card-compact .rm-card-level { font-size: 12px; font-weight: bold; }
+.rm-card-compact .rm-card-set-name { color: #888; font-size: 10px; }
+
+.rm-card-full {
+  padding: 14px;
+}
+
+.rm-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.rm-card-header .rm-card-set-icon { font-size: 20px; }
+.rm-card-header .rm-card-set-name { color: #ccc; font-size: 14px; flex: 1; }
+.rm-card-header .rm-card-rarity { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+
+.rm-card-main-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.rm-card-main-label { color: #aaa; font-size: 14px; }
+.rm-card-main-value { color: #fff; font-size: 22px; font-weight: bold; }
+
+.rm-card-level-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 8px;
+}
+
+.rm-card-substats {
+  border-top: 1px solid #221240;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rm-card-substat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.rm-card-seal {
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(124, 77, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #b388ff;
+}
+
+.rm-card-slot {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #555;
+  text-align: right;
+}
+
+/* ── Sets reference tab ───────────────────────────────────── */
+
+.rm-sets-content {
+  padding: 16px;
+}
+
+.rm-set-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid #1a1030;
+}
+
+.rm-set-icon { font-size: 20px; }
+
+.rm-set-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rm-set-name { color: #ccc; font-size: 13px; }
+.rm-set-pieces { color: #888; font-size: 11px; }
+.rm-set-bonus { color: #66ff88; font-size: 12px; font-family: monospace; }
+
+.rm-seals-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #2a1a4a;
+}
+
+.rm-seals-title {
+  font-family: monospace;
+  font-size: 14px;
+  color: #b388ff;
+  margin-bottom: 12px;
+}
+
+.rm-seal-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.rm-seal-icon { font-size: 16px; }
+
+.rm-seal-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rm-seal-name { color: #ccc; font-size: 12px; }
+.rm-seal-desc { color: #888; font-size: 11px; }
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+
+.rm-modal::-webkit-scrollbar,
+.rm-inventory-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rm-modal::-webkit-scrollbar-track,
+.rm-inventory-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rm-modal::-webkit-scrollbar-thumb,
+.rm-inventory-grid::-webkit-scrollbar-thumb {
+  background: #2a1a4a;
+  border-radius: 3px;
+}
