@@ -364,3 +364,68 @@ export interface BattlePassSeason {
   claimedRewards: string[];
   rewards: BattlePassReward[];
 }
+
+// ── Void Arena — Asynchronous PvP ──────────────────────────────
+
+export type ArenaStrategy = "aggressive" | "defensive" | "counter";
+
+export type ArenaTierName = "Shadow Initiate" | "Void Walker" | "Corruption Knight" | "Abyss Warden" | "Void Sovereign";
+
+export interface ArenaTier {
+  tier: 1 | 2 | 3 | 4 | 5;
+  name: ArenaTierName;
+  minPoints: number;
+  maxPoints: number | null;
+  weeklyReward: number;
+  color: string;
+  glyph: string;
+}
+
+export interface ArenaDefenseTeam {
+  companions: [string, string, string];
+  strategy: ArenaStrategy;
+}
+
+export interface ArenaOpponent {
+  id: string;
+  username: string;
+  level: number;
+  arenaPoints: number;
+  tier: ArenaTier;
+  defenseTeam: {
+    companions: { id: string; name: string; element: string; glyph: string; color: string }[];
+    strategy: ArenaStrategy;
+  };
+}
+
+export interface ArenaMatchResult {
+  opponentId: string;
+  opponentName: string;
+  victory: boolean;
+  pointsChange: number;
+  voidShardsGained: number;
+  timestamp: string;
+}
+
+export interface ArenaDefenseLog {
+  attackerId: string;
+  attackerName: string;
+  attackerLevel: number;
+  victory: boolean;
+  pointsChange: number;
+  timestamp: string;
+}
+
+export interface ArenaState {
+  arenaPoints: number;
+  currentTier: ArenaTier;
+  seasonId: string;
+  seasonName: string;
+  seasonEnd: string;
+  weekNumber: number;
+  attacksRemaining: number;
+  maxAttacks: number;
+  defenseTeam: ArenaDefenseTeam | null;
+  matchHistory: ArenaMatchResult[];
+  defenseLog: ArenaDefenseLog[];
+}

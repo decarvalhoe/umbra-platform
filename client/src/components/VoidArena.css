@@ -1,0 +1,804 @@
+/* ===================================================================
+   UMBRA — Void Arena
+   Asynchronous PvP with ranking seasons
+   Crimson / dark purple theme — uses design tokens
+=================================================================== */
+
+/* ── Overlay ───────────────────────────────────────────────────── */
+.va-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 2, 8, 0.92);
+  backdrop-filter: blur(10px);
+  animation: va-fade-in 0.3s var(--ease-smooth) both;
+}
+
+@keyframes va-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel ─────────────────────────────────────────────────────── */
+.va-panel {
+  width: calc(100vw - 64px);
+  max-width: 1100px;
+  max-height: calc(100vh - 48px);
+  background: linear-gradient(145deg, rgba(18, 6, 24, 0.98) 0%, rgba(8, 2, 14, 0.99) 100%);
+  border: 1px solid rgba(180, 60, 80, 0.2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: va-slide-in 0.4s var(--ease-bounce) both;
+  box-shadow: 0 0 60px rgba(180, 60, 80, 0.08), 0 0 200px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes va-slide-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ────────────────────────────────────────────────────── */
+.va-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-lg) var(--space-sm);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.va-header-left { display: flex; flex-direction: column; gap: 4px; }
+.va-header-right { display: flex; align-items: center; gap: var(--space-sm); }
+
+.va-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: var(--weight-bold);
+  color: #e84057;
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 16px rgba(232, 64, 87, 0.3);
+}
+
+.va-title-glyph { margin-right: 8px; font-size: 1.1rem; }
+
+.va-season-info { display: flex; align-items: center; gap: var(--space-sm); }
+
+.va-season-name {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.va-season-timer {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.va-attacks-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: rgba(232, 64, 87, 0.1);
+  border: 1px solid rgba(232, 64, 87, 0.25);
+  border-radius: var(--radius-sm);
+}
+
+.va-attacks-icon { font-size: 0.9rem; }
+
+.va-attacks-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: #e84057;
+}
+
+.va-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1.1rem;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.va-close:hover { background: rgba(232, 64, 87, 0.15); color: #e84057; }
+
+/* ── Tier bar ──────────────────────────────────────────────────── */
+.va-tier-bar {
+  padding: var(--space-sm) var(--space-lg);
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.va-tier-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.va-tier-badge {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.06em;
+}
+
+.va-tier-points {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: #e84057;
+}
+
+.va-tier-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.va-tier-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s var(--ease-smooth);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.va-tier-markers {
+  display: flex;
+  justify-content: space-between;
+}
+
+.va-tier-marker {
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  opacity: 0.3;
+  transition: opacity var(--duration-fast);
+}
+
+.va-tier-marker--active { opacity: 1; }
+
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.va-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 var(--space-lg);
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.va-tab {
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.04em;
+}
+
+.va-tab:hover { color: var(--color-text-secondary); }
+
+.va-tab--active {
+  color: #e84057;
+  border-bottom-color: #e84057;
+}
+
+/* ── Content ───────────────────────────────────────────────────── */
+.va-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+}
+
+.va-section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-md);
+  letter-spacing: 0.04em;
+}
+
+/* ── Fight tab ─────────────────────────────────────────────────── */
+.va-fight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.va-refresh-btn {
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.va-refresh-btn:hover { background: rgba(232, 64, 87, 0.1); color: #e84057; }
+
+.va-opponents {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.va-opponent-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.va-opponent-card:hover {
+  background: rgba(232, 64, 87, 0.05);
+  border-color: rgba(232, 64, 87, 0.3);
+}
+
+.va-opponent-card--selected {
+  border-color: #e84057;
+  background: rgba(232, 64, 87, 0.08);
+  box-shadow: 0 0 12px rgba(232, 64, 87, 0.15);
+}
+
+.va-opp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.va-opp-name {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.va-opp-level {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+}
+
+.va-opp-tier {
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.04em;
+}
+
+.va-opp-points {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: #e84057;
+  font-weight: var(--weight-bold);
+}
+
+.va-opp-team {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.va-opp-companion {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+}
+
+.va-opp-comp-glyph { font-size: 0.7rem; }
+.va-opp-comp-name { color: var(--color-text-secondary); }
+
+.va-opp-strategy {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+}
+
+/* ── Attack section ───────────────────────────────────────────── */
+.va-attack-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: rgba(232, 64, 87, 0.05);
+  border: 1px solid rgba(232, 64, 87, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.va-attack-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.va-attack-cost {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+}
+
+.va-attack-btn {
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #b43050, #e84057);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.04em;
+}
+
+.va-attack-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(232, 64, 87, 0.4);
+}
+
+.va-attack-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Combat result ─────────────────────────────────────────────── */
+.va-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) 0;
+  animation: va-result-in 0.5s var(--ease-bounce) both;
+}
+
+@keyframes va-result-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.va-result-icon { font-size: 3rem; }
+
+.va-result-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.12em;
+  margin: 0;
+}
+
+.va-result--victory .va-result-title {
+  color: #4caf50;
+  text-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+}
+
+.va-result--defeat .va-result-title {
+  color: #e84057;
+  text-shadow: 0 0 20px rgba(232, 64, 87, 0.4);
+}
+
+.va-result-opponent {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.va-result-stats {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.va-result-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.va-stat-label {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.va-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: var(--weight-bold);
+}
+
+.va-stat--positive .va-stat-value { color: #4caf50; }
+.va-stat--negative .va-stat-value { color: #e84057; }
+
+.va-result-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.va-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.04em;
+}
+
+.va-btn--primary {
+  background: linear-gradient(135deg, #b43050, #e84057);
+  color: #fff;
+}
+
+.va-btn--primary:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(232, 64, 87, 0.4); }
+.va-btn--primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.va-btn--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+}
+
+.va-btn--secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ── Defense tab ───────────────────────────────────────────────── */
+.va-defense {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.va-defense-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-sm);
+  line-height: 1.5;
+}
+
+.va-defense-companions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+.va-def-comp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-md) var(--space-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  position: relative;
+}
+
+.va-def-comp:hover { background: rgba(255, 255, 255, 0.06); }
+
+.va-def-comp--selected {
+  border-color: var(--comp-color);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--comp-color) 20%, transparent);
+}
+
+.va-def-comp--disabled { opacity: 0.3; cursor: not-allowed; }
+
+.va-def-comp-glyph { font-size: 1.5rem; }
+
+.va-def-comp-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+
+.va-def-comp-role {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+}
+
+.va-def-comp-slot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  background: #e84057;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  color: #fff;
+}
+
+/* ── Strategy ──────────────────────────────────────────────────── */
+.va-defense-strategy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.va-strategy-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-secondary);
+}
+
+.va-strategy-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+}
+
+.va-strategy-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+}
+
+.va-strategy-btn:hover { border-color: rgba(232, 64, 87, 0.3); }
+
+.va-strategy-btn--active {
+  border-color: #e84057;
+  background: rgba(232, 64, 87, 0.08);
+}
+
+.va-strat-icon { font-size: 1.3rem; }
+
+.va-strat-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+
+.va-strat-desc {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.va-save-defense-btn {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #b43050, #e84057);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.04em;
+  align-self: flex-start;
+}
+
+.va-save-defense-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(232, 64, 87, 0.4);
+}
+
+.va-save-defense-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Leaderboard tab ───────────────────────────────────────────── */
+.va-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.va-lb-table {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.va-lb-header-row {
+  display: flex;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.va-lb-col {
+  font-size: var(--text-xs);
+}
+
+.va-lb-col--rank { width: 48px; text-align: center; color: var(--color-text-muted); }
+.va-lb-col--name { flex: 1; color: var(--color-text-secondary); font-weight: var(--weight-bold); }
+.va-lb-col--tier { width: 180px; font-family: var(--font-display); font-size: var(--text-2xs); letter-spacing: 0.04em; }
+.va-lb-col--points { width: 64px; text-align: right; font-family: var(--font-mono); color: #e84057; font-weight: var(--weight-bold); }
+
+.va-lb-header-row .va-lb-col {
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.va-lb-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background var(--duration-fast);
+}
+
+.va-lb-row:hover { background: rgba(255, 255, 255, 0.02); }
+
+.va-lb-row--player {
+  background: rgba(232, 64, 87, 0.08);
+  border: 1px solid rgba(232, 64, 87, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 6px 4px;
+}
+
+.va-lb-row--top3 .va-lb-col--name { color: var(--color-text-primary); }
+
+/* ── Weekly rewards ───────────────────────────────────────────── */
+.va-rewards-title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-sm);
+}
+
+.va-rewards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.va-reward-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px var(--space-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.va-reward-tier {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+}
+
+.va-reward-amount {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ── History tab ───────────────────────────────────────────────── */
+.va-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.va-history-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.va-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.va-history-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px var(--space-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  transition: background var(--duration-fast);
+}
+
+.va-history-entry:hover { background: rgba(255, 255, 255, 0.04); }
+
+.va-entry--win { border-left-color: #4caf50; }
+.va-entry--loss { border-left-color: #e84057; }
+
+.va-entry-result {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+}
+
+.va-entry--win .va-entry-result { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
+.va-entry--loss .va-entry-result { background: rgba(232, 64, 87, 0.15); color: #e84057; }
+
+.va-entry-opponent {
+  flex: 1;
+  font-size: var(--text-xs);
+  color: var(--color-text-primary);
+}
+
+.va-entry-points {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.va-points--up { color: #4caf50; }
+.va-points--down { color: #e84057; }
+
+.va-entry-shards {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-accent-gold);
+}
+
+.va-entry-time {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  min-width: 60px;
+  text-align: right;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .va-panel { max-height: 100vh; border-radius: 0; width: 100vw; max-width: 100vw; }
+  .va-opponents { grid-template-columns: 1fr; }
+  .va-defense-companions { grid-template-columns: repeat(2, 1fr); }
+  .va-strategy-options { grid-template-columns: 1fr; }
+  .va-lb-col--tier { width: 120px; }
+}
