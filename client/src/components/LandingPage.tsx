@@ -26,7 +26,7 @@ const MANGA_COLORS = [
 
 // Hero cards affichées dans la section Void Summoning — aperçu du roster infini
 const ROSTER_PREVIEW = [
-  { name: "Void Revenant",    rarity: 5, role: "DPS · Ombre",      color: "#ff2d78", tag: "5★", img: "/hero_card_5star.png",  desc: "Maîtresse des lames corrompues. Son passé est scellé dans le Vide." },
+  { name: "Void Revenant",    rarity: 5, role: "DPS · Ombre",      color: "#ff2d78", tag: "5★", img: "/hero_card_5star.svg",  desc: "Maîtresse des lames corrompues. Son passé est scellé dans le Vide." },
   { name: "Spectre Errant",   rarity: 4, role: "Support · Spectral", color: "#b39ddb", tag: "4★", img: null,                   desc: "Entité ancienne. Protège ses alliés avec des boucliers de mémoire." },
   { name: "Forgeron Maudit",  rarity: 5, role: "Tank · Forge",       color: "#ff6b35", tag: "5★", img: null,                   desc: "Chaque arme qu'il forge porte une malédiction... et une promesse." },
   { name: "Archiviste Spectrale", rarity: 4, role: "Mage · Archives", color: "#00bcd4", tag: "4★", img: null,                desc: "Cartographie l'Umbra depuis des siècles. Ses sorts réécrivent la réalité." },
@@ -310,7 +310,7 @@ function Mascot({ reducedMotion }: MascotProps) {
       onClick={trigger}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); trigger(); } }}
     >
-      <img src="/assets/mascot_demon.png" alt="Mascotte Umbra" className="lp-mascot-img" loading="lazy" />
+      <img src="/assets/mascot_demon.svg" alt="Mascotte Umbra" className="lp-mascot-img" loading="lazy" />
       {showSpeech && (
         <div className="lp-speech-bubble" role="status" aria-live="polite">
           <span>{speech}</span>
@@ -369,7 +369,7 @@ function HeroSection({ onEnter, spawnRef, reducedMotion }: HeroSectionProps) {
 
         <div className={`lp-logo-wrap${visible ? " lp-visible" : ""}`}>
           <img
-            src="/assets/title_logo.png"
+            src="/assets/title_logo.svg"
             alt="UMBRA"
             className="lp-logo-img"
             width={360}
@@ -470,7 +470,7 @@ function LoreSection() {
         >
           <div className="lp-mascot-large-wrap">
             <img
-              src="/assets/mascot_demon.png"
+              src="/assets/mascot_demon.svg"
               alt=""
               className="lp-mascot-large"
               loading="lazy"
@@ -850,7 +850,7 @@ function FinalCTA({ onEnter, spawnRef }: FinalCTAProps) {
       <div className="lp-final-bg" aria-hidden="true" />
       <div className={`lp-section-inner lp-final-inner${visible ? " lp-slide-in" : ""}`}>
         <img
-          src="/assets/mascot_demon.png"
+          src="/assets/mascot_demon.svg"
           alt=""
           className="lp-final-mascot"
           loading="lazy"
@@ -884,7 +884,7 @@ function SiteFooter() {
   return (
     <footer className="lp-footer">
       <img
-        src="/assets/title_logo.png"
+        src="/assets/title_logo.svg"
         alt="UMBRA"
         className="lp-footer-logo-img"
         loading="lazy"

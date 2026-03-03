@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 200" width="140" height="200">
+  <defs>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="50%" stop-color="#0d0520"/>
+      <stop offset="100%" stop-color="#2a1040"/>
+    </linearGradient>
+    <linearGradient id="silhouetteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff2d78" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ff2d78" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="goldShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe135" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#ffe135" stop-opacity="0.15"/>
+      <stop offset="55%" stop-color="#ffd700" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ffe135" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="heroGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#ff2d78" flood-opacity="0.3" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="cardClip">
+      <rect width="140" height="200" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#cardClip)">
+    <!-- Background -->
+    <rect width="140" height="200" fill="url(#cardBg)"/>
+
+    <!-- Corruption veins -->
+    <path d="M0 150 Q30 130 50 160 Q70 180 90 155 Q110 130 140 150" fill="none" stroke="#ff2d78" stroke-width="0.5" opacity="0.15"/>
+    <path d="M0 170 Q40 150 70 175 Q100 195 140 170" fill="none" stroke="#9b59b6" stroke-width="0.3" opacity="0.1"/>
+
+    <!-- Character silhouette -->
+    <path d="M70 35 C55 35 42 50 42 70 L42 75 C42 78 44 80 47 80 L50 80 C48 85 45 95 43 110 L40 145 C38 155 45 160 55 158 L60 156 L58 175 L82 175 L80 156 L85 158 C95 160 102 155 100 145 L97 110 C95 95 92 85 90 80 L93 80 C96 80 98 78 98 75 L98 70 C98 50 85 35 70 35Z" fill="url(#silhouetteGrad)" filter="url(#heroGlow)"/>
+
+    <!-- Weapon - dual blades -->
+    <line x1="30" y1="90" x2="15" y2="55" stroke="#ff2d78" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <line x1="110" y1="90" x2="125" y2="55" stroke="#ff2d78" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <!-- Blade glow -->
+    <line x1="30" y1="90" x2="15" y2="55" stroke="#ff6eb4" stroke-width="4" stroke-linecap="round" opacity="0.15"/>
+    <line x1="110" y1="90" x2="125" y2="55" stroke="#ff6eb4" stroke-width="4" stroke-linecap="round" opacity="0.15"/>
+
+    <!-- Eyes -->
+    <ellipse cx="62" cy="55" rx="3" ry="2" fill="#ff2d78" opacity="0.9"/>
+    <ellipse cx="78" cy="55" rx="3" ry="2" fill="#ff2d78" opacity="0.9"/>
+
+    <!-- Gold shimmer overlay -->
+    <rect width="140" height="200" fill="url(#goldShimmer)"/>
+
+    <!-- Rune circle at feet -->
+    <ellipse cx="70" cy="175" rx="30" ry="8" fill="none" stroke="#ffe135" stroke-width="0.5" opacity="0.3"/>
+    <ellipse cx="70" cy="175" rx="20" ry="5" fill="none" stroke="#ff2d78" stroke-width="0.3" opacity="0.2"/>
+
+    <!-- 5★ indicator -->
+    <text x="70" y="195" text-anchor="middle" font-size="8" fill="#ffe135" opacity="0.5" letter-spacing="2">★ ★ ★ ★ ★</text>
+  </g>
+
+  <!-- Border -->
+  <rect width="140" height="200" rx="12" fill="none" stroke="#ffe135" stroke-width="1" stroke-opacity="0.25"/>
+</svg>
