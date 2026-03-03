@@ -1185,8 +1185,8 @@ export class CombatScene extends Phaser.Scene {
     this.xpText.setText(`XP: ${this.totalXp}  |  Kills: ${this.totalKills}`)
 
     // Keep pause menu stats up to date
-    if (this.pauseMenu && (this.pauseMenu as unknown as { config: { runStats: { kills: number; xpEarned: number } } }).config.runStats) {
-      const rs = (this.pauseMenu as unknown as { config: { runStats: { kills: number; xpEarned: number } } }).config.runStats
+    const rs = this.pauseMenu?.runStats
+    if (rs) {
       rs.kills = this.totalKills
       rs.xpEarned = this.totalXp
     }
