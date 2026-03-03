@@ -190,7 +190,43 @@
 
 ---
 
-## 5. Anti-Inflation
+## 5. Void Forge — Crafting System
+
+The Void Forge is operated by Kaelan in the Hub. It serves as the primary economy sink.
+
+### Pillar 1 — Rune Reforging (Affinité Kaelan 10+)
+
+- **Input:** 3 runes du même Set de Corruption + 10 Shadow Dust
+- **Output:** 1 rune du même Set, rarité = moyenne des inputs
+- **Main stat:** Choisie par le joueur (pour Slot 2/4/6)
+- **Sub-stats:** Aléatoires selon la rarité
+
+### Pillar 2 — Equipment Awakening (Affinité Kaelan 25+)
+
+| Éveil | Coût | Effet |
+|-------|------|-------|
+| Awakening 1 | 5 Void Crystals | +1 passive aléatoire (pool de 20) |
+| Awakening 2 | 15 Void Crystals | +1 passive supplémentaire |
+| Awakening 3 | 30 Void Crystals | +1 passive + effet visuel |
+
+### Pillar 3 — Corruption Infusion (Affinité Kaelan 75+)
+
+| Tier | Coût | Effet |
+|------|------|-------|
+| Tier 1 | 5 Abyssal Dust | 10% Void Tear (-15% DEF, 3s) |
+| Tier 2 | 20 Abyssal Dust | 20% Void Tear (-15% DEF, 5s) |
+| Tier 3 | 50 Abyssal Dust | 35% Void Tear (-15% DEF, 5s) + Visual |
+
+### Narrative Gating
+
+Crafting pillars unlock via Kaelan's bond:
+- Reforging: Affinité 10 (default)
+- Awakening: Affinité 25 (Personal Quest)
+- Corruption: Affinité 75 (Personal Quest)
+
+---
+
+## 6. Anti-Inflation
 
 | Mécanisme | Description |
 |-----------|-------------|
@@ -203,7 +239,7 @@
 
 ---
 
-## 6. Monétisation Responsable
+## 7. Monétisation Responsable
 
 | Principe | Implémentation |
 |----------|-----------------|

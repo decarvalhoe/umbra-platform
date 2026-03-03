@@ -148,3 +148,61 @@ export interface ResonanceReward {
   description: string;
   amount?: number;
 }
+
+// ── Void Forge — Crafting System ────────────────────────────────
+
+export type CraftingMaterial = "shadow_dust" | "void_crystal" | "abyssal_dust" | "resonance_crystal";
+
+export type CorruptionSet = "voidheart" | "shadowflame" | "bloodtide" | "abyssal";
+
+export type RuneSlot = 1 | 2 | 3 | 4 | 5 | 6;
+
+export type RuneMainStat = "ATK%" | "DEF%" | "HP%" | "SPD" | "CRIT%" | "CRIT_DMG%" | "EFF%" | "RES%";
+
+export interface Rune {
+  id: string;
+  set: CorruptionSet;
+  slot: RuneSlot;
+  rarity: "common" | "rare" | "epic" | "legendary";
+  level: number;
+  mainStat: RuneMainStat;
+  mainValue: number;
+  subStats: { stat: RuneMainStat; value: number }[];
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  type: "weapon" | "armor" | "accessory";
+  rarity: "common" | "rare" | "epic" | "legendary";
+  level: number;
+  element?: Element;
+  awakeningLevel: 0 | 1 | 2 | 3;
+  passives: string[];
+  corruptionTier: 0 | 1 | 2 | 3;
+}
+
+export interface CraftingMaterials {
+  shadow_dust: number;
+  void_crystal: number;
+  abyssal_dust: number;
+  resonance_crystal: number;
+}
+
+export interface ReforgeRecipe {
+  inputRunes: [string, string, string];
+  chosenMainStat: RuneMainStat;
+  cost: { material: CraftingMaterial; amount: number };
+}
+
+export interface AwakeningRecipe {
+  equipmentId: string;
+  targetLevel: 1 | 2 | 3;
+  cost: { material: CraftingMaterial; amount: number };
+}
+
+export interface InfusionRecipe {
+  equipmentId: string;
+  targetTier: 1 | 2 | 3;
+  cost: { material: CraftingMaterial; amount: number };
+}

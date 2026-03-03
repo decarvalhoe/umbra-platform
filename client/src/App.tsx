@@ -8,6 +8,7 @@ import { HUD } from "./components/HUD";
 import { InventoryPanel } from "./components/InventoryPanel";
 import { GachaModal } from "./components/GachaModal";
 import { RomancePanel } from "./components/RomancePanel";
+import { VoidForgePanel } from "./components/VoidForgePanel";
 import { restoreSession, logout } from "./nakama/auth";
 import { getPlayerProfile, getPlayerIdentity } from "./nakama/storage";
 import type { PlayerProfile, InventoryItem } from "./types/game";
@@ -26,6 +27,7 @@ function App() {
   const [showInventory, setShowInventory] = useState(false);
   const [showGacha, setShowGacha] = useState(false);
   const [showRomance, setShowRomance] = useState(false);
+  const [showForge, setShowForge] = useState(false);
   const [pityCounter, setPityCounter] = useState(0);
 
   useEffect(() => {
@@ -134,6 +136,7 @@ function App() {
         <button onClick={() => setShowInventory(true)}>Inventaire</button>
         <button onClick={() => setShowGacha(true)}>Invocation</button>
         <button onClick={() => setShowRomance(true)}>♡ Relations</button>
+        <button onClick={() => setShowForge(true)}>🔥 Forge</button>
         <button onClick={handleLogout}>Déconnexion</button>
       </div>
       <InventoryPanel
@@ -150,6 +153,10 @@ function App() {
       <RomancePanel
         isOpen={showRomance}
         onClose={() => setShowRomance(false)}
+      />
+      <VoidForgePanel
+        isOpen={showForge}
+        onClose={() => setShowForge(false)}
       />
     </div>
   );
