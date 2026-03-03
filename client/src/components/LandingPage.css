@@ -3,11 +3,11 @@
    Dark Fantasy · Interactive · Cinematic
 ═══════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Raleway:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Raleway:wght@300;400;600&display=swap');
 
 /* ── Variables ─────────────────────────────────────────────────── */
 :root {
-  --umbra-black: #050508;
+  --umbra-black: #0a0a0f;
   --umbra-dark: #0a0a12;
   --umbra-purple: #6c3483;
   --umbra-purple-light: #9b59b6;
@@ -17,7 +17,7 @@
   --umbra-text: #e8e0f0;
   --umbra-text-dim: #8e7a9e;
   --font-title: 'Cinzel Decorative', 'Cinzel', serif;
-  --font-body: 'Raleway', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
   --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 

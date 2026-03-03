@@ -42,11 +42,11 @@ function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, r: number
 }
 
 const ROMANCE_CHARACTERS = [
-  { name: "Kaelan", role: "Forgeron Maudit", orientation: "Hétérosexuel", color: "#ff6b35", img: "/li_kaelan.png", pronouns: "il/lui", desc: "Bourru au grand cœur. Un pacte démoniaque le ronge." },
-  { name: "Lyra", role: "Archiviste Spectrale", orientation: "Bisexuelle", color: "#b39ddb", img: "/li_lyra.png", pronouns: "elle/la", desc: "Érudite fantomatique qui cherche à comprendre l'Umbra." },
-  { name: "Nyx", role: "Marchand du Vide", orientation: "Pansexuel·le", color: "#ffe135", img: "/li_nyx.png", pronouns: "iel/ellui", desc: "Entité énigmatique. Vend des artefacts rares... et des secrets." },
-  { name: "Seraphina", role: "Paladine Déchue", orientation: "Lesbienne", color: "#ff2d78", img: "/li_seraphina.png", pronouns: "elle/la", desc: "Autrefois sainte, maintenant corrompue. Cherche la rédemption." },
-  { name: "Ronan", role: "Barde Itinérant", orientation: "Gay", color: "#00bcd4", img: "/li_ronan.png", pronouns: "il/lui", desc: "Sourire lumineux qui cache une profonde mélancolie." },
+  { name: "Kaelan", role: "Forgeron Maudit", orientation: "Hétérosexuel", color: "#ff6b35", img: "/li_kaelan.png", pronouns: "il/lui", desc: "Bourru protecteur. Forger une arme avec lui, c'est lui confier une partie de ton âme." },
+  { name: "Lyra", role: "Archiviste Spectrale", orientation: "Bisexuelle", color: "#b39ddb", img: "/li_lyra.png", pronouns: "elle/la", desc: "Spectrale et curieuse. Elle cartographie l'Umbra depuis des siècles — et vient de te remarquer." },
+  { name: "Nyx", role: "Marchand du Vide", orientation: "Pansexuel·le", color: "#ffe135", img: "/li_nyx.png", pronouns: "iel/ellui", desc: "Entité pansexuelle du commerce interdit. Leurs prix sont... négociables. Avec intérêt." },
+  { name: "Seraphina", role: "Paladine Déchue", orientation: "Lesbienne", color: "#ff2d78", img: "/li_seraphina.png", pronouns: "elle/la", desc: "Paladine déchue cherchant la rédemption. Sa lumière vacille — mais ne s'éteint jamais." },
+  { name: "Ronan", role: "Barde Itínérant", orientation: "Gay", color: "#00bcd4", img: "/li_ronan.png", pronouns: "il/lui", desc: "Barde itínérant. Son sourire cache une mélancolie profonde. La musique est son armure." },
 ];
 
 const MASCOT_LINES = [
@@ -56,6 +56,8 @@ const MASCOT_LINES = [
   "L'IA génère ta souffrance en temps réel ! ☆",
   "Chaque mort est une leçon... ou pas. ♡",
   "Tu reviendras. Ils reviennent toujours~ ✦",
+  "Mes runes de Corruption vont t'obseder~ ✦",
+  "La Void Arena t'attend, Chasseur~ ♛",
 ];
 
 export function LandingPage({ onEnter }: LandingPageProps) {
@@ -200,18 +202,18 @@ export function LandingPage({ onEnter }: LandingPageProps) {
   }, [triggerMascot]);
 
   const features = [
-    { icon: "⚔️", title: "Combat Hack'n'Slash", desc: "Combos fluides, dodge avec i-frames, système élémentaire à 4 éléments. Chaque frappe compte.", color: "#ff2d78", tag: "ACTION" },
-    { icon: "🎲", title: "Roguelite Procédural", desc: "Chaque run est unique. Salles générées, ennemis adaptés, récompenses surprenantes.", color: "#ffe135", tag: "ROGUELITE" },
-    { icon: "🤖", title: "AI Director", desc: "Une IA analyse ton style de jeu et génère des donjons, quêtes et dialogues personnalisés.", color: "#00bcd4", tag: "FULL AI" },
-    { icon: "👑", title: "Gacha Éthique", desc: "Cosmétiques uniquement. Probabilités affichées. Soft pity garanti. Ton argent, ton choix.", color: "#b39ddb", tag: "F2P FRIENDLY" },
-    { icon: "🏰", title: "Clans & Guildes", desc: "Rejoins un clan, forge des alliances, participe aux contrats hebdomadaires.", color: "#ff6eb4", tag: "SOCIAL" },
-    { icon: "🌙", title: "Dark Lore Vivant", desc: "L'Umbra évolue. Chaque saison révèle un nouveau fragment de la corruption primordiale.", color: "#ea80fc", tag: "LORE" },
+    { icon: "⚔️", title: "Corruption Runes", desc: "7 Corruption Sets, 6 slots, raretés Tainted→Abyssal. Chaque rune façonne ton build. Upgrade +15 avec Shadow Dust.", color: "#ff2d78", tag: "RUNES" },
+    { icon: "🌀", title: "Void Summoning", desc: "Rituel en 4 étapes. Rift coloré par rareté. Convergence pity garanti (soft 70, hard 90). Scène d'arrivée IA unique.", color: "#b39ddb", tag: "GACHA" },
+    { icon: "🌙", title: "Shadow Vigil", desc: "3 compagnons patrouillent en ton absence. Cap 12h. Rapport narratif IA personnalisé au retour.", color: "#00bcd4", tag: "IDLE" },
+    { icon: "⚡", title: "Void Arena", desc: "PvP asynchrone. Défie les équipes IA des autres. 5 tiers : Shadow Initiate → Void Sovereign. Saisons hebdomadaires.", color: "#ffe135", tag: "PVP" },
+    { icon: "🔨", title: "Void Forge", desc: "Rune Reforging, Equipment Awakening, Corruption Infusion. Kaelan t'attend à la forge dès Affinité 10.", color: "#ff6b35", tag: "CRAFT" },
+    { icon: "💜", title: "Resonance Bond", desc: "15 niveaux par compagnon. Echo Fragments équippables. True Name au niveau 10. Void Form au niveau 15.", color: "#ea80fc", tag: "ROMANCE" },
   ];
 
   const classes = [
-    { name: "Shadow Warrior", role: "DPS · Melee", desc: "Maîtrise les lames de l'ombre. Dual-wield, combos dévastateurs, dash offensif.", color: "#ff2d78", emoji: "⚔️" },
-    { name: "Void Summoner", role: "Support · Summoner", desc: "Invoque des entités du vide. Contrôle de zone, boucliers spectraux, armée de familiers.", color: "#b39ddb", emoji: "👁️" },
-    { name: "Cursed Archivist", role: "Mage · Ranged", desc: "Maudit les ennemis avec des sorts anciens. DoT, debuffs, explosions de corruption.", color: "#00bcd4", emoji: "📖" },
+    { name: "Shadow Warrior", role: "DPS · Corps-à-corps", desc: "Maîtrise les lames de l'ombre. Dual-wield, combos dévastateurs, dash offensif. Premier personnage jouable.", color: "#ff2d78", emoji: "⚔️", available: true },
+    { name: "Void Summoner", role: "Support · Invocateur", desc: "Invoque des entités du Vide. Contrôle de zone, boucliers spectraux, armée de familiers corrompus.", color: "#b39ddb", emoji: "👁️", available: false },
+    { name: "Cursed Archivist", role: "Mage · Distance", desc: "Maudit les ennemis avec des sorts anciens. DoT, debuffs, explosions de Corruption.", color: "#00bcd4", emoji: "📖", available: false },
   ];
 
   return (
@@ -342,11 +344,11 @@ export function LandingPage({ onEnter }: LandingPageProps) {
               </div>
               <div className="lp-stat">
                 <span className="lp-stat-num">5</span>
-                <span className="lp-stat-label">Romançables</span>
+                <span className="lp-stat-label">Compagnons</span>
               </div>
               <div className="lp-stat">
-                <span className="lp-stat-num">10+</span>
-                <span className="lp-stat-label">Types de salles</span>
+                <span className="lp-stat-num">11</span>
+                <span className="lp-stat-label">Types d'ennemis</span>
               </div>
               <div className="lp-stat">
                 <span className="lp-stat-num">AI</span>
@@ -415,7 +417,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
                 <div className="lp-class-role">{c.role}</div>
                 <h3 className="lp-class-name">{c.name}</h3>
                 <p className="lp-class-desc">{c.desc}</p>
-                <div className="lp-class-badge">BIENTÔT ✦</div>
+                <div className="lp-class-badge">{c.available ? "JOUABLE ✦" : "BIENTÔT ✦"}</div>
               </div>
             ))}
           </div>
@@ -431,8 +433,9 @@ export function LandingPage({ onEnter }: LandingPageProps) {
           </h2>
           <p className="lp-body-text lp-center" style={{ maxWidth: 640, margin: "0 auto 2.5rem" }}>
             Umbra est un jeu pour <strong>tout le monde</strong>. Choisis tes pronoms, ton genre, ton orientation.
-            Les 5 personnages romançables ont chacun leur propre histoire, leur orientation, et des dialogues
-            générés par l'IA basés sur tes actions en donjon. <span className="lp-wink">Polyamour accepté~ ♡</span>
+            Configure ta <strong>Relationship Preference</strong> par compagnon : Romance, Amitié Profonde, ou Neutre.
+            L'IA génère des dialogues uniques basés sur ton affinité (0→100) et ton niveau de Résonance (1→15).
+            <span className="lp-wink"> Polyamour accepté~ ♡</span>
           </p>
           <div className="lp-romance-grid">
             {ROMANCE_CHARACTERS.map((li, i) => (
@@ -482,7 +485,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
                 { icon: "📝", text: "Narration adaptative par LLM" },
                 { icon: "👾", text: "Ennemis data-driven et adaptatifs" },
                 { icon: "⚡", text: "Événements contextuels en temps réel" },
-                { icon: "🏰", text: "Contrats de clan hebdomadaires" },
+                { icon: "🎰", text: "Contrats de clan hebdomadaires" },
               ].map((item, i) => (
                 <div key={i} className="lp-ai-item">
                   <span className="lp-ai-icon">{item.icon}</span>
@@ -550,16 +553,16 @@ export function LandingPage({ onEnter }: LandingPageProps) {
 
 function TerminalLines() {
   const lines = [
-    { text: "> Génération du donjon en cours... ♡", color: "#ff2d78", delay: 0 },
-    { text: "  ✓ 8 salles générées (seed: 0x4F2A)", color: "#00bcd4", delay: 0.5 },
-    { text: "> Analyse du profil joueur...", color: "#ffe135", delay: 1 },
-    { text: '  Style: Agressif · "Tu cours beaucoup~"', color: "#ff80ab", delay: 1.5 },
-    { text: "> Génération narrative IA...", color: "#ff2d78", delay: 2 },
-    { text: '  "Le Gardien Corrompu ricane doucement"', color: "#ea80fc", delay: 2.5 },
-    { text: "> Spawn ennemis adaptatifs...", color: "#ffe135", delay: 3 },
-    { text: "  ✓ 3x Shadow Wraith · 1x Void Sentinel ♡", color: "#00bcd4", delay: 3.5 },
-    { text: "> Corruption: 45% · Difficulté: ★★★☆", color: "#ff2d78", delay: 4 },
-    { text: "> Run prêt. Bonne chance~ ♛", color: "#ffffff", delay: 4.5 },
+    { text: "> Génération Void Summoning... Convergence pull 73/90", color: "#ff2d78", delay: 0 },
+    { text: "  ✓ Rituel 4 étapes — Rift prismatique (5★ incoming)", color: "#b39ddb", delay: 0.5 },
+    { text: "> Shadow Vigil — Rapport de Kaelan...", color: "#ffe135", delay: 1 },
+    { text: '  "J'ai trouvé 3 runes Corrupted et quelque chose d'autre."', color: "#ff6b35", delay: 1.5 },
+    { text: "> Void Hierarchy : spawn Tier III Sentinels (floor 8)", color: "#ff2d78", delay: 2 },
+    { text: "  ✓ Void Stalker ×2 · Crystal Golem ×1 ♡", color: "#00bcd4", delay: 2.5 },
+    { text: "> Personal Quest : Nyx (Affinité 65 → milestone 75)...", color: "#ffe135", delay: 3 },
+    { text: '  "Nyx te demande de récupérer un Fragment perdu."', color: "#ea80fc", delay: 3.5 },
+    { text: "> Resonance Bond : Seraphina niveau 6 — Scène débloquée", color: "#ff2d78", delay: 4 },
+    { text: "> Run prêt. Corruption : 67% · Rang Arena : Void Walker ♛", color: "#ffffff", delay: 4.5 },
   ];
 
   return (

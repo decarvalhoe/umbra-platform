@@ -1,1133 +1,544 @@
-# Enemy Bestiary — GDD v2.0
+# Enemy Bestiary — Project Umbra (GDD v3.0)
 
-> Reference document for all enemy implementations in Umbra.
-> Each entry provides stats, AI behavior, attack patterns, loot, and art direction notes.
+> Référence pour tous les ennemis implémentés dans Umbra.
+> Chaque entrée fournit le tier, les stats, les comportements AI, les patterns d’attaque et les drops.
 
 ---
 
-## Table of Contents
+## Table des Matières
 
-1. [Conventions](#conventions)
-2. [Zone 1 — Cendres Desolees (Ashen Wastes)](#zone-1--cendres-desolees-ashen-wastes)
-   - [Spectre de Cendre (Ash Specter)](#spectre-de-cendre-ash-specter)
-   - [Chien de Braise (Ember Hound)](#chien-de-braise-ember-hound)
-   - [Sentinelle Calcinee (Scorched Sentinel)](#sentinelle-calcinee-scorched-sentinel)
-   - [Gardien Corrompu (Corrupted Guardian) — BOSS](#gardien-corrompu-corrupted-guardian--boss)
-3. [Zone 2 — Cryptes d'Ombre (Shadow Crypts)](#zone-2--cryptes-dombre-shadow-crypts)
-   - [Spectre d'Ombre (Shadow Wraith)](#spectre-dombre-shadow-wraith)
-   - [Araignee Nocturne (Night Spider)](#araignee-nocturne-night-spider)
-   - [Chevalier Dechu (Fallen Knight)](#chevalier-dechu-fallen-knight)
-4. [Zone 3 — Profondeurs Carmines (Crimson Depths)](#zone-3--profondeurs-carmines-crimson-depths)
-   - [Sangsue Geante (Giant Leech)](#sangsue-geante-giant-leech)
-   - [Pretre de Sang (Blood Priest)](#pretre-de-sang-blood-priest)
-5. [Zone 4 — Faille du Neant (Void Rift)](#zone-4--faille-du-neant-void-rift)
-   - [Anomalie du Neant (Void Anomaly)](#anomalie-du-neant-void-anomaly)
-   - [Tisseur de Neant (Void Weaver)](#tisseur-de-neant-void-weaver)
-6. [General / Multi-zone](#general--multi-zone)
-   - [Rat d'Umbra (Umbra Rat)](#rat-dumbra-umbra-rat)
-   - [Mimic (Mimic)](#mimic-mimic)
-7. [Stat Scaling Table](#stat-scaling-table)
-8. [Pack Behavior Rules](#pack-behavior-rules)
-9. [Elemental Resistance Matrix](#elemental-resistance-matrix)
+1. [Hiérarchie du Void](#hiérarchie-du-void)
+2. [Conventions](#conventions)
+3. [Ennemis par Zone](#ennemis-par-zone)
+   - [Zone 1 — Cendres Désolées (F1-3)](#zone-1--cendres-désolées-f1-3)
+   - [Zone 2 — Cryptes d’Ombre (F4-6)](#zone-2--cryptes-dombre-f4-6)
+   - [Zone 3 — Profondeurs Carmines (F4-6)](#zone-3--profondeurs-carmines-f4-6)
+   - [Zone 4 — Faille du Néant (F7+)](#zone-4--faille-du-néant-f7)
+   - [Multi-zone](#multi-zone)
+4. [Boss](#boss)
+5. [Echo Enemies (Tier V — Futur)](#echo-enemies-tier-v--futur)
+6. [Stat Scaling Table](#stat-scaling-table)
+7. [Elemental Resistance Matrix](#elemental-resistance-matrix)
+
+---
+
+## Hiérarchie du Void
+
+La taxonomie des ennemis suit une hiérarchie à 5 tiers représentant leur connexion au Void :
+
+| Tier | Nom | Description | Exemples |
+|------|-----|-------------|----------|
+| **I — Fragmentés** | Créatures faiblement touchées par le Void | Formes instables, comportement basique, facilement vaincues. Servent de fodder. | Spectre de Cendre, Chien de Braise, Rat d’Umbra |
+| **II — Corrompus** | Êtres mortels transformés par la corruption | Gardent une forme reconnaissable mais altérée. Patterns plus complexes. | Sentinelle Calcinée, Chevalier Déchu, Araignée Nocturne |
+| **III — Éveillés** | Entités conscientes du Void | Intelligence tactique, attaques élémentaires, capacités spéciales. | Prêtre de Sang, Sangsue Géante, Spectre d’Ombre |
+| **IV — Seigneurs** | Maîtres du Void | Boss et élites puissants, multi-phases, mécaniques uniques. | Gardien Corrompu, Tyran de Flamme, Harbinger du Void |
+| **V — Échos** | Reflets des compagnons du joueur (Futur) | Versions corrompues des compagnons, apparaissant dans les donjons mythiques. | À venir |
 
 ---
 
 ## Conventions
 
-### Stat Definitions
+### Définitions de Stats
 
 | Stat | Description |
 |------|-------------|
-| **HP** | Hit points. Reaches 0 = death. |
-| **ATK** | Base attack damage (before resistances). |
-| **DEF** | Flat damage reduction applied before HP loss. |
-| **Speed** | Movement speed in pixels/second. |
-| **Detection Range** | Radius (px) at which the enemy transitions from Idle/Patrol to Alert/Chase. |
-| **Attack Range** | Distance (px) at which the enemy can initiate an attack action. |
+| **HP** | Points de vie. 0 = mort. |
+| **ATK** | Dégâts de base (avant résistances). |
+| **DEF** | Réduction de dégâts fixe. |
+| **Speed** | Vitesse de déplacement (px/s). |
+| **Detection** | Rayon de détection du joueur (px). |
+| **Atk Range** | Distance d’attaque (px). |
 
-### Timing Notation
-
-All attack timings use milliseconds (ms):
-- **Telegraph**: Visual/audio cue before the hit lands. Player reaction window.
-- **Active**: Frames where the hitbox is live and deals damage.
-- **Recovery**: Post-attack cooldown before the enemy can act again.
-- **Cooldown**: Minimum time before the same attack can be used again.
-
-### Enemy Types
+### Types d’Ennemis
 
 | Type | Description |
 |------|-------------|
-| **Basic** | Common fodder. Low HP, simple patterns. Appears in packs. |
-| **Elite** | Tougher enemies with more complex AI and unique mechanics. |
-| **Mini-boss** | Mid-dungeon threats. May gate progression. |
-| **Boss** | Zone-ending encounters. Multi-phase, scripted arenas. |
-| **Special** | Unique behavior that does not fit other categories. |
-
-### Loot Rarity Tiers
-
-| Tier | Color | Drop Weight |
-|------|-------|-------------|
-| Common | White | Base rate |
-| Uncommon | Green | 0.5x base |
-| Rare | Blue | 0.1x base |
-| Epic | Purple | 0.02x base |
+| **Basic** | Fodder commun. HP bas, patterns simples. Apparaît en groupe. |
+| **Elite** | Plus résistant, AI complexe, mécaniques uniques. |
+| **Mini-boss** | Menace mid-donjon. Peut bloquer la progression. |
+| **Boss** | Rencontre de fin de zone. Multi-phase, arène scriptée. |
+| **Special** | Comportement unique hors catégories. |
 
 ---
 
-## Zone 1 — Cendres Desolees (Ashen Wastes)
-
-**Theme:** Fire, ash, devastation. A scorched landscape with smoldering ruins and rivers of cooling lava.
+## Ennemis par Zone
 
 ---
 
-### Spectre de Cendre (Ash Specter)
+### Zone 1 — Cendres Désolées (F1-3)
 
-| Field | Value |
-|-------|-------|
+**Thème** : Feu, cendres, dévastation. Paysage calciné avec ruines fumantes et rivières de lave refroidissante.
+
+---
+
+#### 1. Spectre de Cendre (Ash Specter)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | I — Fragmenté |
 | **Type** | Basic |
-| **Element** | Fire |
-| **Zone(s)** | Cendres Desolees (floors 1-5) |
+| **Élément** | Feu |
+| **Zone** | Cendres Désolées (F1-3) |
 
-#### Base Stats
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 80 | 18 | 4 | 90 | 250 | 200 |
 
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 80 | 18 | 4 | 90 px/s |
+**Comportement AI** : Flotte au-dessus du sol en patrouille lente. Tire des boules de feu à distance. Recule si le joueur s’approche. Si coincé, passe en mode burst rapide puis tente une fuite à travers le joueur (i-frames temporaires).
 
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 250 px | 200 px |
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Fireball | 600 ms | 100 ms | 400 ms | 1500 ms | 18 | 200 px | Cible unique, ligne droite. Applique Burn. |
+| Rapid Burst | 300 ms | 3x100 ms | 800 ms | 4000 ms | 12 chaque | 180 px | Quand coincé. Éventail 15°. |
+| Phase Escape | 200 ms | 500 ms | 600 ms | 8000 ms | 0 | 120 px | Invincible pendant frames actives. |
 
-#### AI Behavior
-
-The Ash Specter floats above the ground in a slow patrol pattern, drifting between preset waypoints. On detecting the player, it stops and begins channeling fireballs from a distance. It prefers to maintain its attack range and will retreat if the player closes to melee distance. If cornered (no valid retreat path), it switches to a rapid-fire burst before attempting a phase-through escape (passes through the player with brief invincibility).
-
-**FSM States:** Patrol -> Alert -> Attack (ranged) -> Retreat -> Cornered Burst -> Flee
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Fireball | 600 ms (glow charge) | 100 ms (projectile launch) | 400 ms | 1500 ms | 18 ATK | 200 px (projectile travels 350 px) | Single target, straight line. Burns on hit. |
-| Rapid Burst | 300 ms (flicker) | 3x 100 ms (3 fireballs at 200 ms intervals) | 800 ms | 4000 ms | 12 ATK each | 180 px | Used only when cornered. Fan spread 15 deg. |
-| Phase Escape | 200 ms (transparency shift) | 500 ms (dash through player) | 600 ms | 8000 ms | 0 | 120 px dash | Invincible during active frames. Repositions behind player. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Burn | 3s | 4 damage/tick every 1s. Stacks up to 3x. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Ash Dust | Common | 60% |
-| Ember Shard | Uncommon | 20% |
-| Spectral Flame Essence | Rare | 5% |
-| Gold | — | 10-25 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Water | 1.5x damage taken (Weakness) |
-| Ice | 1.3x damage taken |
-| Fire | 0.0x damage taken (Immune) |
-| Shadow | 1.0x (Neutral) |
-| Void | 1.0x (Neutral) |
-| Physical | 0.7x damage taken (Resistant) |
-
-#### Visual Description
-
-A translucent humanoid silhouette made of swirling ash and glowing embers. No distinct facial features — two orange-white ember points serve as eyes. Its body constantly sheds ash particles that fall and dissolve before reaching the ground. When charging a fireball, the ember-eyes intensify to bright white and the ash swirl concentrates into its outstretched hand. Approximately 1.2x player height. Faint heat distortion aura around its form.
+**Loot** : Ash Dust (60%), Ember Shard (20%), Spectral Flame Essence (5%), 10-25 Cendres.
 
 ---
 
-### Chien de Braise (Ember Hound)
+#### 2. Chien de Braise (Ember Hound)
 
-| Field | Value |
-|-------|-------|
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | I — Fragmenté |
 | **Type** | Basic |
-| **Element** | Fire |
-| **Zone(s)** | Cendres Desolees (floors 1-6) |
+| **Élément** | Feu |
+| **Zone** | Cendres Désolées (F1-3) |
 
-#### Base Stats
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 60 | 22 | 3 | 160 | 300 | 40 |
 
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 60 | 22 | 3 | 160 px/s |
+**Comportement AI** : Mêlée rapide avec **comportement de meute** (groupes de 2-4). Un charge frontalement, les autres flanquent. Sous 25% HP, hurle (buff ATK +15% aux alliés pendant 5s) et devient frénétique.
 
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 300 px | 40 px |
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Bite | 300 ms | 150 ms | 350 ms | 1200 ms | 22 | 40 px | Mêlée rapide. |
+| Lunge | 500 ms | 200 ms | 500 ms | 2500 ms | 28 | 120 px | Dash de fermeture. Esquivable latéralement. |
+| Fire Snap | 400 ms | 100 ms | 300 ms | 3000 ms | 15 +Burn | 50 px | Après 2 Bites consécutives. |
+| Pack Howl | 800 ms | 300 ms | 200 ms | 10000 ms | 0 | 200 px | Buff meute. À <25% HP. |
 
-#### AI Behavior
-
-The Ember Hound is a fast melee attacker that operates with **pack behavior** (see [Pack Behavior Rules](#pack-behavior-rules)). It patrols in groups of 2-4. On detecting the player, the pack coordinates: one hound charges directly while others attempt to flank from the sides. Individually, a hound will dash toward the player, bite, then circle-strafe before lunging again. If HP drops below 25%, it howls (buffing nearby hounds with +15% ATK for 5s) and becomes more aggressive (reduced cooldowns by 30%).
-
-**FSM States:** Pack Patrol -> Alert (howl to pack) -> Chase -> Flank/Circle -> Lunge Attack -> Low HP Howl -> Frenzy
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Bite | 300 ms (jaw opening animation) | 150 ms | 350 ms | 1200 ms | 22 ATK | 40 px | Fast melee. Small forward lunge. |
-| Lunge | 500 ms (crouch + growl) | 200 ms (dash 120 px) | 500 ms | 2500 ms | 28 ATK | 120 px dash | Closing gap attack. Can be dodged sideways. |
-| Fire Snap | 400 ms (ember buildup in jaw) | 100 ms | 300 ms | 3000 ms | 15 ATK + Burn | 50 px | Applies Burn. Used after 2 consecutive Bites. |
-| Pack Howl | 800 ms (head tilt up) | 300 ms | 200 ms | 10000 ms | 0 | 200 px radius buff | Buffs nearby hounds +15% ATK for 5s. Used at <25% HP. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Burn (Fire Snap only) | 2s | 3 damage/tick every 1s. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Charred Bone | Common | 55% |
-| Ember Fang | Uncommon | 18% |
-| Hound Pelt (Scorched) | Rare | 4% |
-| Gold | — | 8-18 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Water | 1.5x (Weakness) |
-| Ice | 1.3x |
-| Fire | 0.0x (Immune) |
-| Shadow | 1.0x |
-| Void | 1.0x |
-| Physical | 1.0x (Neutral) |
-
-#### Visual Description
-
-A wolf-sized canine made of cracked black rock with glowing magma seams visible between the fissures. Its eyes are molten orange. Embers trail from its paws as it runs. When it howls, the magma seams flare bright and small flames erupt along its spine. Lean, aggressive posture — always coiled to spring. Approximately 0.6x player height at the shoulder.
+**Loot** : Charred Bone (55%), Ember Fang (18%), Hound Pelt (4%), 8-18 Cendres.
 
 ---
 
-### Sentinelle Calcinee (Scorched Sentinel)
+#### 3. Sentinelle Calcinée (Scorched Sentinel)
 
-| Field | Value |
-|-------|-------|
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | II — Corrompu |
 | **Type** | Elite |
-| **Element** | Fire |
-| **Zone(s)** | Cendres Desolees (floors 3-6) |
+| **Élément** | Feu |
+| **Zone** | Cendres Désolées (F2-3) |
 
-#### Base Stats
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 250 | 30 | 15 | 60 | 200 | 80 |
 
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 280 | 35 | 18 | 55 px/s |
+**Comportement AI** : Gardien stationnaire qui protège une zone. Enrage si le joueur entre dans sa zone. Attaques AoE lentes mais puissantes. Phase de shield toutes les 30% HP perdus (absorbe 50 dmg avant de casser).
 
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 200 px | 80 px (melee), 160 px (AoE) |
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Ground Slam | 800 ms | 300 ms | 600 ms | 2000 ms | 30 | 80 px AoE | Onde de choc circulaire. |
+| Flame Sweep | 600 ms | 400 ms | 500 ms | 3000 ms | 25 +Burn | 120 px arc | Arc frontal 180°. |
+| Shield Bash | 400 ms | 200 ms | 400 ms | 1500 ms | 20 | 60 px | Repousse le joueur. |
+| Enrage Roar | 1000 ms | 200 ms | 300 ms | 15000 ms | 0 | 300 px | +30% ATK/Speed pour 10s. |
 
-#### AI Behavior
-
-The Scorched Sentinel is a slow, heavily armored enemy that guards key chokepoints. It does not patrol — it stands motionless until the player enters its detection range. Once active, it advances steadily and uses ground-slam AoE attacks to control space. It alternates between melee shield bash (pushing the player back) and ground slam (AoE zone denial). If the player stays at range, it will use a magma eruption that creates lingering fire zones on the ground. The Sentinel has a **shield mechanic**: its frontal DEF is doubled (36 effective) when facing the player. Attacking from behind deals normal damage.
-
-**FSM States:** Dormant -> Activate (stand up animation 1.5s) -> Advance -> Shield Bash / Ground Slam / Magma Eruption -> Reposition
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Shield Bash | 500 ms (shield raise) | 200 ms | 600 ms | 2000 ms | 25 ATK | 80 px frontal cone 60 deg | Knockback 100 px. Stuns 500 ms. |
-| Ground Slam | 1000 ms (fist raised, ground cracks glow) | 300 ms | 800 ms | 3500 ms | 40 ATK | 160 px circular AoE | Shockwave ring. Jump to avoid. |
-| Magma Eruption | 1200 ms (ground glows at target location) | 500 ms | 600 ms | 5000 ms | 20 ATK + Burn | 120 px zone at target | Creates 80 px fire zone lasting 4s (10 dmg/s). |
-| Stomp | 300 ms (foot raise) | 100 ms | 400 ms | 1500 ms | 15 ATK | 60 px small AoE | Quick interrupt attack when player is very close. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Burn (Magma Eruption) | 3s | 5 damage/tick every 1s. |
-| Stun (Shield Bash) | 500 ms | Player cannot act. |
-| Knockback (Shield Bash) | Instant | Pushed 100 px away from Sentinel. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Scorched Iron Plate | Common | 45% |
-| Sentinel Core (Molten) | Uncommon | 22% |
-| Obsidian Shield Fragment | Rare | 8% |
-| Infernal Guard Helm | Epic | 2% |
-| Gold | — | 30-65 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Water | 1.3x (Weakness) |
-| Ice | 1.2x |
-| Fire | 0.0x (Immune) |
-| Shadow | 1.0x |
-| Void | 1.2x |
-| Physical | 0.6x (Resistant — armored) |
-
-#### Visual Description
-
-A massive humanoid figure (2x player height) encased in blackened, cracked plate armor fused to its body. Molten orange light pulses through the armor seams like a slow heartbeat. One arm ends in a fused tower shield of volcanic rock; the other is a gauntlet-fist. Its helmet has a single horizontal visor slit glowing with intense heat. When it activates from dormancy, its visor ignites and ash cascades off its shoulders. Slow, deliberate movements — each step leaves a brief scorch mark.
+**Loot** : Sentinel Core (40%), Scorched Shield Fragment (15%), Flame Heart (3%), 20-40 Cendres, Shadow Dust x5-10.
 
 ---
 
-### Gardien Corrompu (Corrupted Guardian) — BOSS
+### Zone 2 — Cryptes d’Ombre (F4-6)
 
-| Field | Value |
-|-------|-------|
+**Thème** : Ombre, spectres, architecture gothique en ruines.
+
+---
+
+#### 4. Spectre d’Ombre (Shadow Wraith)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | III — Éveillé |
+| **Type** | Elite |
+| **Élément** | Ombre |
+| **Zone** | Cryptes d’Ombre (F4-6) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 180 | 35 | 8 | 130 | 350 | 250 |
+
+**Comportement AI** : Se rend invisible pendant 3s toutes les 10s. Attaque à distance avec des projectiles d’ombre. Peut se téléporter derrière le joueur. Vulnérable pendant 2s après réapparition.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Shadow Bolt | 500 ms | 100 ms | 300 ms | 1500 ms | 35 | 250 px | Projectile qui traverse les alliés. |
+| Backstab | 300 ms | 150 ms | 500 ms | 5000 ms | 50 | 40 px | Après téléportation. Crit garanti. |
+| Shadow Veil | 200 ms | instant | 0 ms | 10000 ms | 0 | — | Invisibilité 3s. |
+| Soul Drain | 700 ms | 400 ms | 600 ms | 8000 ms | 20/s | 150 px | Canalisation. Heal le Wraith. |
+
+**Loot** : Shadow Essence (45%), Wraith Cloak Fragment (12%), Soul Crystal (4%), 15-30 Cendres, Shadow Dust x8-15.
+
+---
+
+#### 5. Araignée Nocturne (Night Spider)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | II — Corrompu |
+| **Type** | Basic |
+| **Élément** | Ombre |
+| **Zone** | Cryptes d’Ombre (F4-6) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 100 | 25 | 6 | 140 | 250 | 60 |
+
+**Comportement AI** : Se cache au plafond, tombe sur le joueur quand il passe en dessous. Tisse des toiles ralentissantes. En groupe de 3-6, tend des embuscades coordonnées.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Ceiling Drop | 200 ms | 300 ms | 400 ms | 6000 ms | 25 | AoE impact | Surprise depuis le plafond. |
+| Venomous Bite | 350 ms | 100 ms | 300 ms | 1500 ms | 20 +Poison | 40 px | DoT poison 4s. |
+| Web Shot | 500 ms | 150 ms | 400 ms | 4000 ms | 5 | 200 px | Slow -40% pendant 3s. |
+
+**Loot** : Spider Silk (50%), Venom Sac (15%), Night Fang (5%), 10-22 Cendres.
+
+---
+
+#### 6. Chevalier Déchu (Fallen Knight)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | II — Corrompu |
+| **Type** | Elite |
+| **Élément** | Ombre |
+| **Zone** | Cryptes d’Ombre (F4-6) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 300 | 38 | 20 | 70 | 200 | 100 |
+
+**Comportement AI** : Guerrier méthodique avec bouclier. Alterne entre posture défensive (bouclier levé, DEF +50%) et offensive (bouclier baissé, ATK +25%). Change de posture toutes les 8s. Quand son bouclier est brisé (après 3 attaques lourdes du joueur), il enrage.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Sword Slash | 500 ms | 200 ms | 400 ms | 1800 ms | 38 | 100 px | Combo de 2 coups possibles. |
+| Shield Charge | 700 ms | 300 ms | 600 ms | 5000 ms | 30 +Stun | 150 px | Charge linéaire. Stun 1.5s. |
+| Dark Cleave | 900 ms | 350 ms | 700 ms | 6000 ms | 55 | 120 px AoE | Seulement en posture offensive. |
+| Enraged Frenzy | 1200 ms | 5x200 ms | 1000 ms | 20000 ms | 25 chaque | 100 px | Quand bouclier brisé. Chaîne de 5 coups. |
+
+**Loot** : Dark Steel Shard (40%), Fallen Crest (10%), Knight’s Oath (3%), 25-45 Cendres, Shadow Dust x10-20.
+
+---
+
+### Zone 3 — Profondeurs Carmines (F4-6)
+
+**Thème** : Sang, rituels, cavernes organiques pulsantes.
+
+---
+
+#### 7. Sangsue Géante (Giant Leech)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | III — Éveillé |
+| **Type** | Basic |
+| **Élément** | Sang |
+| **Zone** | Profondeurs Carmines (F4-6) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 150 | 20 | 5 | 100 | 200 | 50 |
+
+**Comportement AI** : Se déplace en rampant. S’attache au joueur et draine la vie sur la durée. Quand attachée, le joueur doit mash pour se libérer. Apparaît en groupes de 2-4, souvent cachée dans les flaques de sang.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Latch On | 400 ms | grab | — | 5000 ms | 8/s drain | 50 px | Grab. Mash pour se libérer. Heal la sangsue. |
+| Blood Spit | 500 ms | 150 ms | 300 ms | 3000 ms | 15 | 180 px | Projectile. Applique Bleed. |
+| Burrow | 300 ms | 800 ms | 200 ms | 8000 ms | 0 | — | Disparaît sous terre, réapparaît près du joueur. |
+
+**Loot** : Blood Clot (55%), Leech Tooth (18%), Crimson Essence (4%), 12-25 Cendres.
+
+---
+
+#### 8. Prêtre de Sang (Blood Priest)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | III — Éveillé |
+| **Type** | Elite |
+| **Élément** | Sang |
+| **Zone** | Profondeurs Carmines (F5-6) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 220 | 32 | 10 | 80 | 300 | 250 |
+
+**Comportement AI** : Caster qui reste en arrière-plan. Buff et heal les alliés. Invoque des Sangsues Géantes (max 2 actives). Priorité absolue du joueur car il soutient les autres ennemis.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Blood Lance | 600 ms | 100 ms | 400 ms | 2000 ms | 32 | 250 px | Projectile perforant. |
+| Crimson Shield | 800 ms | instant | 200 ms | 12000 ms | 0 | 200 px | Bouclier sur un allié (50 HP absorb). |
+| Summon Leech | 1200 ms | 500 ms | 300 ms | 15000 ms | 0 | — | Invoque 1 Sangsue Géante. Max 2. |
+| Blood Ritual | 1500 ms | 2000 ms | 1000 ms | 25000 ms | AoE 40 | 300 px | Canalisation. Heal all alliés 30% HP. Interruptible. |
+
+**Loot** : Ritual Scroll (35%), Blood Chalice (10%), Priest’s Tome (3%), 30-50 Cendres, Shadow Dust x12-20.
+
+---
+
+### Zone 4 — Faille du Néant (F7+)
+
+**Thème** : Néant, distorsion spatiale, réalité fragmentée.
+
+---
+
+#### 9. Anomalie du Néant (Void Anomaly)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | III — Éveillé |
+| **Type** | Elite |
+| **Élément** | Néant |
+| **Zone** | Faille du Néant (F7+) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 200 | 40 | 12 | 110 | 400 | 300 |
+
+**Comportement AI** : Entité flottante qui déforme l’espace. Crée des zones de distorsion qui inversent les contrôles du joueur. Se téléporte aléatoirement toutes les 5s. Immunisée aux effets de statut.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Void Pulse | 400 ms | 200 ms | 300 ms | 1500 ms | 40 | 300 px AoE | Onde expansive circulaire. |
+| Reality Warp | 700 ms | instant | 500 ms | 8000 ms | 0 | 200 px zone | Zone qui inverse les contrôles (5s). |
+| Dimensional Rift | 600 ms | 300 ms | 400 ms | 4000 ms | 35 | 150 px | Ouvre un portail, projectile sort d’un angle aléatoire. |
+| Blink | 100 ms | instant | 200 ms | 5000 ms | 0 | — | Téléportation aléatoire. |
+
+**Loot** : Void Fragment (40%), Anomaly Core (12%), Reality Shard (3%), 20-40 Cendres, Shadow Dust x15-25, Void Crystal x1-2.
+
+---
+
+#### 10. Tisseur de Néant (Void Weaver)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | III — Éveillé |
+| **Type** | Elite |
+| **Élément** | Néant |
+| **Zone** | Faille du Néant (F7+) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 280 | 35 | 15 | 70 | 350 | 200 |
+
+**Comportement AI** : Crée des toiles de Void qui piègent le joueur et amplifient les dégâts Néant. Tisse un réseau de fils connectant les ennemis proches (buff partagé). Quand ses fils sont détruits, il enrage.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Void Thread | 500 ms | 200 ms | 300 ms | 2000 ms | 25 +Slow | 200 px | Fil qui slow -30% pendant 4s. |
+| Web Trap | 800 ms | 400 ms | 500 ms | 6000 ms | 10 | Zone 100 px | Zone au sol. Piégé = +50% Void dmg reçus. |
+| Thread Link | 600 ms | instant | 200 ms | 10000 ms | 0 | 300 px | Connecte 2 ennemis. +20% ATK/DEF partagé. |
+| Unravel | 1000 ms | 500 ms | 800 ms | 15000 ms | 60 | 250 px AoE | Quand fils détruits. Explosion massive. |
+
+**Loot** : Void Silk (45%), Weaver Fang (10%), Void Loom Shard (3%), 25-45 Cendres, Shadow Dust x15-25, Void Crystal x1-3.
+
+---
+
+### Multi-zone
+
+---
+
+#### 11. Rat d’Umbra (Umbra Rat)
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | I — Fragmenté |
+| **Type** | Basic / Special |
+| **Élément** | Neutre |
+| **Zone** | Toutes (F1+) |
+
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 30 | 8 | 1 | 180 | 150 | 30 |
+
+**Comportement AI** : Créature de fodder ultra-rapide. Apparaît en essaims de 5-10. Fuit plutôt que de combattre. Vole les items au sol si le joueur ne les ramasse pas assez vite. Certains rats sont dorés et droppent des récompenses bonus.
+
+| Attaque | Telegraph | Active | Recovery | CD | Dégâts | Portée | Notes |
+|---------|-----------|--------|----------|----|---------|--------|-------|
+| Nibble | 200 ms | 100 ms | 200 ms | 800 ms | 8 | 30 px | Mêlée faible. |
+| Item Steal | 300 ms | instant | 500 ms | 5000 ms | 0 | 50 px | Vole 1 item au sol. Tuer le rat le récupère. |
+
+**Loot** : Rat Tail (70%), Tiny Claw (20%), 3-8 Cendres. Les **Rats Dorés** (5% de spawn) droppent : 50-100 Cendres + Shadow Dust x5 + item rare garanti.
+
+---
+
+## Boss
+
+---
+
+### Boss 1 : Gardien Corrompu (Corrupted Guardian) — F1-3
+
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | IV — Seigneur |
 | **Type** | Boss |
-| **Element** | Fire + Void (Phase 2+) |
-| **Zone(s)** | Cendres Desolees (floor 6 — boss arena) |
+| **Élément** | Feu |
+| **Zone** | Cendres Désolées (F3) |
 
-#### Base Stats
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 2000 | 45 | 25 | 50 | 500 | 150 |
 
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 2500 | 45 | 22 | 70 px/s |
+**Phases** :
 
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| Arena-wide (auto-aggro) | 120 px (melee), 300 px (ranged) |
+| Phase | Seuil HP | Comportement |
+|-------|----------|-------------|
+| **Phase 1** | 100-60% | Attaques mélée lentes. Ground Slam + Flame Wave. Patterns prévisibles. |
+| **Phase 2** | 60-30% | Invoque 2 Sentinelles Calcinées. Gagne Shield Charge. +20% Speed. |
+| **Phase 3** | 30-0% | Enrage permanent. Flamme permanente au sol (ticking AoE). Nova de feu toutes les 15s. |
 
-#### Arena
+**Attaques spéciales** :
 
-Circular arena, 800 px diameter. Four destructible pillars at cardinal points (200 HP each) that can be used as cover against breath attacks. Pillars do not respawn. Lava border deals 30 damage/s on contact.
+| Attaque | Dégâts | Notes |
+|---------|---------|-------|
+| Ground Slam | 45 AoE | Onde de choc. Safe zone : derrière le boss. |
+| Flame Wave | 35 + Burn | Ligne droite. Traverse toute l’arène. |
+| Shield Charge | 50 + Stun 2s | Phase 2+. Charge linéaire rapide. |
+| Fire Nova | 60 AoE | Phase 3. Couvre toute l’arène sauf un safe spot tournant. |
 
-#### AI Behavior — Overview
+**Loot garanti** : 100-200 Cendres, Shadow Dust x20-30, Void Shards x5-10, Abyssal Dust x1.
 
-The Corrupted Guardian is a 3-phase boss that transitions based on HP thresholds. It combines heavy melee attacks with fire-based AoE and, in later phases, Void abilities. The boss has **no flee state** — it fights until death. Between phases, it performs a 2s invincible roar animation (phase transition telegraph) during which the arena changes.
-
----
-
-#### Phase 1 — Fire Warden (100%-60% HP)
-
-**Behavior:** Methodical and aggressive. The Guardian advances toward the player and uses a mix of melee slams and mid-range fire attacks. It prioritizes Ground Slam when the player is within melee range and Fire Breath when the player kites at range. Between attacks, it slowly stalks the player. Uses Charge to close gaps if the player stays beyond 200 px for more than 3s.
-
-**Phase Transition at 60% HP:** The Guardian roars (2s invincible), Void cracks appear across its body and the arena floor. Two Void portals open in the arena.
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Ground Slam | 1000 ms (raises both fists, ground cracks glow beneath player) | 500 ms (impact + shockwave) | 700 ms | 3000 ms | 50 ATK | 200 px circular AoE centered on impact | Telegraphed by glowing ground cracks at target position. Dodgeable. |
-| Charge | 800 ms (lowers shoulder, scrapes ground, sparks) | 400 ms (dash 400 px) | 1000 ms | 5000 ms | 55 ATK | 400 px line, 60 px width | Travels in straight line. Destroys pillars on contact. Stuns self 1s if hits arena wall. |
-| Fire Breath | 600 ms (inhales, chest glows) | 3000 ms (continuous channel, sweeping cone) | 800 ms | 6000 ms | 15 ATK/tick (5 ticks over 3s) | 300 px cone, 90 deg sweep | Sweeps left-to-right (or right-to-left). Pillars block it. Burns. Player can circle behind. |
-| Backhand Swipe | 300 ms (arm winds back) | 150 ms | 400 ms | 1500 ms | 35 ATK | 100 px frontal arc 120 deg | Quick melee punish for players who stay in melee too long. Knockback 80 px. |
+**Loot rare** : Guardian Core (15%), Corrupted Flame Rune (5%), Cosmetic « Cendre » (2%).
 
 ---
 
-#### Phase 2 — Void Corruption (60%-30% HP)
+### Boss 2 : Tyran de Flamme (Flame Tyrant) — F4-6
 
-**Behavior:** The Guardian gains Void abilities. Its attacks become faster (all cooldowns reduced by 20%). It alternates between Fire and Void attacks. Every 15s, it summons 2 Ash Specters from Void portals (max 4 Specters alive at once). It gains Teleport-Slam: instead of walking to the player, it can short-range teleport (200 px) and immediately slam. Void cracks on the floor deal 5 damage/s if the player stands on them.
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | IV — Seigneur |
+| **Type** | Boss |
+| **Élément** | Feu / Ombre |
+| **Zone** | Cryptes d’Ombre / Profondeurs Carmines (F6) |
 
-**Phase Transition at 30% HP:** The Guardian screams, all summoned Specters die instantly, Void energy implodes inward. The arena darkens. Continuous Void pulse begins.
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 5000 | 65 | 35 | 65 | 600 | 200 |
 
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Ground Slam | 800 ms | 500 ms | 560 ms | 2400 ms | 50 ATK (Fire+Void) | 200 px AoE | Same as P1 but faster and now dual-element. |
-| Charge | 640 ms | 400 ms | 800 ms | 4000 ms | 55 ATK | 400 px line | Faster windup. Leaves Void trail (3s, 8 dmg/s). |
-| Fire Breath | 480 ms | 3000 ms | 640 ms | 4800 ms | 15 ATK/tick | 300 px cone | Faster startup and shorter cooldown. |
-| Teleport-Slam | 400 ms (Void shimmer at current location) | 200 ms (teleport) + 500 ms (slam) | 700 ms | 5000 ms | 55 ATK | 200 px teleport + 180 px AoE | New attack. Teleports near player, immediate AoE slam. |
-| Void Orb | 700 ms (dark sphere forms in hand) | 300 ms (projectile launch) | 500 ms | 3500 ms | 30 ATK | 350 px range, 60 px blast radius | New ranged attack. Slow-moving homing projectile (80 px/s). Explodes on contact. |
-| Summon Specters | 1500 ms (portals pulse) | 500 ms | 0 ms | 15000 ms | 0 | Arena-wide | Spawns 2 Ash Specters from Void portals. Max 4 alive. |
+**Phases** :
 
----
+| Phase | Seuil HP | Comportement |
+|-------|----------|-------------|
+| **Phase 1** | 100-70% | Attaques élémentaires Feu. Colonnes de flammes. Terrain de lave progressive. |
+| **Phase 2** | 70-40% | Passe en mode Ombre. Invisibilité partielle. Attaques furtives + Burn. |
+| **Phase 3** | 40-0% | Fusion Feu+Ombre. Dual-element attacks. Arène réduite par la lave/ombre. |
 
-#### Phase 3 — Berserk Annihilation (30%-0% HP)
+**Attaques spéciales** :
 
-**Behavior:** All summons die. The Guardian enters Berserk mode. All attacks deal Fire+Void damage. Continuous AoE Void pulses emanate from the Guardian every 2s (arena-wide, unavoidable, 10 damage each — a DPS race). No more summons. The Guardian gains +30% ATK and loses -30% DEF (15.4 effective DEF). It attacks relentlessly with minimal downtime, chaining attacks with only recovery frames between them (no idle stalking). Prioritizes Teleport-Slam and Charge to keep pressure on the player.
+| Attaque | Dégâts | Notes |
+|---------|---------|-------|
+| Flame Pillar | 55 + Burn | 3 colonnes de feu. Positions aléatoires. |
+| Shadow Dash | 70 | Phase 2. Charge invisible, révélé 1s avant l’impact. |
+| Dual Cataclysm | 80 AoE | Phase 3. Explosion Feu+Ombre. Seul safe spot : centre exact. |
+| Lava Rise | 40/s | Phase 3. Le sol se couvre de lave progressivement. |
 
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Ground Slam | 600 ms | 400 ms | 450 ms | 1800 ms | 65 ATK (Fire+Void) | 220 px AoE | Faster, larger, harder hitting. |
-| Charge | 500 ms | 350 ms | 700 ms | 3000 ms | 72 ATK | 400 px line | Berserk speed. Void trail 4s. |
-| Teleport-Slam | 300 ms | 150 ms + 400 ms | 500 ms | 3500 ms | 72 ATK | 200 px tp + 200 px AoE | Near-instant teleport. |
-| Fire+Void Breath | 400 ms | 2500 ms | 600 ms | 4000 ms | 20 ATK/tick (5 ticks) | 300 px cone | Dual element. Faster sweep. |
-| Void Pulse | None (continuous) | 200 ms | 0 ms | 2000 ms (auto) | 10 ATK | Arena-wide | Unavoidable tick damage. DPS race mechanic. |
-| Desperation Slam | 1500 ms (jumps to arena center, massive charge-up) | 800 ms | 2000 ms | 20000 ms | 90 ATK | 350 px AoE from center | Used once at 10% HP. Destroys all remaining pillars. |
+**Loot garanti** : 200-400 Cendres, Shadow Dust x40-60, Void Shards x10-20, Abyssal Dust x2-3.
 
-#### Status Effects Applied (All Phases)
-
-| Effect | Source | Duration | Description |
-|--------|--------|----------|-------------|
-| Burn | Fire Breath, Fire+Void Breath | 4s | 6 damage/tick every 1s. |
-| Void Corruption | Void Orb, Teleport-Slam, Void Trail | 3s | -15% player speed, -10% player ATK. |
-| Knockback | Charge, Backhand Swipe | Instant | Pushed 80-120 px. |
-| Stun (self) | Charge (wall hit) | 1000 ms | Guardian stunned if Charge hits arena wall. Exploit window. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Guardian's Molten Core | Guaranteed | 100% |
-| Corrupted Void Shard | Uncommon | 40% |
-| Infernal Guardian Greaves | Rare | 15% |
-| Flame of the Fallen (weapon material) | Rare | 12% |
-| Void-Touched Aegis (shield) | Epic | 5% |
-| Guardian's Ember Crown (helmet) | Epic | 3% |
-| Gold | — | 200-500 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Water | 1.3x (Weakness) |
-| Ice | 1.2x |
-| Fire | 0.0x (Immune) |
-| Shadow | 0.8x (Resistant) |
-| Void | 0.5x (Highly Resistant — Phase 2+: Immune) |
-| Physical | 0.8x (Resistant) |
-
-#### Visual Description
-
-A towering armored knight (2.5x player height) that was once a noble guardian, now twisted by Void corruption. Phase 1: Blackened plate armor with molten cracks, similar to the Sentinelle but grander. A tattered burning cape. Helm with two glowing orange eye slits and curved horns. Wields a massive two-handed mace fused with volcanic rock.
-
-Phase 2: Purple-black Void fissures rip across the armor. One eye turns from orange to deep violet. The mace crackles with alternating fire and Void energy. Void tendrils seep from the joints of the armor. The cape disintegrates into floating ash and shadow particles.
-
-Phase 3: The armor is half-shattered, revealing a body of pure molten fire shot through with Void veins. Both eyes burn violet-white. The mace is wreathed in a spiraling vortex of flame and Void. Continuous dark energy pulses ripple outward from the Guardian. The ground around its feet is permanently scorched and cracked with Void light.
+**Loot rare** : Tyrant’s Crown (10%), Dual-Element Rune (4%), Cosmetic « Flamme Noire » (2%).
 
 ---
 
-## Zone 2 — Cryptes d'Ombre (Shadow Crypts)
+### Boss 3 : Harbinger du Void (Void Harbinger) — F7+
 
-**Theme:** Darkness, stealth, undeath. Ancient catacombs shrouded in perpetual shadow with flickering magical torches and crumbling stone.
+| Champ | Valeur |
+|-------|--------|
+| **Tier** | IV — Seigneur |
+| **Type** | Boss |
+| **Élément** | Néant |
+| **Zone** | Faille du Néant (F9+) |
 
----
+| HP | ATK | DEF | Speed | Detection | Atk Range |
+|----|-----|-----|-------|-----------|-----------|
+| 10000 | 90 | 50 | 80 | 800 | 350 |
 
-### Spectre d'Ombre (Shadow Wraith)
+**Phases** :
 
-| Field | Value |
-|-------|-------|
-| **Type** | Basic |
-| **Element** | Shadow |
-| **Zone(s)** | Cryptes d'Ombre (floors 1-5) |
+| Phase | Seuil HP | Comportement |
+|-------|----------|-------------|
+| **Phase 1** | 100-75% | Attaques Néant à distance. Crée des portails envoyant des projectiles. |
+| **Phase 2** | 75-50% | Invoque des Anomalies du Néant (max 3). Déforme l’arène (zones de gravité inversée). |
+| **Phase 3** | 50-25% | Se fragmente en 3 copies (1 réelle, 2 illusions). Les illusions ont 20% HP mais mêmes attaques. |
+| **Phase 4** | 25-0% | Forme finale. Arène complètement déformée. Attaques continues. Timer : 120s ou wipe. |
 
-#### Base Stats
+**Attaques spéciales** :
 
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 65 | 25 | 3 | 110 px/s |
+| Attaque | Dégâts | Notes |
+|---------|---------|-------|
+| Void Barrage | 60 x5 | 5 projectiles en éventail depuis un portail. |
+| Gravity Well | 30/s | Zone qui attire le joueur au centre. Pendant 4s. |
+| Dimensional Shatter | 100 AoE | Phase 3. Brise l’arène. Platforming temporaire. |
+| Annihilation | 999 | Phase 4. Attaque à 120s. Instantkill si le boss n’est pas vaincu. |
 
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 180 px | 50 px |
+**Loot garanti** : 500-800 Cendres, Shadow Dust x80-120, Void Shards x20-40, Abyssal Dust x5-8, Void Crystal x3-5.
 
-#### AI Behavior
-
-The Shadow Wraith is an ambush predator. It exists in a **stealth state** by default — invisible to the player until it enters attack range or the player uses a light-based ability/item. When stealthed, it slowly creeps toward the player. Upon reaching attack range, it uncloaks with a brief shimmer (200 ms telegraph) and delivers a backstab for bonus damage. After the ambush, it fights in melee with quick slashes, periodically re-entering stealth if it takes no damage for 3s. It flees (re-stealth + reposition) if HP drops below 20%.
-
-**FSM States:** Stealth Patrol -> Creep (toward player) -> Ambush Strike -> Melee Combat -> Re-Stealth (if undamaged 3s) -> Flee (low HP)
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Ambush Strike | 200 ms (shimmer uncloak) | 150 ms | 500 ms | N/A (once per stealth) | 40 ATK (bonus from stealth) | 50 px | First hit from stealth. 1.6x base ATK. Applies Shadow Mark. |
-| Shadow Slash | 250 ms (arm drawn back) | 100 ms | 300 ms | 900 ms | 25 ATK | 50 px | Standard melee combo attack (2-hit chain possible). |
-| Fade Step | 150 ms (body flickers) | 300 ms | 200 ms | 4000 ms | 0 | 100 px reposition | Short teleport to evade. Used reactively when hit. |
-| Re-Stealth | 500 ms (dissolves into shadow) | 1000 ms (fading) | 0 ms | 8000 ms | 0 | — | Re-enters invisibility if undamaged for 3s. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Shadow Mark (Ambush Strike) | 5s | Marked player takes +10% Shadow damage from all sources. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Shadow Wisp | Common | 55% |
-| Wraith Cloth | Uncommon | 20% |
-| Shade Essence | Rare | 5% |
-| Gold | — | 8-20 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Light/Holy | 1.8x (Major Weakness) |
-| Fire | 1.3x |
-| Shadow | 0.0x (Immune) |
-| Physical | 0.5x (Resistant — incorporeal) |
-| Void | 0.8x |
-| Water | 1.0x |
-
-#### Visual Description
-
-A hunched, hooded figure made of dense shadow. When stealthed, it is completely invisible except for a very faint dark shimmer visible only on close inspection. When uncloaked, it appears as a dark robed form with no visible face — just deeper darkness under the hood. Two pale silvery pinpoints for eyes. Long shadowy claws extend from tattered sleeves. Its lower body trails off into wisps of shadow rather than having legs. Approximately 1x player height (hunched), 1.3x if it stands upright (which it never does).
+**Loot rare** : Harbinger’s Essence (8%), Void Rune Légendaire (3%), Cosmetic « Void Form » (1%), Convergence Token x10 (5%).
 
 ---
 
-### Araignee Nocturne (Night Spider)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Basic |
-| **Element** | Shadow |
-| **Zone(s)** | Cryptes d'Ombre (floors 2-5) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 55 | 20 | 5 | 130 px/s (ground), 100 px/s (wall) |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 220 px | 45 px (melee), 150 px (web) |
-
-#### AI Behavior
-
-The Night Spider is a wall-crawling enemy that uses terrain to its advantage. It can traverse walls and ceilings, dropping down on the player from above. Its primary strategy is to open with a Web Shot to slow the player, then close in for melee attacks. It prefers to stay on walls/ceilings when possible, making it harder to hit with horizontal attacks. When grounded, it skitters in unpredictable zigzag patterns. Spawns in groups of 2-3.
-
-**FSM States:** Wall Patrol -> Detect -> Web Shot (from ceiling) -> Drop Attack -> Ground Melee -> Retreat to Wall -> Repeat
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Web Shot | 400 ms (abdomen glows) | 200 ms (projectile) | 300 ms | 3000 ms | 8 ATK | 150 px | Slows player. Can be used from wall/ceiling. |
-| Drop Attack | 300 ms (shadow appears below on ground) | 250 ms (falling strike) | 400 ms | 4000 ms | 28 ATK | 60 px AoE on landing | Only from ceiling. Shadow telegraph on ground below. |
-| Fang Strike | 200 ms (fangs extend) | 100 ms | 250 ms | 800 ms | 20 ATK | 45 px | Fast melee bite. 10% chance to apply Poison. |
-| Skitter Dodge | 100 ms | 200 ms | 100 ms | 2000 ms | 0 | 80 px reposition | Reactive dodge. Zigzag movement. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Web Slow | 2.5s | -40% movement speed. Can be broken by dodge-rolling. |
-| Poison (10% on Fang Strike) | 4s | 3 damage/tick every 1s. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Spider Silk Thread | Common | 50% |
-| Night Venom Sac | Uncommon | 18% |
-| Shadow Web Spinner | Rare | 4% |
-| Gold | — | 6-15 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Fire | 1.5x (Weakness — burns webs) |
-| Light/Holy | 1.3x |
-| Shadow | 0.0x (Immune) |
-| Physical | 1.0x |
-| Void | 1.0x |
-| Ice | 0.8x |
-
-#### Visual Description
-
-A spider roughly 0.5x player height with a body of matte black chitin that absorbs light. Eight legs with purple-tipped joints. Multiple small violet eyes arranged in two rows on its head. Its abdomen has a faintly luminescent purple pattern resembling a skull or rune. Silk strands trail behind it as it moves. When on walls/ceilings, it blends into the dark stone, only its eyes faintly visible. Web shots are dark purple, semi-transparent threads.
-
----
-
-### Chevalier Dechu (Fallen Knight)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Elite |
-| **Element** | Shadow |
-| **Zone(s)** | Cryptes d'Ombre (floors 3-6) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 320 | 38 | 20 | 65 px/s |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 200 px | 90 px |
-
-#### AI Behavior
-
-The Fallen Knight is a tactical melee combatant with a **parry-counter mechanic**. It wields a cursed greatsword and fights with disciplined, deliberate attacks. Every 3rd player attack that hits the Knight, it will attempt a Parry (70% chance). A successful Parry negates the damage and triggers an immediate Counter Slash. The Knight telegraphs when it enters parry-ready stance (sword held vertically in front). Players should bait the parry, dodge, and punish during recovery. The Knight does not flee and fights to the death.
-
-**FSM States:** Patrol -> Alert -> Approach -> Combat Stance -> Attack Combo / Parry Stance -> Counter Slash / Punish -> Reset Stance
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Greatsword Slash | 600 ms (sword raised over shoulder) | 200 ms | 500 ms | 1800 ms | 38 ATK | 90 px frontal arc 90 deg | Standard heavy melee. Can chain into Overhead. |
-| Overhead Slam | 800 ms (sword raised high, both hands) | 300 ms | 700 ms | 2500 ms | 48 ATK | 80 px frontal, narrow | Follow-up to Slash. High damage, long recovery (punish window). |
-| Shadow Thrust | 500 ms (sword pulled back, shadow trails) | 150 ms (lunge 100 px) | 600 ms | 3000 ms | 42 ATK | 100 px line | Lunging stab. Applies Shadow Mark. |
-| Parry | 100 ms (reactive) | 300 ms (parry window) | 200 ms | Passive (every 3rd hit) | 0 | Self | 70% success chance. Negates damage. Auto-triggers Counter. |
-| Counter Slash | 0 ms (immediate after Parry) | 200 ms | 400 ms | Linked to Parry | 50 ATK | 100 px wide arc 180 deg | Unavoidable if in range at parry trigger. Very high damage. |
-| Dark Wave | 1000 ms (sword dragged along ground, shadow energy builds) | 400 ms (projectile wave) | 800 ms | 8000 ms | 30 ATK | 250 px line, 40 px width | Ranged shadow projectile. Used to punish excessive kiting. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Shadow Mark (Shadow Thrust) | 5s | +10% Shadow damage taken. |
-| Guard Break (Counter Slash) | 3s | Player cannot block/parry. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Cursed Knight's Medal | Common | 40% |
-| Shadow-Forged Steel | Uncommon | 25% |
-| Fallen Knight's Greaves | Rare | 10% |
-| Oath-Broken Greatsword (weapon) | Epic | 3% |
-| Gold | — | 35-75 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Light/Holy | 1.5x (Weakness) |
-| Fire | 1.2x |
-| Shadow | 0.2x (Highly Resistant) |
-| Physical | 0.7x (Resistant — armored) |
-| Void | 1.0x |
-| Water | 1.0x |
-
-#### Visual Description
-
-A once-noble knight now animated by shadow magic. Full plate armor in tarnished dark silver, covered in patches of black corrosion. The helm's visor is open, revealing nothing but swirling darkness and two glowing purple eye-points. A tattered dark purple tabard with an unrecognizable crest hangs over the chest plate. The greatsword is a blackened blade with shadow wisps constantly rising from its edge. Moves with an eerie mix of military precision and unnatural, jerky puppet-like motions. Approximately 1.4x player height.
-
----
-
-## Zone 3 — Profondeurs Carmines (Crimson Depths)
-
-**Theme:** Blood, organic horror, parasitism. Fleshy caverns with pulsing walls, pools of dark red liquid, and a thick oppressive atmosphere.
-
----
-
-### Sangsue Geante (Giant Leech)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Basic |
-| **Element** | Blood |
-| **Zone(s)** | Profondeurs Carmines (floors 1-5) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 90 | 15 | 6 | 70 px/s (ground), 100 px/s (in blood pools) |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 160 px | 35 px |
-
-#### AI Behavior
-
-The Giant Leech is a melee enemy focused on life-drain. It lurks in blood pools (partially submerged, harder to spot) and emerges when the player passes nearby. On land, it is slow and vulnerable. In blood pools, it moves faster and regenerates 2 HP/s. Its primary attack latches onto the player, dealing continuous drain damage until shaken off (mash dodge to escape, 3 inputs). It prefers to ambush from pools and retreat to pools when damaged. Spawns in groups of 2-4.
-
-**FSM States:** Submerged (in pool) -> Emerge -> Lunge -> Latch (drain) -> Detach -> Retreat to Pool / Ground Chase
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Lunge | 400 ms (body coils back) | 200 ms (spring forward 80 px) | 500 ms | 2000 ms | 15 ATK | 80 px lunge | Gap closer. If it connects, transitions to Latch. |
-| Latch Drain | 0 ms (auto after Lunge hit) | Continuous (until shaken off) | 800 ms (after detach) | N/A | 8 ATK/tick every 500 ms + heals self 50% of damage | 0 px (attached) | Player must mash dodge (3 inputs) to detach. Heals the leech. |
-| Blood Spit | 500 ms (head inflates) | 150 ms (projectile) | 400 ms | 3000 ms | 12 ATK | 120 px range | Ranged fallback when cannot close distance. Applies Bleed. |
-| Burrow | 300 ms (digs into ground) | 800 ms (underground) | 300 ms (emerge) | 6000 ms | 0 | 150 px reposition | Repositioning move. Invulnerable while underground. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Bleed (Blood Spit) | 3s | 4 damage/tick every 1s. Not affected by DEF. |
-| Life Drain (Latch) | Until shaken | 8 damage/0.5s, heals leech 50% of damage dealt. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Leech Viscera | Common | 55% |
-| Coagulated Blood Gem | Uncommon | 18% |
-| Parasitic Tendril | Rare | 5% |
-| Gold | — | 6-18 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Fire | 1.5x (Weakness — dries out) |
-| Light/Holy | 1.3x |
-| Blood | 0.0x (Immune — absorbs blood) |
-| Physical | 1.0x |
-| Shadow | 0.8x |
-| Ice | 1.2x (Weakness — slows metabolism) |
-
-#### Visual Description
-
-An oversized leech (0.8x player height when reared up, 1.5x player length when stretched out) with dark crimson, glistening skin. Its body is segmented with pulsing rings that constrict rhythmically. The mouth is a circular maw ringed with concentric rows of tiny hooked teeth. Small, vestigial eye-spots run in two lines along its head. When submerged in blood pools, only the top ridge of its back is visible as a slight ripple. When latched to the player, its body visibly swells and darkens.
-
----
-
-### Pretre de Sang (Blood Priest)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Elite |
-| **Element** | Blood |
-| **Zone(s)** | Profondeurs Carmines (floors 3-6) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 250 | 28 | 10 | 60 px/s |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 280 px | 220 px (ranged), 50 px (melee) |
-
-#### AI Behavior
-
-The Blood Priest is a support-caster enemy that heals and buffs nearby allies. It is always accompanied by 2-3 other Blood-zone enemies. Its priority is: (1) Heal allies below 50% HP, (2) Apply Blood Frenzy buff to nearby allies, (3) Attack the player with ranged blood magic. It maintains maximum distance from the player and hides behind its allies. If all allies die, it becomes desperate and uses Blood Sacrifice (self-damage for powerful AoE). Killing the Priest first is the optimal strategy, but it positions to make this difficult.
-
-**FSM States:** Support Position (behind allies) -> Heal Ally -> Buff Allies -> Ranged Attack -> Desperate (solo) -> Blood Sacrifice
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Blood Bolt | 500 ms (crimson glow at hands) | 200 ms (projectile) | 400 ms | 1800 ms | 28 ATK | 220 px | Homing projectile (slow tracking, 60 px/s turn rate). |
-| Crimson Heal | 800 ms (red light connects to ally) | 1000 ms (channel) | 500 ms | 5000 ms | 0 (heals ally 60 HP) | 200 px to ally | Interruptible channel. Red beam connects to target ally. |
-| Blood Frenzy (buff) | 600 ms (ritual gesture) | 300 ms | 400 ms | 12000 ms | 0 | 150 px radius, all allies | +20% ATK, +10% Speed to all nearby allies for 8s. |
-| Blood Barrier | 400 ms (crosses arms) | Instant | 0 ms | 15000 ms | 0 | Self | Absorbs next 80 damage. Visible as crimson bubble shield. |
-| Blood Sacrifice | 1500 ms (levitates, slashes own chest) | 500 ms | 1000 ms | 20000 ms | 45 ATK (costs self 50 HP) | 200 px AoE centered on self | Only used when alone (all allies dead). High risk/reward. |
-| Staff Strike | 200 ms | 100 ms | 300 ms | 1000 ms | 15 ATK | 50 px | Weak melee panic attack if player gets in face. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Bleed (Blood Bolt) | 3s | 5 damage/tick every 1s. |
-| Blood Frenzy (buff on allies) | 8s | +20% ATK, +10% Speed. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Priest's Blood Vial | Common | 40% |
-| Crimson Ritual Staff Fragment | Uncommon | 22% |
-| Blood-Bound Tome | Rare | 8% |
-| Sanguine Vestments | Epic | 2.5% |
-| Gold | — | 30-60 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Fire | 1.5x (Weakness) |
-| Light/Holy | 1.5x (Weakness) |
-| Blood | 0.0x (Immune) |
-| Shadow | 0.8x |
-| Physical | 1.0x |
-| Void | 1.2x |
-
-#### Visual Description
-
-A gaunt humanoid figure in tattered crimson robes. The robes are stained darker at the hems with dried blood. Its face is hidden behind a smooth porcelain-white mask with no features except two narrow eye-slits glowing faint red. Skeletal pale hands extend from the sleeves, fingers stained red to the second knuckle. It carries a staff made of twisted bone topped with a pulsing crimson crystal. Blood runes float in a slow orbit around its shoulders. When healing, a red tether of liquid light connects it to the target. Approximately 1.1x player height.
-
----
-
-## Zone 4 — Faille du Neant (Void Rift)
-
-**Theme:** Cosmic horror, spatial distortion, entropy. Reality breaks down — floating platforms, warped geometry, stars visible through cracks in the ground.
-
----
-
-### Anomalie du Neant (Void Anomaly)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Basic |
-| **Element** | Void |
-| **Zone(s)** | Faille du Neant (floors 1-5) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 70 | 22 | 2 | 85 px/s (erratic) |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 300 px | 250 px |
-
-#### AI Behavior
-
-The Void Anomaly is an unpredictable ranged enemy that **randomly teleports** every 3-5 seconds to a new position within 200 px of the player. It has no fixed patrol path — it blinks in and out of existence in random locations. Between teleports, it fires Void bolts at the player. It never engages in melee and will always teleport away if the player closes within 80 px. Its erratic movement makes it difficult to pin down but its low HP makes it fragile when caught. Spawns solo or in pairs.
-
-**FSM States:** Drift (random position) -> Detect Player -> Ranged Attack -> Teleport (every 3-5s) -> Evasive Teleport (if player < 80 px) -> Repeat
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Void Bolt | 400 ms (core pulses brighter) | 150 ms (fast projectile, 200 px/s) | 300 ms | 1200 ms | 22 ATK | 250 px | Straight-line fast projectile. No tracking. |
-| Void Burst | 700 ms (body expands, crackling) | 300 ms | 500 ms | 4000 ms | 30 ATK | 100 px AoE centered on self | Used when 2+ players/allies are nearby. Self-centered AoE. |
-| Distortion Field | 600 ms (space warps visually around it) | 2000 ms (field persists) | 0 ms | 8000 ms | 5 ATK/tick every 500 ms | 80 px radius zone | Creates a zone of warped space. Slows player and distorts screen. |
-| Blink | 200 ms (flicker) | Instant | 300 ms | 3000-5000 ms (random) | 0 | 200 px reposition | Random teleport. Core mechanic. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Spatial Distortion (Distortion Field) | While in zone + 1s after | -30% player speed, screen distortion (visual only, no gameplay impact beyond slow). |
-| Void Corruption (Void Burst) | 2s | -10% player ATK. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Void Fragment | Common | 50% |
-| Distortion Crystal | Uncommon | 20% |
-| Anomaly Core | Rare | 6% |
-| Gold | — | 10-25 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Physical | 1.5x (Weakness — disrupts form) |
-| Light/Holy | 1.3x |
-| Void | 0.0x (Immune) |
-| Shadow | 0.5x (Resistant) |
-| Fire | 1.0x |
-| Blood | 1.0x |
-
-#### Visual Description
-
-A floating geometric anomaly — a constantly shifting polyhedron (oscillating between tetrahedron, cube, and octahedron) made of translucent dark purple energy. At its center, a bright violet-white core pulses like a heartbeat. Small fragments of broken reality orbit it — tiny shards of stone, metal, and light that were absorbed from the environment. When it teleports, it collapses into a point and re-expands at the new location with a brief spatial distortion ripple. Approximately 0.7x player height. Leaves faint afterimages at its previous positions that fade over 1s.
-
----
-
-### Tisseur de Neant (Void Weaver)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Elite |
-| **Element** | Void |
-| **Zone(s)** | Faille du Neant (floors 3-6) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 300 | 32 | 12 | 50 px/s |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 350 px | 280 px |
-
-#### AI Behavior
-
-The Void Weaver is a zone-control caster that creates **gravity wells** — persistent areas that pull the player toward their center. It fights by placing gravity wells strategically to restrict player movement, then attacking the trapped player from range. It can have a maximum of 3 gravity wells active at once. It stays at maximum range and uses Void Tether if the player gets past the wells. If the player reaches melee range, it uses Rift Collapse (defensive AoE + teleport away). The Weaver is slow but controls space masterfully.
-
-**FSM States:** Observe -> Place Gravity Well -> Ranged Attack -> Reposition (maintain distance) -> Rift Collapse (if pressured) -> Repeat
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Gravity Well | 800 ms (void circle appears on ground, growing) | Instant (persists 8s) | 500 ms | 6000 ms | 5 ATK/s while in zone | 100 px radius zone, placed up to 250 px away | Pulls player toward center at 40 px/s. Max 3 active. |
-| Void Lance | 600 ms (energy concentrates into line from hands) | 200 ms (beam) | 500 ms | 2500 ms | 35 ATK | 280 px line, 30 px width | High-damage beam. Travels instantly (hitscan). |
-| Void Tether | 500 ms (tendril extends toward player) | 300 ms (tether attaches) | 400 ms | 7000 ms | 10 ATK on attach + 6 ATK/s while tethered | 200 px range, tether lasts 4s | Pulls player 30 px/s toward Weaver. Breaks if player exits 250 px. |
-| Rift Collapse | 400 ms (clenches fists, all gravity wells pulse) | 500 ms (all wells explode simultaneously) | 1000 ms | 15000 ms | 40 ATK per well | Each well: 120 px explosion radius | Destroys all active wells as explosions. Weaver teleports 200 px away. |
-| Void Shield | 300 ms (weaves barrier gesture) | Instant | 0 ms | 20000 ms | 0 | Self | Absorbs 100 damage. Reflects 20% of absorbed damage back at attacker. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Gravity Pull (Gravity Well) | While in zone | Pulled toward center at 40 px/s. Movement away costs double speed. |
-| Void Corruption (Void Lance, Void Tether) | 3s | -15% player speed, -10% player ATK. |
-| Tethered (Void Tether) | 4s or until broken | Pulled 30 px/s toward Weaver. Break by exceeding 250 px distance. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Void Thread | Common | 40% |
-| Weaver's Lens | Uncommon | 22% |
-| Gravity Core | Rare | 9% |
-| Void Weaver's Mantle | Epic | 3% |
-| Gold | — | 35-80 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Physical | 1.3x (Weakness) |
-| Light/Holy | 1.3x |
-| Fire | 1.2x |
-| Void | 0.0x (Immune) |
-| Shadow | 0.5x (Resistant) |
-| Blood | 1.0x |
-
-#### Visual Description
-
-A tall, thin humanoid figure (1.8x player height) draped in robes that appear to be made of folded space — the fabric shows glimpses of starfields, distant nebulae, and impossible geometries that shift as it moves. Its face is a smooth oval of absolute darkness, featureless except for a single vertical line of violet light where a mouth would be. Six arms extend from its torso (3 per side), each ending in elongated fingers that constantly weave patterns in the air, leaving faint trails of Void energy. When creating gravity wells, its hands move in complex geometric patterns and reality visibly distorts around the target area. Floats 10 px above the ground.
-
----
-
-## General / Multi-zone
-
----
-
-### Rat d'Umbra (Umbra Rat)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Basic |
-| **Element** | None |
-| **Zone(s)** | All zones (floors 1-2, tutorial areas, corridors) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 20 | 8 | 1 | 120 px/s |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 120 px | 30 px |
-
-#### AI Behavior
-
-The Umbra Rat is the weakest enemy in the game, designed as a tutorial mob for new players to learn combat basics. It patrols in small areas and charges the player on detection with no sophisticated tactics. It attacks once and then briefly scurries away before charging again. In groups of 3+, they can be mildly threatening due to numbers. They flee when HP drops below 30% (running away from the player at full speed). They serve as filler enemies in corridors between major encounters.
-
-**FSM States:** Idle (sniffing ground) -> Detect -> Charge -> Bite -> Scurry Back -> Repeat / Flee (low HP)
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Bite | 200 ms (lunges forward) | 100 ms | 300 ms | 800 ms | 8 ATK | 30 px | Simple melee. |
-| Scratch | 150 ms (paw raised) | 80 ms | 250 ms | 600 ms | 5 ATK | 25 px | Faster, weaker alternative. Used in rapid succession (2-hit combo). |
-| Flee Squeak | 0 ms | 100 ms | 0 ms | N/A | 0 | 80 px fear radius | At <30% HP, squeaks and flees. Nearby rats also flee for 2s. |
-
-#### Status Effects Applied
-
-None.
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Rat Tail | Common | 40% |
-| Rat Fang | Common | 25% |
-| Tattered Hide Scrap | Uncommon | 8% |
-| Gold | — | 1-5 gold |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| All elements | 1.0x (Neutral) |
-| Fire | 1.2x (Slight Weakness) |
-| Physical | 1.0x |
-
-#### Visual Description
-
-A large rat (0.3x player height) with matted dark gray-brown fur and beady red eyes. Its tail is long, hairless, and scarred. Slightly larger than a real-world rat but clearly vermin. Nothing supernatural about its appearance — it is simply a mundane creature that has adapted to living in the dark, corrupted world of Umbra. Moves in quick, jerky scurrying motions.
-
----
-
-### Mimic (Mimic)
-
-| Field | Value |
-|-------|-------|
-| **Type** | Special |
-| **Element** | None |
-| **Zone(s)** | All zones (floors 2+, treasure rooms, dead ends) |
-
-#### Base Stats
-
-| HP | ATK | DEF | Speed |
-|----|-----|-----|-------|
-| 180 | 35 | 15 | 80 px/s (when revealed) |
-
-| Detection Range | Attack Range |
-|-----------------|--------------|
-| 0 px (waits for interaction) | 60 px |
-
-#### AI Behavior
-
-The Mimic is **disguised as a treasure chest** and is visually indistinguishable from real chests until the player attempts to open it. Upon interaction (player presses the interact button), it reveals itself with a surprise attack (Jaw Snap) that deals high damage and cannot be dodged (guaranteed first hit). After revealing, it fights as an aggressive melee enemy, chasing the player with leaping attacks. It cannot re-disguise once revealed. Mimics are placed deliberately by level design in rooms that look like they should contain treasure. A very subtle tell exists: the Mimic's "lid" has a barely visible seam that differs from real chests (rewards observant players).
-
-**FSM States:** Disguised (chest form, indefinite) -> Triggered (player interacts) -> Jaw Snap (guaranteed hit) -> Chase -> Leap Attack / Tongue Lash -> Death
-
-#### Attack Patterns
-
-| Attack | Telegraph | Active | Recovery | Cooldown | Damage | Range | Notes |
-|--------|-----------|--------|----------|----------|--------|-------|-------|
-| Jaw Snap (reveal) | 0 ms (surprise) | 300 ms (lid opens into jaws, bites) | 500 ms | N/A (once) | 40 ATK | 60 px | Guaranteed hit on reveal. Cannot be dodged. |
-| Tongue Lash | 400 ms (tongue coils) | 200 ms (tongue whip) | 400 ms | 2000 ms | 25 ATK | 100 px | Ranged melee. Pulls player 40 px closer. |
-| Leap | 500 ms (crouches on stubby legs) | 300 ms (jumps 150 px) | 600 ms | 3000 ms | 30 ATK | 150 px leap + 50 px AoE on landing | Closing attack. Landing AoE. |
-| Devour | 800 ms (jaws open wide) | 400 ms | 800 ms | 5000 ms | 50 ATK | 40 px | High damage close-range bite. Used when player is very close. |
-| Gold Spit | 300 ms (coughs) | 150 ms (projectile spread) | 400 ms | 4000 ms | 15 ATK x3 projectiles | 120 px, 30 deg spread | Spits 3 gold coins as projectiles. Adds insult to injury. |
-
-#### Status Effects Applied
-
-| Effect | Duration | Description |
-|--------|----------|-------------|
-| Surprise (Jaw Snap) | 1s | Player briefly stunned after surprise reveal. |
-| Pull (Tongue Lash) | Instant | Pulled 40 px toward Mimic. |
-
-#### Loot Table
-
-| Item | Rarity | Drop Rate |
-|------|--------|-----------|
-| Mimic Tooth | Common | 50% |
-| Enchanted Lock | Uncommon | 25% |
-| Mimic Tongue (crafting) | Rare | 10% |
-| Treasure Mimic Trophy | Epic | 4% |
-| Gold | — | 50-150 gold (drops the "treasure" it was pretending to guard) |
-
-#### Weakness / Resistance
-
-| Element | Modifier |
-|---------|----------|
-| Fire | 1.3x (Weakness — wooden exterior) |
-| Ice | 1.2x |
-| Physical | 0.8x (Resistant — hard wood/metal shell) |
-| Shadow | 1.0x |
-| Void | 1.0x |
-| Blood | 1.0x |
-
-#### Visual Description
-
-**Disguised form:** Identical to standard treasure chests found in the game — wooden body with iron banding, ornate lock, slightly ajar lid hinting at golden glow inside. The only tell: a faint, irregular seam line where the "lid" meets the "body" that is slightly more organic-looking than a real chest's hinge line.
-
-**Revealed form:** The chest explodes open to reveal a monstrous creature. The lid becomes a hinged jaw lined with razor-sharp wooden and metal teeth. A long, prehensile crimson tongue lolls from the interior. The body sprouts four stubby but powerful legs from its underside. Two small, malicious yellow eyes peer from just below the lid-jaw hinge. The interior is not a chest cavity but a fleshy, dark red gullet. Approximately 0.7x player height (body), 1.0x when jaw is fully open.
+## Echo Enemies (Tier V — Futur)
+
+### Concept
+Les **Echo Enemies** sont des versions corrompues des compagnons du joueur, apparaissant dans les donjons mythiques (end-game). Ils représentent ce que les compagnons auraient pu devenir s’ils avaient cédé au Void.
+
+### Caractéristiques prévues
+- **Stats** : Équivalentes à un boss mid-tier, adaptées au compagnon qu’ils reflètent
+- **Attaques** : Versions corrompues des compétences du compagnon
+- **Mécanique unique** : Le compagnon original ne peut pas être utilisé pendant le combat contre son Echo
+- **Loot** : Echo Fragment spécial (Tier 3?), cosmetic « Corrupted » pour le compagnon
+- **Narratif** : Vaincre l’Echo débloque une scène de Résonance spéciale
+
+### Statut : **En cours de conception** — Non implémenté
 
 ---
 
 ## Stat Scaling Table
 
-Enemy stats scale based on dungeon floor level. Base stats listed in each entry are for floor 1 of their respective zone.
+Les stats des ennemis scalent avec l’étage du donjon :
 
-### Scaling Formulas
-
-| Stat | Scaling per Floor | Formula |
-|------|-------------------|---------|
-| **HP** | +15% per floor | `base_hp * (1 + 0.15 * (floor - 1))` |
-| **ATK** | +10% per floor | `base_atk * (1 + 0.10 * (floor - 1))` |
-| **DEF** | +8% per floor | `base_def * (1 + 0.08 * (floor - 1))` |
-| **Speed** | No scaling | Fixed per enemy type |
-| **Detection Range** | No scaling | Fixed per enemy type |
-| **Attack Range** | No scaling | Fixed per enemy type |
-| **Gold Drop** | +12% per floor | `base_gold * (1 + 0.12 * (floor - 1))` |
-| **XP Reward** | +20% per floor | `base_xp * (1 + 0.20 * (floor - 1))` |
-
-### Example: Ash Specter Stat Progression
-
-| Floor | HP | ATK | DEF |
-|-------|----|-----|-----|
-| 1 | 80 | 18 | 4 |
-| 2 | 92 | 20 | 4 |
-| 3 | 104 | 22 | 5 |
-| 4 | 116 | 23 | 5 |
-| 5 | 128 | 25 | 6 |
-| 6 | 140 | 27 | 6 |
-
-### Boss Scaling
-
-Bosses do **not** scale with floor level. They are tuned to a fixed difficulty appropriate for the final floor of their zone. However, their loot scales with player level at time of kill (+5% per player level above zone baseline).
-
-### New Game+ Scaling
-
-In NG+ cycles, all enemy base stats receive an additional multiplier:
-- NG+1: 1.5x HP, 1.3x ATK, 1.2x DEF
-- NG+2: 2.0x HP, 1.6x ATK, 1.4x DEF
-- NG+3: 3.0x HP, 2.0x ATK, 1.8x DEF
-
----
-
-## Pack Behavior Rules
-
-When enemies spawn in groups, they follow coordination rules based on pack size.
-
-### Aggro Sharing
-
-- When one enemy in a pack detects the player, **all enemies in the same pack** are alerted after a 500 ms delay (the alerting enemy calls out).
-- Pack aggro range: 300 px (enemies beyond this are treated as separate packs).
-- Aggro is **persistent** — once alerted, pack members do not de-aggro unless the player leaves 500 px range for 8+ seconds.
-
-### Flanking Behavior
-
-When a pack has 3+ members and is in combat:
-1. **Alpha** (highest HP member): Engages player head-on.
-2. **Flankers** (2nd and 3rd members): Move to 90 deg and 270 deg positions relative to the alpha-player line.
-3. **Remaining members**: Fill gaps, prioritize unguarded angles.
-4. Flanking repositioning occurs every 2s. Flankers adjust position based on player movement.
-
-### Role-Based Pack Coordination
-
-| Pack Composition | Behavior |
-|-----------------|----------|
-| All Basic (same type) | Standard flanking. No special coordination beyond aggro sharing. |
-| Basic + Elite | Basics act as frontline. Elite positions behind or to the side, using ranged/special attacks. |
-| Mixed types (e.g., Ember Hounds + Ash Specters) | Ranged enemies stay back. Melee enemies rush forward. Ranged enemies avoid friendly fire (will not shoot if an ally is in the line of fire). |
-| With Blood Priest | Priest stays in rear. All allies position between Priest and player. If player bypasses frontline, one ally peels back to intercept. |
-
-### Pack Size Limits
-
-| Zone | Minimum Pack | Maximum Pack | Common Pack Size |
-|------|-------------|-------------|-----------------|
-| Cendres Desolees | 1 | 5 | 2-3 |
-| Cryptes d'Ombre | 1 | 4 | 2-3 |
-| Profondeurs Carmines | 2 | 6 | 3-4 |
-| Faille du Neant | 1 | 3 | 1-2 |
-
-### Leash Distance
-
-If the player retreats beyond **500 px** from a pack's spawn point, the pack stops chasing and returns to patrol. Enemies regenerate HP at 5% max HP/s while returning. They are still vulnerable to damage during the return walk.
+| Étage | HP Multiplier | ATK Multiplier | DEF Multiplier |
+|--------|---------------|----------------|----------------|
+| F1 | x1.0 | x1.0 | x1.0 |
+| F2 | x1.15 | x1.1 | x1.1 |
+| F3 | x1.35 | x1.2 | x1.2 |
+| F4 | x1.6 | x1.35 | x1.3 |
+| F5 | x1.9 | x1.5 | x1.4 |
+| F6 | x2.3 | x1.7 | x1.5 |
+| F7 | x2.8 | x2.0 | x1.7 |
+| F8 | x3.4 | x2.3 | x1.9 |
+| F9 | x4.0 | x2.7 | x2.1 |
+| F10 | x4.8 | x3.0 | x2.3 |
+| F11 | x5.5 | x3.5 | x2.6 |
+| F12 | x6.5 | x4.0 | x3.0 |
 
 ---
 
 ## Elemental Resistance Matrix
 
-Complete resistance/weakness table for all enemies. Values represent damage multipliers (1.0 = neutral, >1.0 = weakness, <1.0 = resistance, 0.0 = immune).
-
-| Enemy | Physical | Fire | Water | Ice | Shadow | Light/Holy | Blood | Void |
-|-------|----------|------|-------|-----|--------|------------|-------|------|
-| Spectre de Cendre | 0.7 | 0.0 | 1.5 | 1.3 | 1.0 | 1.0 | 1.0 | 1.0 |
-| Chien de Braise | 1.0 | 0.0 | 1.5 | 1.3 | 1.0 | 1.0 | 1.0 | 1.0 |
-| Sentinelle Calcinee | 0.6 | 0.0 | 1.3 | 1.2 | 1.0 | 1.0 | 1.0 | 1.2 |
-| Gardien Corrompu | 0.8 | 0.0 | 1.3 | 1.2 | 0.8 | 1.0 | 1.0 | 0.5* |
-| Spectre d'Ombre | 0.5 | 1.3 | 1.0 | 1.0 | 0.0 | 1.8 | 1.0 | 0.8 |
-| Araignee Nocturne | 1.0 | 1.5 | 1.0 | 0.8 | 0.0 | 1.3 | 1.0 | 1.0 |
-| Chevalier Dechu | 0.7 | 1.2 | 1.0 | 1.0 | 0.2 | 1.5 | 1.0 | 1.0 |
-| Sangsue Geante | 1.0 | 1.5 | 1.0 | 1.2 | 0.8 | 1.3 | 0.0 | 1.0 |
-| Pretre de Sang | 1.0 | 1.5 | 1.0 | 1.0 | 0.8 | 1.5 | 0.0 | 1.2 |
-| Anomalie du Neant | 1.5 | 1.0 | 1.0 | 1.0 | 0.5 | 1.3 | 1.0 | 0.0 |
-| Tisseur de Neant | 1.3 | 1.2 | 1.0 | 1.0 | 0.5 | 1.3 | 1.0 | 0.0 |
-| Rat d'Umbra | 1.0 | 1.2 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
-| Mimic | 0.8 | 1.3 | 1.0 | 1.2 | 1.0 | 1.0 | 1.0 | 1.0 |
-
-> *Gardien Corrompu: Void resistance changes to 0.0 (Immune) in Phase 2+.
-
-### Elemental Interaction Notes
-
-- **Fire vs Shadow enemies**: Fire illuminates Shadow enemies, removing stealth for 3s on hit.
-- **Water vs Fire enemies**: Water attacks extinguish Burn status on the player if self-cast (utility).
-- **Light/Holy**: Universally effective against undead/shadow types. No enemy resists it except indirectly.
-- **Void**: Strong against most things but Void enemies are immune. Void Corruption debuff stacks from multiple sources.
-- **Physical**: Reliable against casters and anomalies. Weak against armored (Sentinel, Knight) and incorporeal (Wraith) enemies.
-
----
-
-*Document version: 2.0*
-*Last updated: 2026-03-01*
-*Status: Specification — subject to balancing during playtesting*
+| Ennemi | Feu | Ombre | Sang | Néant | Physique |
+|--------|-----|-------|------|--------|----------|
+| Spectre de Cendre | Immune | x1.0 | x1.0 | x1.0 | x0.7 |
+| Chien de Braise | x0.5 | x1.0 | x1.0 | x1.0 | x1.0 |
+| Sentinelle Calcinée | x0.5 | x1.3 | x1.0 | x1.0 | x0.8 |
+| Spectre d’Ombre | x1.5 | Immune | x1.0 | x0.8 | x0.5 |
+| Araignée Nocturne | x1.3 | x0.7 | x1.0 | x1.0 | x1.0 |
+| Chevalier Déchu | x1.0 | x0.8 | x1.3 | x1.0 | x0.7 |
+| Sangsue Géante | x1.5 | x1.0 | x0.5 | x1.0 | x1.0 |
+| Prêtre de Sang | x1.3 | x1.0 | Immune | x1.3 | x1.0 |
+| Anomalie du Néant | x1.0 | x1.0 | x1.0 | Immune | x0.5 |
+| Tisseur de Néant | x1.0 | x1.0 | x1.0 | x0.5 | x0.8 |
+| Rat d’Umbra | x1.0 | x1.0 | x1.0 | x1.0 | x1.0 |
+| Gardien Corrompu | x0.3 | x1.5 | x1.0 | x1.0 | x0.5 |
+| Tyran de Flamme | x0.5 | x0.5 | x1.3 | x1.3 | x0.7 |
+| Harbinger du Void | x1.0 | x1.0 | x1.0 | Immune | x0.3 |
