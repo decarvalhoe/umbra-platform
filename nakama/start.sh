@@ -1,3 +1,3 @@
 #!/bin/sh
-/nakama/nakama migrate up --config /nakama/local.yml
+/nakama/nakama --config /nakama/local.yml migrate up
 exec /nakama/nakama --config /nakama/local.yml
