@@ -326,9 +326,8 @@ const rpcGetLeaderboard: nkruntime.RpcFunction = function (
   payload: string
 ): string {
   const input = payload ? JSON.parse(payload) : {};
-  const seasonId =
-    input.seasonId ||
-    `season_${new Date().getFullYear()}_${String(Math.ceil((new Date().getMonth() + 1) / 3)).padStart(2, "0")}`;
+  var q = Math.ceil((new Date().getMonth() + 1) / 3);
+  const seasonId = input.seasonId || ("season_" + new Date().getFullYear() + "_" + (q < 10 ? "0" + q : "" + q));
   const limit = input.limit || 20;
 
   const records = nk.leaderboardRecordsList(seasonId, undefined, limit, undefined, 0);
@@ -441,13 +440,13 @@ const InitModule: nkruntime.InitModule = function (
   initializer.registerAfterAuthenticateDevice(afterAuthenticateDevice);
 
   // Seasonal leaderboard
-  const quarter = String(Math.ceil((new Date().getMonth() + 1) / 3)).padStart(2, "0");
-  const seasonId = `season_${new Date().getFullYear()}_${quarter}`;
+  var q2 = Math.ceil((new Date().getMonth() + 1) / 3);
+  var seasonId = "season_" + new Date().getFullYear() + "_" + (q2 < 10 ? "0" + q2 : "" + q2);
   nk.leaderboardCreate(
     seasonId,
     true,
-    nkruntime.SortOrder.DESCENDING,
-    nkruntime.Operator.BEST
+    1,
+    0
   );
 
   logger.info("Umbra Platform initialized — Season: %s", seasonId);
