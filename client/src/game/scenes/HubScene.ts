@@ -318,7 +318,7 @@ export class HubScene extends Phaser.Scene {
                 object_ids: [{ collection: 'player_data', key: 'profile', user_id: session.user_id }],
             })
             if (result.objects && result.objects.length > 0) {
-                const saved = JSON.parse(result.objects[0].value as string) as Partial<PlayerData>
+                const saved = JSON.parse(result.objects[0].value as unknown as string) as Partial<PlayerData>
                 Object.assign(this.playerData, saved)
             }
         } catch (_err) {
@@ -334,7 +334,7 @@ export class HubScene extends Phaser.Scene {
                 {
                     collection: 'player_data',
                     key: 'profile',
-                    value: JSON.stringify(this.playerData),
+                    value: JSON.stringify(this.playerData) as unknown as object,
                     permission_read: 1,
                     permission_write: 0,
                 },
