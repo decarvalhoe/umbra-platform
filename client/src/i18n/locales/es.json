@@ -1,0 +1,234 @@
+{
+  "common": {
+    "close": "Cerrar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Volver",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "level": "Nivel",
+    "tier": "Rango",
+    "free": "Gratis",
+    "premium": "Premium",
+    "claim": "Reclamar",
+    "refresh": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Ninguno",
+    "yes": "Sí",
+    "no": "No",
+    "daysRemaining": "{count}d restantes",
+    "timeAgo": {
+      "minutes": "hace {count}min",
+      "hours": "hace {count}h",
+      "days": "hace {count}d"
+    }
+  },
+  "landing": {
+    "title": "UMBRA",
+    "subtitle": "Las sombras te llaman",
+    "enter": "Entrar en la sombra",
+    "tagline": "Un mundo de oscuridad te espera"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "username": "Nombre de usuario",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "loginButton": "Conectar",
+    "registerButton": "Registrarse",
+    "guestLogin": "Jugar como invitado",
+    "logout": "Cerrar sesión",
+    "orContinueWith": "O continuar con"
+  },
+  "identity": {
+    "title": "Identidad del Personaje",
+    "displayName": "Nombre visible",
+    "pronouns": "Pronombres",
+    "orientation": "Orientación",
+    "showOrientation": "Mostrar orientación",
+    "continue": "Continuar",
+    "pronounOptions": {
+      "il": "él/le",
+      "elle": "ella/la",
+      "iel": "elle/le",
+      "custom": "Personalizado"
+    }
+  },
+  "hud": {
+    "health": "Vida",
+    "dodge": "Esquiva",
+    "cendres": "Cenizas",
+    "eclats": "Fragmentos de Sombra",
+    "essence": "Esencia Antigua"
+  },
+  "controls": {
+    "inventory": "Inventario",
+    "gacha": "Invocación",
+    "romance": "Vínculos",
+    "forge": "Forja",
+    "events": "Eventos",
+    "heroes": "Héroes",
+    "bestiary": "Bestiario",
+    "battlePass": "Pase de Batalla",
+    "arena": "Arena",
+    "settings": "Ajustes"
+  },
+  "inventory": {
+    "title": "Inventario",
+    "empty": "Sin objetos",
+    "quantity": "Cantidad",
+    "rarity": {
+      "common": "Común",
+      "rare": "Raro",
+      "epic": "Épico",
+      "legendary": "Legendario"
+    }
+  },
+  "gacha": {
+    "title": "Invocación de Sombras",
+    "singlePull": "Invocación ×1",
+    "multiPull": "Invocación ×10",
+    "pity": "Garantía en",
+    "banner": "Banner",
+    "rates": "Tasas de obtención"
+  },
+  "romance": {
+    "title": "Vínculos de Afinidad",
+    "affinity": "Afinidad",
+    "resonance": "Resonancia",
+    "preference": "Preferencia",
+    "dialogue": "Hablar",
+    "gift": "Regalar",
+    "preferences": {
+      "romance": "Romance",
+      "friendship": "Amistad",
+      "neutral": "Neutral"
+    },
+    "thresholds": {
+      "unknown": "Desconocido/a",
+      "familiar": "Familiar",
+      "close_friend": "Amigo/a cercano/a",
+      "romantic_interest": "Interés romántico",
+      "deep_bond": "Vínculo profundo"
+    }
+  },
+  "forge": {
+    "title": "Forja del Vacío",
+    "reforge": "Refundición de Runas",
+    "awakening": "Despertar de Equipo",
+    "infusion": "Infusión de Corrupción",
+    "materials": "Materiales",
+    "cost": "Coste",
+    "result": "Resultado"
+  },
+  "events": {
+    "title": "Centro de Eventos",
+    "calendar": "Calendario del Vacío",
+    "active": "Activo",
+    "upcoming": "Próximo",
+    "ended": "Finalizado",
+    "progress": "Progreso",
+    "rewards": "Recompensas"
+  },
+  "heroes": {
+    "title": "Registro de Héroes",
+    "stats": "Estadísticas",
+    "skills": "Habilidades",
+    "personality": "Personalidad",
+    "lore": "Historia",
+    "owned": "Obtenido",
+    "notOwned": "No obtenido",
+    "elements": {
+      "fire": "Fuego",
+      "ice": "Hielo",
+      "lightning": "Rayo",
+      "shadow": "Sombra",
+      "light": "Luz",
+      "nature": "Naturaleza"
+    }
+  },
+  "bestiary": {
+    "title": "Bestiario del Vacío",
+    "discovered": "Descubierto",
+    "undiscovered": "No descubierto",
+    "kills": "Derrotas",
+    "behavior": "Comportamiento",
+    "teaches": "Enseñanza",
+    "tiers": {
+      "1": "Larvas",
+      "2": "Sombras",
+      "3": "Corruptos",
+      "4": "Abisales",
+      "5": "Soberanos"
+    }
+  },
+  "battlePass": {
+    "title": "Pase de Batalla",
+    "season": "Temporada",
+    "goPremium": "Pasar a Premium",
+    "xp": "XP",
+    "claimed": "Reclamado",
+    "locked": "Bloqueado"
+  },
+  "arena": {
+    "title": "Arena del Vacío",
+    "fight": "Combate",
+    "defense": "Defensa",
+    "leaderboard": "Clasificación",
+    "history": "Historial",
+    "attacks": "Ataques",
+    "arenaPoints": "Puntos de Arena",
+    "strategy": "Estrategia",
+    "strategies": {
+      "aggressive": "Agresivo",
+      "defensive": "Defensivo",
+      "counter": "Contraataque"
+    },
+    "tiers": {
+      "1": "Iniciado/a de Sombras",
+      "2": "Caminante del Vacío",
+      "3": "Caballero/a de Corrupción",
+      "4": "Guardián/a del Abismo",
+      "5": "Soberano/a del Vacío"
+    },
+    "matchResult": {
+      "victory": "VICTORIA",
+      "defeat": "DERROTA"
+    },
+    "defenseSetup": "Configuración del equipo de defensa",
+    "defenseDesc": "Selecciona 3 compañeros y una estrategia.",
+    "saveDefense": "Guardar defensa",
+    "launchCombat": "Iniciar combate",
+    "noAttacks": "Sin ataques restantes",
+    "newOpponent": "Nuevo oponente",
+    "rematch": "Revancha",
+    "weeklyRewards": "Recompensas semanales",
+    "recentFights": "Combates recientes",
+    "defenseLog": "Registro de defensa"
+  },
+  "talents": {
+    "title": "Árbol de Talentos",
+    "offense": "Ofensiva",
+    "defense": "Defensa",
+    "utility": "Utilidad",
+    "points": "Puntos disponibles",
+    "allocate": "Asignar",
+    "reset": "Reiniciar"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "audio": "Audio",
+    "music": "Música",
+    "sfx": "Efectos de sonido",
+    "graphics": "Gráficos",
+    "fullscreen": "Pantalla completa",
+    "notifications": "Notificaciones"
+  }
+}

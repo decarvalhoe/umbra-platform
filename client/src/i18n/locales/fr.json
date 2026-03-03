@@ -1,0 +1,234 @@
+{
+  "common": {
+    "close": "Fermer",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "level": "Niveau",
+    "tier": "Palier",
+    "free": "Gratuit",
+    "premium": "Premium",
+    "claim": "Réclamer",
+    "refresh": "Actualiser",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "all": "Tous",
+    "none": "Aucun",
+    "yes": "Oui",
+    "no": "Non",
+    "daysRemaining": "{count}j restants",
+    "timeAgo": {
+      "minutes": "il y a {count}min",
+      "hours": "il y a {count}h",
+      "days": "il y a {count}j"
+    }
+  },
+  "landing": {
+    "title": "UMBRA",
+    "subtitle": "Les ténèbres t'appellent",
+    "enter": "Entrer dans l'ombre",
+    "tagline": "Un monde de ténèbres t'attend"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "email": "Email",
+    "password": "Mot de passe",
+    "username": "Nom d'utilisateur",
+    "forgotPassword": "Mot de passe oublié ?",
+    "loginButton": "Se connecter",
+    "registerButton": "S'inscrire",
+    "guestLogin": "Jouer en invité",
+    "logout": "Déconnexion",
+    "orContinueWith": "Ou continuer avec"
+  },
+  "identity": {
+    "title": "Identité du Personnage",
+    "displayName": "Nom d'affichage",
+    "pronouns": "Pronoms",
+    "orientation": "Orientation",
+    "showOrientation": "Afficher l'orientation",
+    "continue": "Continuer",
+    "pronounOptions": {
+      "il": "il/lui",
+      "elle": "elle/la",
+      "iel": "iel/ellui",
+      "custom": "Personnalisé"
+    }
+  },
+  "hud": {
+    "health": "Vie",
+    "dodge": "Esquive",
+    "cendres": "Cendres",
+    "eclats": "Éclats d'Ombre",
+    "essence": "Essence Antique"
+  },
+  "controls": {
+    "inventory": "Inventaire",
+    "gacha": "Invocation",
+    "romance": "Relations",
+    "forge": "Forge",
+    "events": "Événements",
+    "heroes": "Héros",
+    "bestiary": "Bestiaire",
+    "battlePass": "Battle Pass",
+    "arena": "Arène",
+    "settings": "Paramètres"
+  },
+  "inventory": {
+    "title": "Inventaire",
+    "empty": "Aucun objet",
+    "quantity": "Quantité",
+    "rarity": {
+      "common": "Commun",
+      "rare": "Rare",
+      "epic": "Épique",
+      "legendary": "Légendaire"
+    }
+  },
+  "gacha": {
+    "title": "Invocation des Ombres",
+    "singlePull": "Invocation ×1",
+    "multiPull": "Invocation ×10",
+    "pity": "Garantie dans",
+    "banner": "Bannière",
+    "rates": "Taux de drop"
+  },
+  "romance": {
+    "title": "Liens d'Affinité",
+    "affinity": "Affinité",
+    "resonance": "Résonance",
+    "preference": "Préférence",
+    "dialogue": "Dialoguer",
+    "gift": "Offrir",
+    "preferences": {
+      "romance": "Romance",
+      "friendship": "Amitié",
+      "neutral": "Neutre"
+    },
+    "thresholds": {
+      "unknown": "Inconnu·e",
+      "familiar": "Familier·ère",
+      "close_friend": "Ami·e proche",
+      "romantic_interest": "Intérêt romantique",
+      "deep_bond": "Lien profond"
+    }
+  },
+  "forge": {
+    "title": "Forge du Vide",
+    "reforge": "Refonte de Runes",
+    "awakening": "Éveil d'Équipement",
+    "infusion": "Infusion de Corruption",
+    "materials": "Matériaux",
+    "cost": "Coût",
+    "result": "Résultat"
+  },
+  "events": {
+    "title": "Hub d'Événements",
+    "calendar": "Calendrier du Vide",
+    "active": "En cours",
+    "upcoming": "À venir",
+    "ended": "Terminé",
+    "progress": "Progression",
+    "rewards": "Récompenses"
+  },
+  "heroes": {
+    "title": "Registre des Héros",
+    "stats": "Statistiques",
+    "skills": "Compétences",
+    "personality": "Personnalité",
+    "lore": "Histoire",
+    "owned": "Possédé",
+    "notOwned": "Non possédé",
+    "elements": {
+      "fire": "Feu",
+      "ice": "Glace",
+      "lightning": "Foudre",
+      "shadow": "Ombre",
+      "light": "Lumière",
+      "nature": "Nature"
+    }
+  },
+  "bestiary": {
+    "title": "Bestiaire du Vide",
+    "discovered": "Découvert",
+    "undiscovered": "Non découvert",
+    "kills": "Victoires",
+    "behavior": "Comportement",
+    "teaches": "Enseignement",
+    "tiers": {
+      "1": "Larves",
+      "2": "Ombres",
+      "3": "Corrompus",
+      "4": "Abyssaux",
+      "5": "Souverains"
+    }
+  },
+  "battlePass": {
+    "title": "Battle Pass",
+    "season": "Saison",
+    "goPremium": "Passer Premium",
+    "xp": "XP",
+    "claimed": "Réclamé",
+    "locked": "Verrouillé"
+  },
+  "arena": {
+    "title": "Arène du Vide",
+    "fight": "Combat",
+    "defense": "Défense",
+    "leaderboard": "Classement",
+    "history": "Historique",
+    "attacks": "Attaques",
+    "arenaPoints": "Points d'Arène",
+    "strategy": "Stratégie",
+    "strategies": {
+      "aggressive": "Agressif",
+      "defensive": "Défensif",
+      "counter": "Contre-attaque"
+    },
+    "tiers": {
+      "1": "Initié·e des Ombres",
+      "2": "Marcheur·se du Vide",
+      "3": "Chevalier·ère de Corruption",
+      "4": "Gardien·ne de l'Abîme",
+      "5": "Souverain·e du Vide"
+    },
+    "matchResult": {
+      "victory": "VICTOIRE",
+      "defeat": "DÉFAITE"
+    },
+    "defenseSetup": "Configuration d'équipe de défense",
+    "defenseDesc": "Sélectionnez 3 compagnons et une stratégie.",
+    "saveDefense": "Sauvegarder la défense",
+    "launchCombat": "Lancer le combat",
+    "noAttacks": "Aucune attaque restante",
+    "newOpponent": "Nouvel adversaire",
+    "rematch": "Revanche",
+    "weeklyRewards": "Récompenses hebdomadaires",
+    "recentFights": "Combats récents",
+    "defenseLog": "Journal de défense"
+  },
+  "talents": {
+    "title": "Arbre de Talents",
+    "offense": "Offense",
+    "defense": "Défense",
+    "utility": "Utilitaire",
+    "points": "Points disponibles",
+    "allocate": "Attribuer",
+    "reset": "Réinitialiser"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "audio": "Audio",
+    "music": "Musique",
+    "sfx": "Effets sonores",
+    "graphics": "Graphismes",
+    "fullscreen": "Plein écran",
+    "notifications": "Notifications"
+  }
+}
