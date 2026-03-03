@@ -39,7 +39,7 @@ Thumbs.db
 nakama/dist/
 nakama/data/node_modules/
 nakama/data/dist/
-nakama/data/package-lock.json
+
 
 # Environment
 .env.local
