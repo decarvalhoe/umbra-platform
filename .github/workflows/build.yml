@@ -1,0 +1,128 @@
+name: Build & Push Docker Images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/umbra
+
+jobs:
+  build-nakama:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./nakama
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-nakama:${{ github.ref_name }}
+
+  build-ai-director:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/ai-director
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-ai-director:${{ github.ref_name }}
+
+  build-game-logic:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/game-logic
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-game-logic:${{ github.ref_name }}
+
+  build-payment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./services/payment
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-payment:${{ github.ref_name }}
+
+  build-client:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          push: true
+          tags: ${{ env.IMAGE_PREFIX }}-client:${{ github.ref_name }}
+
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    needs: [build-nakama, build-ai-director, build-game-logic, build-payment, build-client]
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy ai-director
+        run: flyctl deploy ./services/ai-director --remote-only
+
+      - name: Deploy game-logic
+        run: flyctl deploy ./services/game-logic --remote-only
+
+      - name: Deploy payment
+        run: flyctl deploy ./services/payment --remote-only
+
+      - name: Deploy client
+        run: flyctl deploy ./client --remote-only
+
+      - name: Deploy nakama
+        run: flyctl deploy ./nakama --remote-only
