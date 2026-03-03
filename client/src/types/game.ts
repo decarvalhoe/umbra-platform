@@ -313,3 +313,26 @@ export interface Hero {
   color: string;
   owned: boolean;
 }
+
+// ── Void Bestiary — Enemy Taxonomy ──────────────────────────────
+
+export type VoidTier = 1 | 2 | 3 | 4 | 5;
+
+export type EnemyElement = "shadow" | "fire" | "blood" | "void" | "neutral";
+
+export interface BestiaryEntry {
+  id: string;
+  name: string;
+  tier: VoidTier;
+  tierName: string;
+  element: EnemyElement;
+  floors: string;
+  hp: "low" | "medium" | "high" | "very_high";
+  glyph: string;
+  color: string;
+  description: string;
+  behavior: string;
+  teachesPlayer: string;
+  discovered: boolean;
+  killCount: number;
+}
