@@ -572,7 +572,7 @@ export class HubScene extends Phaser.Scene {
     private startRun(): void {
         if (this.activeOverlay !== 'none') return
         this.savePlayerData()
-        this.scene.start('CombatScene', {
+        this.scene.start('DungeonScene', {
             playerLevel: this.playerData.level,
             talents: [...this.playerData.talents],
             inventory: [...this.playerData.inventory],
