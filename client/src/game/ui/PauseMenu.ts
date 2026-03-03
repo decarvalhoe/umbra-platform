@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { audioManager } from '../audio/AudioManager'
 
 // ---------------------------------------------------------------------------
 // PauseMenu — reusable overlay for CombatScene and DungeonScene
@@ -68,6 +69,11 @@ export class PauseMenu {
 
   get paused(): boolean {
     return this.isOpen
+  }
+
+  /** Mutable run stats reference — update from the scene each frame. */
+  get runStats() {
+    return this.config.runStats
   }
 
   // -------------------------------------------------------------------------
@@ -174,9 +180,19 @@ export class PauseMenu {
     }).setOrigin(0.5).setDepth(301))
 
     // Volume sliders
-    this.addSlider(width / 2, 240, 'Master Volume', this.masterVolume, (v) => { this.masterVolume = v })
-    this.addSlider(width / 2, 310, 'Music Volume', this.musicVolume, (v) => { this.musicVolume = v })
-    this.addSlider(width / 2, 380, 'SFX Volume', this.sfxVolume, (v) => { this.sfxVolume = v })
+    this.addSlider(width / 2, 240, 'Master Volume', this.masterVolume, (v) => {
+      this.masterVolume = v
+      audioManager.musicVolume = (this.musicVolume / 100) * (v / 100)
+      audioManager.sfxVolume = (this.sfxVolume / 100) * (v / 100)
+    })
+    this.addSlider(width / 2, 310, 'Music Volume', this.musicVolume, (v) => {
+      this.musicVolume = v
+      audioManager.musicVolume = (v / 100) * (this.masterVolume / 100)
+    })
+    this.addSlider(width / 2, 380, 'SFX Volume', this.sfxVolume, (v) => {
+      this.sfxVolume = v
+      audioManager.sfxVolume = (v / 100) * (this.masterVolume / 100)
+    })
 
     // Fullscreen toggle
     const fsLabel = this.isFullscreen ? 'Fullscreen: ON' : 'Fullscreen: OFF'
