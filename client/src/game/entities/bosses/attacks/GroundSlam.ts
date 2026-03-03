@@ -25,7 +25,6 @@ export class GroundSlam {
   private graphics: Phaser.GameObjects.Graphics
   private elapsed = 0
   private phase: 'telegraph' | 'active' | 'done' = 'telegraph'
-
   constructor(
     scene: Phaser.Scene,
     config: BossAttackConfig,
