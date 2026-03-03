@@ -6,7 +6,7 @@ COPY data/ ./
 RUN npx tsc
 
 FROM registry.heroiclabs.com/heroiclabs/nakama:3.21.1
-COPY --from=builder /build/dist/ /nakama/data/modules/
-COPY local.yml /nakama/data/local.yml
+COPY --from=builder /build/dist/ /nakama/modules/
+COPY local.yml /nakama/local.yml
 ENTRYPOINT []
-CMD ["/nakama/nakama", "--config", "/nakama/data/local.yml"]
+CMD ["/nakama/nakama", "--config", "/nakama/local.yml"]
