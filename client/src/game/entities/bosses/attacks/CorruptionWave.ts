@@ -26,22 +26,19 @@ const RING_THICKNESS = 40
  * if they are within the ring's thickness as it passes over them.
  */
 export class CorruptionWave {
-  private scene: Phaser.Scene
-  private config: BossAttackConfig
+   private config: BossAttackConfig
   private centerX: number
   private centerY: number
   private graphics: Phaser.GameObjects.Graphics
   private elapsed = 0
   private phase: 'telegraph' | 'active' | 'done' = 'telegraph'
   private currentRadius = 0
-
   constructor(
     scene: Phaser.Scene,
     config: BossAttackConfig,
     centerX: number,
     centerY: number
   ) {
-    this.scene = scene
     this.config = config
     this.centerX = centerX
     this.centerY = centerY
