@@ -187,6 +187,246 @@ const corruptionWave: BossAttackConfig = {
 // Corrupted Guardian config
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Flame Tyrant attack definitions
+// ---------------------------------------------------------------------------
+
+const flamePillar: BossAttackConfig = {
+  id: 'flame_pillar',
+  name: 'Flame Pillar',
+  timing: { telegraphMs: 1200, activeMs: 600, recoveryMs: 1800, cooldownMs: 3000 },
+  damage: 45,
+  range: 250,
+  element: 'fire',
+  aoeRadius: 120,
+  telegraphColor: 0xff6600,
+  attackColor: 0xff2200,
+}
+
+const magmaSpit: BossAttackConfig = {
+  id: 'magma_spit',
+  name: 'Magma Spit',
+  timing: { telegraphMs: 800, activeMs: 400, recoveryMs: 1500, cooldownMs: 2500 },
+  damage: 35,
+  range: 350,
+  element: 'fire',
+  aoeRadius: 80,
+  telegraphColor: 0xff8800,
+  attackColor: 0xff4400,
+}
+
+const magmaPool: BossAttackConfig = {
+  id: 'magma_pool',
+  name: 'Magma Pool',
+  timing: { telegraphMs: 1000, activeMs: 800, recoveryMs: 2000, cooldownMs: 5000 },
+  damage: 20,
+  range: 300,
+  element: 'fire',
+  aoeRadius: 150,
+  telegraphColor: 0xcc4400,
+  attackColor: 0xaa2200,
+}
+
+const fireCharge: BossAttackConfig = {
+  id: 'fire_charge',
+  name: 'Fire Charge',
+  timing: { telegraphMs: 1000, activeMs: 600, recoveryMs: 2500, cooldownMs: 6000 },
+  damage: 70,
+  range: 400,
+  element: 'fire',
+  aoeRadius: 60,
+  telegraphColor: 0xff4400,
+  attackColor: 0xff0000,
+}
+
+const infernoBreath: BossAttackConfig = {
+  id: 'inferno_breath',
+  name: 'Inferno Breath',
+  timing: { telegraphMs: 1200, activeMs: 1000, recoveryMs: 2000, cooldownMs: 7000 },
+  damage: 55,
+  range: 300,
+  element: 'fire',
+  aoeRadius: 200,
+  telegraphColor: 0xff6600,
+  attackColor: 0xff0000,
+}
+
+const eruption: BossAttackConfig = {
+  id: 'eruption',
+  name: 'Eruption',
+  timing: { telegraphMs: 1500, activeMs: 1200, recoveryMs: 2500, cooldownMs: 8000 },
+  damage: 80,
+  range: 500,
+  element: 'fire',
+  aoeRadius: 350,
+  telegraphColor: 0xcc2200,
+  attackColor: 0xff0000,
+}
+
+// ---------------------------------------------------------------------------
+// Flame Tyrant config
+// ---------------------------------------------------------------------------
+
+export const flameTyrantConfig: BossEntityConfig = {
+  name: 'Flame Tyrant',
+  maxHp: 2500,
+  attack: 50,
+  defense: 18,
+  speed: 80,
+  element: 'fire',
+  detectionRange: 800,
+  meleeRange: 130,
+  rangedRange: 350,
+  phases: [
+    {
+      id: 'smoldering',
+      hpThreshold: 1.0,
+      attacks: [flamePillar, magmaSpit],
+      speedMultiplier: 1.0,
+      attackSpeedMultiplier: 1.0,
+      tint: 0xff6b35,
+    },
+    {
+      id: 'inferno',
+      hpThreshold: 0.6,
+      attacks: [flamePillar, magmaSpit, magmaPool, fireCharge],
+      speedMultiplier: 1.2,
+      attackSpeedMultiplier: 1.15,
+      tint: 0xff4400,
+    },
+    {
+      id: 'supernova',
+      hpThreshold: 0.25,
+      attacks: [fireCharge, infernoBreath, eruption, magmaPool],
+      speedMultiplier: 1.4,
+      attackSpeedMultiplier: 1.3,
+      tint: 0xff0000,
+    },
+  ],
+  vulnerabilityDurationMs: 1800,
+  vulnerabilityDamageMult: 1.5,
+  enrageTimerMs: 180000,
+  xpReward: 750,
+  minionSummonThreshold: 0.75,
+  minionCount: 0,
+}
+
+// ---------------------------------------------------------------------------
+// Void Harbinger attack definitions
+// ---------------------------------------------------------------------------
+
+const voidRift: BossAttackConfig = {
+  id: 'void_rift',
+  name: 'Void Rift',
+  timing: { telegraphMs: 1200, activeMs: 600, recoveryMs: 2000, cooldownMs: 3000 },
+  damage: 40,
+  range: 250,
+  element: 'void',
+  aoeRadius: 130,
+  telegraphColor: 0x220044,
+  attackColor: 0x110022,
+}
+
+const gravityWell: BossAttackConfig = {
+  id: 'gravity_well',
+  name: 'Gravity Well',
+  timing: { telegraphMs: 1000, activeMs: 1000, recoveryMs: 2000, cooldownMs: 4000 },
+  damage: 25,
+  range: 300,
+  element: 'void',
+  aoeRadius: 180,
+  telegraphColor: 0x330066,
+  attackColor: 0x220044,
+}
+
+const realityTear: BossAttackConfig = {
+  id: 'reality_tear',
+  name: 'Reality Tear',
+  timing: { telegraphMs: 800, activeMs: 400, recoveryMs: 1500, cooldownMs: 3500 },
+  damage: 50,
+  range: 400,
+  element: 'void',
+  aoeRadius: 60,
+  telegraphColor: 0x440088,
+  attackColor: 0x330066,
+}
+
+const phaseShift: BossAttackConfig = {
+  id: 'phase_shift',
+  name: 'Phase Shift',
+  timing: { telegraphMs: 600, activeMs: 800, recoveryMs: 2500, cooldownMs: 6000 },
+  damage: 35,
+  range: 200,
+  element: 'void',
+  aoeRadius: 250,
+  telegraphColor: 0x110033,
+  attackColor: 0x000011,
+}
+
+const voidCollapse: BossAttackConfig = {
+  id: 'void_collapse',
+  name: 'Void Collapse',
+  timing: { telegraphMs: 1800, activeMs: 1200, recoveryMs: 2500, cooldownMs: 9000 },
+  damage: 90,
+  range: 500,
+  element: 'void',
+  aoeRadius: 400,
+  telegraphColor: 0x220044,
+  attackColor: 0x000000,
+}
+
+// ---------------------------------------------------------------------------
+// Void Harbinger config
+// ---------------------------------------------------------------------------
+
+export const voidHarbingerConfig: BossEntityConfig = {
+  name: 'Void Harbinger',
+  maxHp: 3000,
+  attack: 55,
+  defense: 15,
+  speed: 90,
+  element: 'void',
+  detectionRange: 900,
+  meleeRange: 100,
+  rangedRange: 400,
+  phases: [
+    {
+      id: 'incursion',
+      hpThreshold: 1.0,
+      attacks: [voidRift, gravityWell],
+      speedMultiplier: 1.0,
+      attackSpeedMultiplier: 1.0,
+      tint: 0x330066,
+    },
+    {
+      id: 'dimensional_collapse',
+      hpThreshold: 0.55,
+      attacks: [voidRift, gravityWell, realityTear, phaseShift],
+      speedMultiplier: 1.25,
+      attackSpeedMultiplier: 1.2,
+      tint: 0x220044,
+    },
+    {
+      id: 'annihilation',
+      hpThreshold: 0.2,
+      attacks: [realityTear, phaseShift, voidCollapse, gravityWell],
+      speedMultiplier: 1.5,
+      attackSpeedMultiplier: 1.4,
+      tint: 0x110022,
+    },
+  ],
+  vulnerabilityDurationMs: 1500,
+  vulnerabilityDamageMult: 1.6,
+  enrageTimerMs: 200000,
+  xpReward: 1000,
+  minionSummonThreshold: 0.7,
+  minionCount: 0,
+}
+
+// ---------------------------------------------------------------------------
+// Corrupted Guardian config
+// ---------------------------------------------------------------------------
+
 export const corruptedGuardianConfig: BossEntityConfig = {
   name: 'Corrupted Guardian',
   maxHp: 2500,
@@ -217,7 +457,7 @@ export const corruptedGuardianConfig: BossEntityConfig = {
   ],
   vulnerabilityDurationMs: 2000,
   vulnerabilityDamageMult: 1.5,
-  enrageTimerMs: 180000, // 3 minutes
+  enrageTimerMs: 180000,
   xpReward: 500,
   minionSummonThreshold: 0.75,
   minionCount: 2,
