@@ -18,6 +18,8 @@ interface ShopItem {
     value: number
 }
 
+type TalentBranch = 'offense' | 'defense' | 'utility'
+
 interface TalentNode {
     id: number
     name: string
@@ -26,6 +28,7 @@ interface TalentNode {
     requires: number[]
     effect: string
     value: number
+    branch: TalentBranch
     allocated: boolean
 }
 
@@ -54,19 +57,55 @@ const SHOP_ITEMS: ShopItem[] = [
 ]
 
 const TALENT_NODES: TalentNode[] = [
-    { id: 1, name: 'Sharpened Edge', description: '+10% Attack Damage', cost: 1, requires: [], effect: 'atk_percent', value: 10, allocated: false },
-    { id: 2, name: 'Keen Eye', description: '+5% Critical Chance', cost: 1, requires: [1], effect: 'crit_chance', value: 5, allocated: false },
-    { id: 3, name: 'Relentless Combo', description: '+15% Combo Damage', cost: 2, requires: [1], effect: 'combo_damage', value: 15, allocated: false },
-    { id: 4, name: 'Arcane Surge', description: '+20% Skill Damage', cost: 2, requires: [2], effect: 'skill_damage', value: 20, allocated: false },
-    { id: 5, name: 'Blade Storm', description: '+25% Attack Speed', cost: 3, requires: [3, 4], effect: 'atk_speed', value: 25, allocated: false },
+    // ── Offense Branch (left column) ────────────────────────────
+    { id: 1,  name: 'Lame Affûtée',      description: '+10% Dégâts d\'Attaque',   cost: 1, requires: [],     effect: 'atk_percent',   value: 10, branch: 'offense', allocated: false },
+    { id: 2,  name: 'Œil Perçant',        description: '+5% Chance Critique',      cost: 1, requires: [1],    effect: 'crit_chance',   value: 5,  branch: 'offense', allocated: false },
+    { id: 3,  name: 'Combo Implacable',   description: '+15% Dégâts de Combo',     cost: 2, requires: [2],    effect: 'combo_damage',  value: 15, branch: 'offense', allocated: false },
+    { id: 4,  name: 'Surtension Arcane',  description: '+20% Dégâts de Compétence',cost: 2, requires: [3],    effect: 'skill_damage',  value: 20, branch: 'offense', allocated: false },
+    { id: 5,  name: 'Tempête de Lames',   description: '+25% Vitesse d\'Attaque',  cost: 3, requires: [4],    effect: 'atk_speed',     value: 25, branch: 'offense', allocated: false },
+
+    // ── Defense Branch (center column) ──────────────────────────
+    { id: 6,  name: 'Peau de Fer',        description: '+10% Réduction de Dégâts', cost: 1, requires: [],     effect: 'dmg_reduction', value: 10, branch: 'defense', allocated: false },
+    { id: 7,  name: 'Fortitude',          description: '+15% PV Max',              cost: 1, requires: [6],    effect: 'hp_percent',    value: 15, branch: 'defense', allocated: false },
+    { id: 8,  name: 'Inébranlable',       description: '-30% Durée des CC',        cost: 2, requires: [7],    effect: 'cc_reduction',  value: 30, branch: 'defense', allocated: false },
+    { id: 9,  name: 'Égide',              description: 'Bouclier auto 10% PV/30s', cost: 2, requires: [8],    effect: 'auto_shield',   value: 10, branch: 'defense', allocated: false },
+    { id: 10, name: 'Bastion Immortel',   description: 'Survie à 1 PV (1x/combat)',cost: 3, requires: [9],    effect: 'death_prevent', value: 1,  branch: 'defense', allocated: false },
+
+    // ── Utility Branch (right column) ───────────────────────────
+    { id: 11, name: 'Pas Rapide',         description: '+10% Vitesse de Mouvement',cost: 1, requires: [],     effect: 'move_speed',    value: 10, branch: 'utility', allocated: false },
+    { id: 12, name: 'Sens Aiguisés',      description: '+1 Charge de Dodge',       cost: 1, requires: [11],   effect: 'dodge_charge',  value: 1,  branch: 'utility', allocated: false },
+    { id: 13, name: 'Débrouillard·e',     description: '+15% Loot et XP',          cost: 2, requires: [12],   effect: 'loot_xp_bonus', value: 15, branch: 'utility', allocated: false },
+    { id: 14, name: 'Fortune',            description: '-10% Cooldowns',           cost: 2, requires: [13],   effect: 'cooldown_red',  value: 10, branch: 'utility', allocated: false },
+    { id: 15, name: 'Transcendance',      description: 'Compétences élémentaires ×2', cost: 3, requires: [14, 5, 10], effect: 'elemental_x2', value: 2, branch: 'utility', allocated: false },
 ]
 
+const BRANCH_COLORS: Record<TalentBranch, number> = {
+    offense: 0xff6b35,   // Kaelan fire
+    defense: 0x00bcd4,   // Ronan void/cyan
+    utility: 0xffe135,   // Nyx gold
+}
+
 const NODE_POSITIONS = [
-    { x: 512, y: 300 },  // Node 1 — center top
-    { x: 412, y: 380 },  // Node 2 — left
-    { x: 612, y: 380 },  // Node 3 — right
-    { x: 412, y: 460 },  // Node 4 — below 2
-    { x: 512, y: 540 },  // Node 5 — center bottom
+    // Offense (left column)
+    { x: 280, y: 280 },  // 1 — Lame Affûtée
+    { x: 280, y: 350 },  // 2 — Œil Perçant
+    { x: 280, y: 420 },  // 3 — Combo Implacable
+    { x: 280, y: 490 },  // 4 — Surtension Arcane
+    { x: 280, y: 560 },  // 5 — Tempête de Lames
+
+    // Defense (center column)
+    { x: 512, y: 280 },  // 6 — Peau de Fer
+    { x: 512, y: 350 },  // 7 — Fortitude
+    { x: 512, y: 420 },  // 8 — Inébranlable
+    { x: 512, y: 490 },  // 9 — Égide
+    { x: 512, y: 560 },  // 10 — Bastion Immortel
+
+    // Utility (right column)
+    { x: 744, y: 280 },  // 11 — Pas Rapide
+    { x: 744, y: 350 },  // 12 — Sens Aiguisés
+    { x: 744, y: 420 },  // 13 — Débrouillard·e
+    { x: 744, y: 490 },  // 14 — Fortune
+    { x: 744, y: 560 },  // 15 — Transcendance (cross-branch capstone)
 ]
 
 // ---------------------------------------------------------------------------
@@ -215,19 +254,30 @@ export class HubScene extends Phaser.Scene {
         this.activeOverlay = 'talents'
         this.clearOverlay()
 
-        const bg = this.add.rectangle(512, 384, 700, 500, 0x111111, 0.95).setInteractive()
+        const bg = this.add.rectangle(512, 384, 900, 520, 0x111111, 0.95).setInteractive()
         this.overlayGroup.add(bg)
 
-        this.overlayGroup.add(this.add.text(512, 160, 'OFFENSE TREE', { fontSize: '24px', color: '#90ee90', fontStyle: 'bold' }).setOrigin(0.5))
-        this.overlayGroup.add(this.add.text(512, 190, `Points: ${this.playerData.talentPoints}`, { fontSize: '16px', color: '#90ee90' }).setOrigin(0.5))
+        // Title
+        this.overlayGroup.add(this.add.text(512, 145, 'ARBRE DE TALENTS', { fontSize: '22px', color: '#b39ddb', fontStyle: 'bold' }).setOrigin(0.5))
+        this.overlayGroup.add(this.add.text(512, 172, `Points disponibles: ${this.playerData.talentPoints}`, { fontSize: '14px', color: '#b39ddb' }).setOrigin(0.5))
 
-        // Draw connections first
-        const connections: [number, number][] = [[1, 2], [1, 3], [2, 4], [3, 5], [4, 5]]
-        connections.forEach(([from, to]) => {
-            const fp = NODE_POSITIONS[from - 1]
-            const tp = NODE_POSITIONS[to - 1]
-            const line = this.add.line(0, 0, fp.x, fp.y, tp.x, tp.y, 0x444444).setOrigin(0)
-            this.overlayGroup.add(line)
+        // Branch labels
+        this.overlayGroup.add(this.add.text(280, 245, '⚔ OFFENSE', { fontSize: '13px', color: '#ff6b35', fontStyle: 'bold' }).setOrigin(0.5))
+        this.overlayGroup.add(this.add.text(512, 245, '🛡 DÉFENSE', { fontSize: '13px', color: '#00bcd4', fontStyle: 'bold' }).setOrigin(0.5))
+        this.overlayGroup.add(this.add.text(744, 245, '✦ UTILITÉ', { fontSize: '13px', color: '#ffe135', fontStyle: 'bold' }).setOrigin(0.5))
+
+        // Draw connections (prerequisite lines)
+        TALENT_NODES.forEach((node) => {
+            const toPos = NODE_POSITIONS[node.id - 1]
+            node.requires.forEach((reqId) => {
+                const fromPos = NODE_POSITIONS[reqId - 1]
+                const reqNode = TALENT_NODES.find(n => n.id === reqId)
+                const lineColor = reqNode ? BRANCH_COLORS[reqNode.branch] : 0x444444
+                const bothAllocated = this.playerData.talents.includes(node.id) && this.playerData.talents.includes(reqId)
+                const line = this.add.line(0, 0, fromPos.x, fromPos.y, toPos.x, toPos.y, lineColor).setOrigin(0)
+                line.setAlpha(bothAllocated ? 0.6 : 0.15)
+                this.overlayGroup.add(line)
+            })
         })
 
         // Draw nodes
@@ -235,14 +285,19 @@ export class HubScene extends Phaser.Scene {
             const pos = NODE_POSITIONS[i]
             const allocated = this.playerData.talents.includes(node.id)
             const available = !allocated && this.canAllocate(node)
+            const branchColor = BRANCH_COLORS[node.branch]
 
-            const color = allocated ? 0xffd700 : available ? 0xffffff : 0x555555
-            const circle = this.add.circle(pos.x, pos.y, 25, color, allocated ? 0.9 : 0.3)
+            const color = allocated ? branchColor : available ? 0xffffff : 0x555555
+            const circle = this.add.circle(pos.x, pos.y, 22, color, allocated ? 0.9 : available ? 0.4 : 0.2)
             this.overlayGroup.add(circle)
 
-            this.overlayGroup.add(this.add.text(pos.x, pos.y - 5, `${node.id}`, { fontSize: '16px', color: '#000', fontStyle: 'bold' }).setOrigin(0.5))
-            this.overlayGroup.add(this.add.text(pos.x, pos.y + 30, node.name, { fontSize: '11px', color: '#ccc' }).setOrigin(0.5))
-            this.overlayGroup.add(this.add.text(pos.x, pos.y + 45, node.description, { fontSize: '10px', color: '#888' }).setOrigin(0.5))
+            // Node cost indicator
+            const costColor = allocated ? '#000' : available ? '#fff' : '#666'
+            this.overlayGroup.add(this.add.text(pos.x, pos.y - 3, `${node.cost}`, { fontSize: '14px', color: costColor, fontStyle: 'bold' }).setOrigin(0.5))
+
+            // Node name + description
+            this.overlayGroup.add(this.add.text(pos.x, pos.y + 28, node.name, { fontSize: '10px', color: allocated ? '#fff' : '#aaa' }).setOrigin(0.5))
+            this.overlayGroup.add(this.add.text(pos.x, pos.y + 42, node.description, { fontSize: '8px', color: '#777', wordWrap: { width: 140 } }).setOrigin(0.5))
 
             if (available) {
                 circle.setInteractive({ useHandCursor: true })
