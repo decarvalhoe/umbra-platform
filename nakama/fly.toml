@@ -1,17 +1,16 @@
-# fly.toml file generated for umbra-nakama on 2026-03-02T00:01:23Z
-
+# fly.toml for umbra-nakama
 app = "umbra-nakama"
 primary_region = "cdg"
 
 [build]
   dockerfile = "Dockerfile"
 
-[[services]]
+[http_service]
   internal_port = 7350
-  protocol = "tcp"
-
-  [[services.ports]]
-    port = 7350
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
 
 [mounts]
   source = "nakama_data"
