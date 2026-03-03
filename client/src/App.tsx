@@ -33,6 +33,15 @@ function App() {
     }
   }, []);
 
+  // Lock body scroll when game is active, unlock for landing/login
+  useEffect(() => {
+    if (appState === "game") {
+      document.body.classList.add("game-active");
+    } else {
+      document.body.classList.remove("game-active");
+    }
+  }, [appState]);
+
   useEffect(() => {
     if (appState === "game" && gameRef.current && !phaserGameRef.current) {
       phaserGameRef.current = new Game({
