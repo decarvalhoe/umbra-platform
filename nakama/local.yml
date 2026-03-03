@@ -14,7 +14,7 @@ session:
   refresh_token_expiry_sec: 604800
 
 runtime:
-  js_entrypoint: /nakama/modules/main.js
+  js_entrypoint: ../modules/main.js
   http_key: defaulthttpkey
 
 socket:
