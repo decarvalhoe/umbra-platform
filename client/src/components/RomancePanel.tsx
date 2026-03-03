@@ -5,6 +5,7 @@ import type {
   AffinityThreshold,
   RelationshipPreference,
 } from "../types/game";
+import { CompanionSheet } from "./CompanionSheet";
 import "./RomancePanel.css";
 
 interface RomancePanelProps {
@@ -70,11 +71,11 @@ const COMPANIONS: Companion[] = [
 // ── Stub bond data (will come from Nakama via #98) ──────────────
 
 const STUB_BONDS: CompanionBond[] = [
-  { companionId: "kaelan", affinity: 35, threshold: "familiar", relationshipPreference: "romance", resonanceLevel: 2, lastDialogueAt: null, hasNewEvent: false },
-  { companionId: "lyra", affinity: 62, threshold: "romantic_interest", relationshipPreference: "romance", resonanceLevel: 4, lastDialogueAt: null, hasNewEvent: true },
-  { companionId: "nyx", affinity: 18, threshold: "unknown", relationshipPreference: "romance", resonanceLevel: 1, lastDialogueAt: null, hasNewEvent: false },
-  { companionId: "seraphina", affinity: 85, threshold: "deep_bond", relationshipPreference: "romance", resonanceLevel: 8, lastDialogueAt: null, hasNewEvent: true },
-  { companionId: "ronan", affinity: 47, threshold: "close_friend", relationshipPreference: "friendship", resonanceLevel: 3, lastDialogueAt: null, hasNewEvent: false },
+  { companionId: "kaelan", affinity: 35, threshold: "familiar", relationshipPreference: "romance", resonanceLevel: 2, resonanceXp: 180, equippedFragmentTier: 0, voidFormUnlocked: false, trueNameUnlocked: false, unlockedScenes: [], lastDialogueAt: null, hasNewEvent: false },
+  { companionId: "lyra", affinity: 62, threshold: "romantic_interest", relationshipPreference: "romance", resonanceLevel: 4, resonanceXp: 350, equippedFragmentTier: 1, voidFormUnlocked: false, trueNameUnlocked: false, unlockedScenes: ["resonance_scene_1"], lastDialogueAt: null, hasNewEvent: true },
+  { companionId: "nyx", affinity: 18, threshold: "unknown", relationshipPreference: "romance", resonanceLevel: 1, resonanceXp: 40, equippedFragmentTier: 0, voidFormUnlocked: false, trueNameUnlocked: false, unlockedScenes: [], lastDialogueAt: null, hasNewEvent: false },
+  { companionId: "seraphina", affinity: 85, threshold: "deep_bond", relationshipPreference: "romance", resonanceLevel: 8, resonanceXp: 720, equippedFragmentTier: 1, voidFormUnlocked: false, trueNameUnlocked: false, unlockedScenes: ["resonance_scene_1"], lastDialogueAt: null, hasNewEvent: true },
+  { companionId: "ronan", affinity: 47, threshold: "close_friend", relationshipPreference: "friendship", resonanceLevel: 3, resonanceXp: 250, equippedFragmentTier: 1, voidFormUnlocked: false, trueNameUnlocked: false, unlockedScenes: [], lastDialogueAt: null, hasNewEvent: false },
 ];
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -112,8 +113,11 @@ function getCooldownRemaining(bond: CompanionBond): string | null {
 
 // ── Component ───────────────────────────────────────────────────
 
+export { COMPANIONS };
+
 export function RomancePanel({ isOpen, onClose }: RomancePanelProps) {
   const [bonds, setBonds] = useState<CompanionBond[]>(STUB_BONDS);
+  const [selectedCompanionId, setSelectedCompanionId] = useState<string | null>(null);
 
   const companionMap = useMemo(
     () => new Map(COMPANIONS.map((c) => [c.id, c])),
@@ -172,6 +176,10 @@ export function RomancePanel({ isOpen, onClose }: RomancePanelProps) {
                   key={companion.id}
                   className="rp-card"
                   style={{ "--card-accent": companion.color } as React.CSSProperties}
+                  onClick={() => setSelectedCompanionId(companion.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && setSelectedCompanionId(companion.id)}
                 >
                   {/* New event badge */}
                   {bond.hasNewEvent && (
@@ -256,6 +264,17 @@ export function RomancePanel({ isOpen, onClose }: RomancePanelProps) {
             })}
           </div>
         </div>
+
+        {/* Companion detail sheet */}
+        {selectedCompanionId && companionMap.get(selectedCompanionId) && (
+          <CompanionSheet
+            companion={companionMap.get(selectedCompanionId)!}
+            bond={bonds.find((b) => b.companionId === selectedCompanionId)!}
+            onClose={() => setSelectedCompanionId(null)}
+            onPrefChange={(pref) => handlePrefChange(selectedCompanionId, pref)}
+            onTalk={() => handleTalk(selectedCompanionId)}
+          />
+        )}
       </div>
     </div>
   );
