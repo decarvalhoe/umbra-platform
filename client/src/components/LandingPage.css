@@ -21,19 +21,48 @@
   --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* ── Skip link (keyboard / AT users) ──────────────────────────── */
+.lp-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 99999;
+  padding: 0.6rem 1.2rem;
+  background: #ff2d78;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.lp-skip-link:focus { top: 1rem; outline: 3px solid #ffe135; outline-offset: 2px; }
+
+/* ── Focus styles — always visible ────────────────────────────── */
+.lp-root :focus-visible {
+  outline: 2px solid #ff2d78;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* ── Reset & Base ──────────────────────────────────────────────── */
 .lp-root {
   font-family: var(--font-body);
   background: var(--umbra-black);
   color: var(--umbra-text);
   overflow-x: hidden;
-  cursor: none;
   scroll-behavior: smooth;
 }
 
-.lp-root * {
-  cursor: none;
-  box-sizing: border-box;
+.lp-root * { box-sizing: border-box; }
+
+/* Custom cursor only on fine-pointer (mouse) devices */
+@media (pointer: fine) {
+  .lp-root { cursor: none; }
+  .lp-root *:not(.lp-skip-link):not(a):not(button):not([role="button"]):not(input):not(select):not(textarea) {
+    cursor: none;
+  }
 }
 
 /* ── Custom Cursor ─────────────────────────────────────────────── */
@@ -1058,4 +1087,31 @@
 
 .lp-center {
   text-align: center;
+}
+
+/* ── dl/dt/dd stat layout (semantic stat row) ──────────────────── */
+.lp-stat-row { list-style: none; margin: 0; padding: 0; }
+.lp-stat dt.lp-stat-label { font-size: 0.75rem; color: var(--umbra-text-dim); text-transform: uppercase; letter-spacing: 0.08em; order: 2; margin: 0; }
+.lp-stat dd.lp-stat-num   { font-size: 2.2rem; font-weight: 900; margin: 0; order: 1; }
+
+/* ── prefers-reduced-motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lp-root,
+  .lp-root * {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lp-hero-bg { transform: none !important; }
+  .lp-speed-lines,
+  .lp-glitch,
+  .lp-canvas,
+  .lp-cursor,
+  .lp-cursor-trail { display: none !important; }
+  /* Reveal sections without motion */
+  .lp-slide-in,
+  .lp-slide-in-right,
+  .lp-card-in,
+  .lp-visible { opacity: 1 !important; transform: none !important; }
 }
