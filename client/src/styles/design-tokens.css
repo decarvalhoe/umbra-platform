@@ -1,0 +1,135 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UMBRA — Design Tokens (Gothic Candy)
+   Canonical color palette, typography, spacing, and effects.
+   Issue #102 — DA: Style Guide & Design System
+═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color: Dark Bases ────────────────────────────────────────── */
+  --color-bg-primary: #0a0a0f;       /* Abyssal Black */
+  --color-bg-secondary: #1a1a2e;     /* Dark Violet */
+  --color-bg-tertiary: #16213e;      /* Deep Navy */
+
+  /* ── Color: Pop Candy Accents ─────────────────────────────────── */
+  --color-accent-pink: #ff2d78;      /* Hot Pink — CTA, romance, primary accent */
+  --color-accent-gold: #ffe135;      /* Gold Shimmer — rare, achievements, premium */
+  --color-accent-cyan: #00bcd4;      /* Cyan Glow — info, cooldowns, tech */
+  --color-accent-lavender: #b39ddb;  /* Lavender Mist — mystery, magic, void */
+  --color-accent-magenta: #e040fb;   /* Magenta Burst — criticals, special events */
+
+  /* ── Color: Noble Layer (TYPE-MOON inspired) ──────────────────── */
+  --color-noble-gold: #ffd700;       /* Boss titles, legendary drops */
+  --color-noble-midnight: #191970;   /* Boss arenas, cutscene backgrounds */
+  --color-noble-crimson: #dc143c;    /* Danger, corruption, blood */
+  --color-noble-purple: #4b0082;     /* Void energy, ultimate abilities */
+
+  /* ── Color: Companion Signatures ──────────────────────────────── */
+  --color-companion-kaelan: #ff6b35;    /* Warm amber / fire */
+  --color-companion-lyra: #b39ddb;      /* Lavender / arcane */
+  --color-companion-nyx: #ffe135;       /* Gold / shadow */
+  --color-companion-seraphina: #ff2d78; /* Hot pink / healing */
+  --color-companion-ronan: #00bcd4;     /* Cyan / void */
+
+  /* ── Color: Text ──────────────────────────────────────────────── */
+  --color-text-primary: #e8e0f0;
+  --color-text-secondary: #8e7a9e;
+  --color-text-muted: rgba(255, 255, 255, 0.3);
+  --color-text-accent: var(--color-accent-lavender);
+
+  /* ── Color: Semantic ──────────────────────────────────────────── */
+  --color-success: #4caf50;
+  --color-warning: var(--color-accent-gold);
+  --color-danger: var(--color-noble-crimson);
+  --color-info: var(--color-accent-cyan);
+
+  /* ── Color: Surfaces ──────────────────────────────────────────── */
+  --color-surface-card: rgba(255, 255, 255, 0.02);
+  --color-surface-card-hover: rgba(255, 255, 255, 0.05);
+  --color-surface-overlay: rgba(10, 10, 15, 0.9);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-accent: rgba(255, 45, 120, 0.22);
+
+  /* ── Typography ───────────────────────────────────────────────── */
+  --font-display: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* ── Font Sizes ───────────────────────────────────────────────── */
+  --text-2xs: 0.58rem;   /* 9.3px — micro labels */
+  --text-xs: 0.65rem;    /* 10.4px — badges, tags */
+  --text-sm: 0.8rem;     /* 12.8px — captions, small UI */
+  --text-base: 1rem;     /* 16px — body text */
+  --text-lg: 1.25rem;    /* 20px — large body */
+  --text-xl: 1.5rem;     /* 24px — section subtitle */
+  --text-2xl: 2rem;      /* 32px — stat numbers */
+  --text-3xl: 3rem;      /* 48px — section titles */
+  --text-4xl: 4rem;      /* 64px — hero title */
+
+  /* ── Font Weights ─────────────────────────────────────────────── */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+
+  /* ── Spacing ──────────────────────────────────────────────────── */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 60px;
+  --space-3xl: 80px;
+
+  /* ── Border Radius ────────────────────────────────────────────── */
+  --radius-sm: 3px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 50px;
+
+  /* ── Shadows ──────────────────────────────────────────────────── */
+  --shadow-glow-pink: 0 0 20px rgba(255, 45, 120, 0.3);
+  --shadow-glow-lavender: 0 0 20px rgba(179, 157, 219, 0.3);
+  --shadow-glow-gold: 0 0 20px rgba(255, 225, 53, 0.3);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 188, 212, 0.3);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-panel: 0 0 60px rgba(255, 45, 120, 0.1), 0 0 120px rgba(0, 0, 0, 0.8);
+
+  /* ── Transitions ──────────────────────────────────────────────── */
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-bounce: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+
+  /* ── Z-Index Scale ────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-card: 1;
+  --z-sticky: 10;
+  --z-overlay: 50;
+  --z-modal: 100;
+  --z-cursor: 9999;
+
+  /* ── Gradients (reusable) ─────────────────────────────────────── */
+  --gradient-primary: linear-gradient(135deg, var(--color-accent-pink) 0%, var(--color-accent-magenta) 100%);
+  --gradient-noble: linear-gradient(135deg, var(--color-noble-purple) 0%, var(--color-noble-crimson) 100%);
+  --gradient-gacha: linear-gradient(135deg, #6a0dad 0%, #b31c6e 50%, #6a0dad 100%);
+  --gradient-gold-shimmer: linear-gradient(135deg, var(--color-accent-gold), #ffd700, var(--color-accent-gold));
+
+  /* ── Backward Compatibility ───────────────────────────────────── */
+  /* Maps old --umbra-* names to new tokens — remove once full migration done */
+  --umbra-black: var(--color-bg-primary);
+  --umbra-dark: #0a0a12;
+  --umbra-purple: #6c3483;
+  --umbra-purple-light: #9b59b6;
+  --umbra-purple-glow: var(--color-accent-lavender);
+  --umbra-red: var(--color-noble-crimson);
+  --umbra-gold: var(--color-accent-gold);
+  --umbra-text: var(--color-text-primary);
+  --umbra-text-dim: var(--color-text-secondary);
+  --font-title: var(--font-display);
+  --transition-smooth: var(--ease-smooth);
+}
