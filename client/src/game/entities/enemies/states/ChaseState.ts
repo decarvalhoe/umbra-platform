@@ -18,6 +18,7 @@ export class ChaseState extends EnemyState {
   }
 
   enter(): void {
+    this.enemy.playAnim('chase')
     // this.enemy.anims.play('enemy-run', true)  // Enable when sprites are ready
   }
 

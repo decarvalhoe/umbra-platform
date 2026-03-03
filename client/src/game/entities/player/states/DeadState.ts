@@ -22,6 +22,7 @@ export class DeadState extends PlayerState {
   }
 
   enter(): void {
+    this.player.playAnim('player-dead')
     this.elapsed = 0
     this.eventEmitted = false
 

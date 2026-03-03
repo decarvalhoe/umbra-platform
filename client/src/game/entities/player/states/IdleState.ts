@@ -16,6 +16,7 @@ export class IdleState extends PlayerState {
   }
 
   enter(): void {
+    this.player.playAnim('player-idle')
     this.player.setVelocity(0, 0)
     // this.player.anims.play('player-idle', true)  // Enable when sprites are ready
   }

@@ -29,6 +29,7 @@ export class HurtState extends PlayerState {
   }
 
   enter(): void {
+    this.player.playAnim('player-hurt')
     this.elapsed = 0
     this.flashTimer = 0
 

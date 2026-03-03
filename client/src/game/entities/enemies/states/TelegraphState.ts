@@ -20,6 +20,7 @@ export class TelegraphState extends EnemyState {
   }
 
   enter(): void {
+    this.enemy.playAnim('attack')
     this.elapsed = 0
 
     // Stop moving during telegraph

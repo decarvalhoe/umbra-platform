@@ -90,38 +90,47 @@ export class BossAI {
 
     // Enter logic
     switch (newState) {
-      case BossAIState.IDLE:
+      case BossAIState.IDLE: {
         this.boss.setVelocity(0, 0)
+        const idleAnim = this.boss.getPhaseIndex() >= 1 ? 'phase2-idle' : 'idle'
+        this.boss.playAnim(idleAnim)
         break
+      }
 
       case BossAIState.TELEGRAPH:
         this.boss.setVelocity(0, 0)
+        this.boss.playAnim('telegraph')
         this.boss.scene.events.emit('boss-telegraph', this.boss, this._currentAttack)
         break
 
       case BossAIState.ATTACK:
+        this.boss.playAnim('attack')
         this.boss.scene.events.emit('boss-attack', this.boss, this._currentAttack)
         break
 
       case BossAIState.RECOVERY:
         this.boss.setVelocity(0, 0)
         this.boss.isVulnerable = true
+        this.boss.playAnim('idle')
         this.boss.scene.events.emit('boss-recovery', this.boss)
         break
 
       case BossAIState.PHASE_TRANSITION:
         this.boss.setVelocity(0, 0)
         this.boss.isInvulnerable = true
+        this.boss.playAnim('hurt')
         this.boss.scene.events.emit('boss-phase-transition', this.boss)
         break
 
       case BossAIState.ENRAGED:
         this.enrageActive = true
+        this.boss.playAnim('phase2-idle')
         this.boss.scene.events.emit('boss-enraged', this.boss)
         break
 
       case BossAIState.DEAD:
         this.boss.setVelocity(0, 0)
+        this.boss.playAnim('dead')
         this.boss.scene.events.emit('boss-defeated', this.boss)
         break
     }

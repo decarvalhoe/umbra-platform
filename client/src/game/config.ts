@@ -1,4 +1,5 @@
 import { Types } from 'phaser'
+import { PreloadScene } from './scenes/PreloadScene'
 import { MainScene } from './scenes/MainScene'
 import { CombatScene } from './scenes/CombatScene'
 import { DungeonScene } from './scenes/DungeonScene'
@@ -16,7 +17,7 @@ export const gameConfig: Types.Core.GameConfig = {
       debug: false
     }
   },
-  scene: [MainScene, CombatScene, DungeonScene, HubScene],
+  scene: [PreloadScene, MainScene, CombatScene, DungeonScene, HubScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
