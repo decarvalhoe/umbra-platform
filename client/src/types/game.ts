@@ -429,3 +429,58 @@ export interface ArenaState {
   matchHistory: ArenaMatchResult[];
   defenseLog: ArenaDefenseLog[];
 }
+
+// ── Clan System ────────────────────────────────────────────────
+
+export type ClanRole = "leader" | "officer" | "member";
+
+export type ClanReputationTier = "bronze" | "silver" | "gold" | "obsidian" | "legendary";
+
+export interface ClanMember {
+  userId: string;
+  username: string;
+  role: ClanRole;
+  level: number;
+  lastActive: string;
+  weeklyContribution: number;
+}
+
+export interface ClanContract {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  progress: number;
+  target: number;
+  rewardXp: number;
+  rewardLabel: string;
+  completed: boolean;
+}
+
+export interface ClanChatMessage {
+  id: string;
+  userId: string;
+  username: string;
+  role: ClanRole;
+  content: string;
+  timestamp: string;
+}
+
+export interface Clan {
+  id: string;
+  name: string;
+  description: string;
+  emblem: string;
+  emblemColor: string;
+  reputationTier: ClanReputationTier;
+  reputationXp: number;
+  reputationXpNext: number;
+  memberCount: number;
+  maxMembers: number;
+  members: ClanMember[];
+  contracts: ClanContract[];
+  chat: ClanChatMessage[];
+  weeklyRank: number;
+  seasonalRank: number;
+  createdAt: string;
+}

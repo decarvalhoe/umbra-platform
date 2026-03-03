@@ -14,6 +14,7 @@ import { HeroRoster } from "./components/HeroRoster";
 import { Bestiary } from "./components/Bestiary";
 import { BattlePass } from "./components/BattlePass";
 import { VoidArena } from "./components/VoidArena";
+import { ClanPanel } from "./components/ClanPanel";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { useI18n } from "./i18n";
 import { restoreSession, logout } from "./nakama/auth";
@@ -41,6 +42,7 @@ function App() {
   const [showBestiary, setShowBestiary] = useState(false);
   const [showBattlePass, setShowBattlePass] = useState(false);
   const [showArena, setShowArena] = useState(false);
+  const [showClan, setShowClan] = useState(false);
   const [pityCounter, setPityCounter] = useState(0);
 
   useEffect(() => {
@@ -155,6 +157,7 @@ function App() {
         <button onClick={() => setShowBestiary(true)}>{t("controls.bestiary")}</button>
         <button onClick={() => setShowBattlePass(true)}>{t("controls.battlePass")}</button>
         <button onClick={() => setShowArena(true)}>{t("controls.arena")}</button>
+        <button onClick={() => setShowClan(true)}>Clan</button>
         <button onClick={handleLogout}>{t("auth.logout")}</button>
         <LanguageSelector />
       </div>
@@ -196,6 +199,10 @@ function App() {
       <VoidArena
         isOpen={showArena}
         onClose={() => setShowArena(false)}
+      />
+      <ClanPanel
+        isOpen={showClan}
+        onClose={() => setShowClan(false)}
       />
     </div>
   );
