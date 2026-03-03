@@ -6,10 +6,15 @@ import { Enemy } from '../entities/enemies/Enemy'
 import { shadowWraithConfig } from '../entities/enemies/EnemyConfig'
 import type { EnemyConfig } from '../entities/enemies/EnemyConfig'
 import { CorruptedGuardian } from '../entities/bosses/CorruptedGuardian'
+import { FlameTyrant } from '../entities/bosses/FlameTyrant'
+import { VoidHarbinger } from '../entities/bosses/VoidHarbinger'
 import { GroundSlam } from '../entities/bosses/attacks/GroundSlam'
 import { ShadowBolt } from '../entities/bosses/attacks/ShadowBolt'
 import { CorruptionWave } from '../entities/bosses/attacks/CorruptionWave'
 import type { BossAttackConfig } from '../entities/bosses/BossConfig'
+
+/** Union of all boss entity types. */
+type AnyBoss = CorruptedGuardian | FlameTyrant | VoidHarbinger
 
 // ---------------------------------------------------------------------------
 // Wave configuration
@@ -232,7 +237,7 @@ export class CombatScene extends Phaser.Scene {
   // Entities
   private player!: Player
   private enemies!: Phaser.Physics.Arcade.Group
-  private boss: CorruptedGuardian | null = null
+  private boss: AnyBoss | null = null
 
   // Boss attack visuals
   private activeBossAttacks: (GroundSlam | ShadowBolt | CorruptionWave)[] = []
@@ -641,7 +646,17 @@ export class CombatScene extends Phaser.Scene {
 
   private spawnBoss(): void {
     const { width } = this.scale
-    this.boss = new CorruptedGuardian(this, width / 2, 120)
+    const floor = this.dungeonContext?.floor ?? 1
+
+    // Select boss based on dungeon floor
+    if (floor >= 20) {
+      this.boss = new VoidHarbinger(this, width / 2, 120)
+    } else if (floor >= 10) {
+      this.boss = new FlameTyrant(this, width / 2, 120)
+    } else {
+      this.boss = new CorruptedGuardian(this, width / 2, 120)
+    }
+
     this.boss.setPlayer(this.player)
     this.boss.setDepth(6)
     this.enemiesAliveInWave = 1
@@ -649,9 +664,10 @@ export class CombatScene extends Phaser.Scene {
     audioManager.crossFadeTo('boss')
 
     // Create boss HUD elements
+    const bossColor = floor >= 20 ? '#9900ff' : floor >= 10 ? '#ff6b35' : '#ff4400'
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontSize: '16px',
-      color: '#ff4400',
+      color: bossColor,
       fontFamily: 'monospace',
       fontStyle: 'bold',
     }
@@ -659,7 +675,7 @@ export class CombatScene extends Phaser.Scene {
     this.bossNameText = this.add.text(
       this.scale.width / 2,
       this.scale.height - 60,
-      'Corrupted Guardian',
+      this.boss.config.name,
       textStyle
     )
     this.bossNameText.setOrigin(0.5, 0)
@@ -803,7 +819,7 @@ export class CombatScene extends Phaser.Scene {
   // Boss combat events
   // ---------------------------------------------------------------------------
 
-  private onBossAttack(_boss: CorruptedGuardian, attackConfig: BossAttackConfig): void {
+  private onBossAttack(_boss: AnyBoss, attackConfig: BossAttackConfig): void {
     if (!attackConfig || !this.boss) return
 
     const playerPos = this.boss.getPlayerPosition()
@@ -841,10 +857,17 @@ export class CombatScene extends Phaser.Scene {
         this.activeBossAttacks.push(wave)
         break
       }
+      default: {
+        // Generic AoE telegraph for Flame Tyrant / Void Harbinger attacks
+        audioManager.playSfx('boss_slam')
+        const genericSlam = new GroundSlam(this, attackConfig, playerPos.x, playerPos.y)
+        this.activeBossAttacks.push(genericSlam)
+        break
+      }
     }
   }
 
-  private onBossAttackHit(_boss: CorruptedGuardian, attackConfig: BossAttackConfig): void {
+  private onBossAttackHit(_boss: AnyBoss, attackConfig: BossAttackConfig): void {
     if (!attackConfig || this.player.isInvulnerable) return
 
     // Check if player is in the attack's damage zone
@@ -879,7 +902,7 @@ export class CombatScene extends Phaser.Scene {
     this.triggerVictory()
   }
 
-  private onBossSummonMinions(_boss: CorruptedGuardian, count: number): void {
+  private onBossSummonMinions(_boss: AnyBoss, count: number): void {
     const { width, height } = this.scale
 
     for (let i = 0; i < count; i++) {
@@ -1204,7 +1227,9 @@ export class CombatScene extends Phaser.Scene {
       )
 
       if (this.bossHealthText) {
-        const phaseLabel = this.boss.getPhaseIndex() === 0 ? 'Phase 1' : 'Phase 2 - RAGE'
+        const phaseIdx = this.boss.getPhaseIndex()
+        const phase = this.boss.getCurrentPhase()
+        const phaseLabel = phase ? `Phase ${phaseIdx + 1} — ${phase.id.replace(/_/g, ' ').toUpperCase()}` : `Phase ${phaseIdx + 1}`
         this.bossHealthText.setText(
           `${this.boss.health} / ${this.boss.maxHealth}  |  ${phaseLabel}`
         )

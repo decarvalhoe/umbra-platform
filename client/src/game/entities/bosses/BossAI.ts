@@ -8,8 +8,25 @@
  * respects cooldowns, and manages vulnerability windows during recovery.
  */
 
-import type { CorruptedGuardian } from './CorruptedGuardian'
-import type { BossAttackConfig } from './BossConfig'
+import type { BossAttackConfig, BossEntityConfig, BossPhaseConfig } from './BossConfig'
+
+/**
+ * Interface for any boss entity that can be controlled by BossAI.
+ * All boss entities (CorruptedGuardian, FlameTyrant, VoidHarbinger)
+ * must implement this interface.
+ */
+export interface BossEntity {
+  config: BossEntityConfig
+  health: number
+  maxHealth: number
+  isInvulnerable: boolean
+  isVulnerable: boolean
+  scene: Phaser.Scene
+  setVelocity(x: number, y: number): void
+  playAnim(key: string): void
+  getPhaseIndex(): number
+  getCurrentPhase(): BossPhaseConfig | null
+}
 
 /** All valid boss AI states. */
 export enum BossAIState {
@@ -30,7 +47,7 @@ export enum BossAIState {
  * to the boss entity's phase system and attack configs.
  */
 export class BossAI {
-  private boss: CorruptedGuardian
+  private boss: BossEntity
   private _state: BossAIState = BossAIState.IDLE
   private _previousState: BossAIState = BossAIState.IDLE
 
@@ -49,7 +66,7 @@ export class BossAI {
 
   private debug: boolean
 
-  constructor(boss: CorruptedGuardian, debug = false) {
+  constructor(boss: BossEntity, debug = false) {
     this.boss = boss
     this.debug = debug
     this.enrageTimer = boss.config.enrageTimerMs
