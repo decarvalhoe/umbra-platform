@@ -1,5 +1,17 @@
 export type Element = "fire" | "shadow" | "blood" | "void";
 
+export type PronounOption = "il/lui" | "elle/la" | "iel/ellui" | "custom";
+
+export interface PlayerIdentity {
+  displayName: string;
+  pronouns: PronounOption;
+  customPronouns: string;
+  orientation: string;
+  showOrientation: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PlayerStats {
   strength: number;
   agility: number;
