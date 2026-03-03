@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { restoreSession, authenticateDevice } from '../../nakama/auth'
+import { audioManager } from '../audio/AudioManager'
 
 /**
  * MainScene — Title screen and entry point.
@@ -67,6 +68,8 @@ export class MainScene extends Phaser.Scene {
         color: '#333333',
       })
       .setOrigin(0.5)
+
+    audioManager.crossFadeTo('hub')
   }
 
   private async startGame(): Promise<void> {

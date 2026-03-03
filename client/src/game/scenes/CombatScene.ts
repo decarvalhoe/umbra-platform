@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { PauseMenu } from '../ui/PauseMenu'
+import { audioManager } from '../audio/AudioManager'
 import { Player } from '../entities/player/Player'
 import { Enemy } from '../entities/enemies/Enemy'
 import { shadowWraithConfig } from '../entities/enemies/EnemyConfig'
@@ -316,6 +317,9 @@ export class CombatScene extends Phaser.Scene {
     })
 
     this.startWave(0)
+
+    // Start combat music
+    audioManager.crossFadeTo('combat')
   }
 
   update(time: number, delta: number): void {
@@ -642,6 +646,8 @@ export class CombatScene extends Phaser.Scene {
     this.boss.setDepth(6)
     this.enemiesAliveInWave = 1
 
+    audioManager.crossFadeTo('boss')
+
     // Create boss HUD elements
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontSize: '16px',
@@ -709,6 +715,7 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onPlayerAttackHit(_comboHit: unknown, damage: number): void {
+    audioManager.playSfx('attack_swing')
     // Apply rune ATK + all_damage buffs
     let buffedDamage = this.runeBuffs.apply('atk', damage)
     buffedDamage = Math.round(buffedDamage * this.runeBuffs.getMultiplier('all_damage'))
@@ -719,6 +726,7 @@ export class CombatScene extends Phaser.Scene {
       buffedDamage = Math.round(buffedDamage * 1.5)
     }
 
+    // Check all active enemies for range-based hit detection
     const attackRange = 60
     const px = this.player.x
     const py = this.player.y
@@ -759,6 +767,8 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onEnemyAttackHit(enemy: Enemy, damage: number): void {
+    audioManager.playSfx('enemy_attack')
+    // Check if the enemy is close enough to the player to deal damage
     const dx = this.player.x - enemy.x
     const dy = this.player.y - enemy.y
     const dist = Math.sqrt(dx * dx + dy * dy)
@@ -772,6 +782,7 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onEnemyDied(_enemy: Enemy): void {
+    audioManager.playSfx('enemy_death')
     this.enemiesAliveInWave = Math.max(0, this.enemiesAliveInWave - 1)
     this.totalKills++
     this.checkWaveComplete()
@@ -783,6 +794,7 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onPlayerDead(): void {
+    audioManager.playSfx('death')
     this.isGameOver = true
     this.showGameOver()
   }
@@ -800,11 +812,13 @@ export class CombatScene extends Phaser.Scene {
     // Create visual attack object based on attack ID
     switch (attackConfig.id) {
       case 'ground_slam': {
+        audioManager.playSfx('boss_slam')
         const slam = new GroundSlam(this, attackConfig, playerPos.x, playerPos.y)
         this.activeBossAttacks.push(slam)
         break
       }
       case 'shadow_bolt': {
+        audioManager.playSfx('boss_bolt')
         const bolt = new ShadowBolt(
           this,
           attackConfig,
@@ -817,6 +831,7 @@ export class CombatScene extends Phaser.Scene {
         break
       }
       case 'corruption_wave': {
+        audioManager.playSfx('boss_wave')
         const wave = new CorruptionWave(
           this,
           attackConfig,
@@ -849,6 +864,7 @@ export class CombatScene extends Phaser.Scene {
   }
 
   private onBossDefeated(_boss: CorruptedGuardian): void {
+    audioManager.playSfx('boss_phase')
     this.enemiesAliveInWave = 0
 
     // Clean up boss attacks
@@ -947,12 +963,15 @@ export class CombatScene extends Phaser.Scene {
     // Execute skill effect
     switch (skill.id) {
       case 'flame_burst':
+        audioManager.playSfx('attack_swing')
         this.executeAoESkill(skill.damage, skill.range, 0xff4400)
         break
       case 'shadow_strike':
+        audioManager.playSfx('attack_swing')
         this.executeMeleeSkill(skill.damage, skill.range, 0x6622cc)
         break
       case 'void_shield':
+        audioManager.playSfx('dodge_whoosh')
         this.executeShieldSkill()
         break
     }
