@@ -206,3 +206,49 @@ export interface InfusionRecipe {
   targetTier: 1 | 2 | 3;
   cost: { material: CraftingMaterial; amount: number };
 }
+
+// ── Seasonal Event System ───────────────────────────────────────
+
+export type EventType = "seasonal_story" | "void_festival" | "companion_birthday" | "arena_reset" | "double_drop";
+
+export type EventStatus = "upcoming" | "active" | "ended";
+
+export interface GameEvent {
+  eventId: string;
+  type: EventType;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  bannerColor: string;
+  bannerIcon: string;
+  rewards: EventReward[];
+  routes?: string[];
+  companionId?: string;
+}
+
+export interface EventReward {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  claimed: boolean;
+  requiresCompletion?: boolean;
+}
+
+export interface EventProgress {
+  eventId: string;
+  questsCompleted: number;
+  questsTotal: number;
+  chosenRoute?: string;
+  rewardsClaimed: string[];
+}
+
+export interface FestivalGift {
+  companionId: string;
+  companionName: string;
+  message: string;
+  giftName: string;
+  giftIcon: string;
+  revealed: boolean;
+}
