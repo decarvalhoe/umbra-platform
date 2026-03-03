@@ -5,6 +5,10 @@ logger:
   level: INFO
   stdout: true
 
+database:
+  address:
+    - nakama:vROm2ee0HDmJErx@umbra-postgres.flycast:5432/nakama
+
 session:
   token_expiry_sec: 7200
   refresh_token_expiry_sec: 604800
@@ -18,4 +22,4 @@ socket:
 
 console:
   username: admin
-  password: password
+  password: UmbraAdmin2026!
