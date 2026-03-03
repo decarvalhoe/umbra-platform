@@ -9,4 +9,4 @@ FROM registry.heroiclabs.com/heroiclabs/nakama:3.21.1
 COPY --from=builder /build/dist/ /nakama/data/modules/
 COPY local.yml /nakama/local.yml
 ENTRYPOINT []
-CMD ["/nakama/nakama", "--config", "/nakama/local.yml"]
+CMD ["/bin/sh", "-c", "/nakama/nakama migrate up --config /nakama/local.yml && /nakama/nakama --config /nakama/local.yml"]
