@@ -121,6 +121,30 @@ export interface CompanionBond {
   threshold: AffinityThreshold;
   relationshipPreference: RelationshipPreference;
   resonanceLevel: number;
+  resonanceXp: number;
+  equippedFragmentTier: 0 | 1 | 2;
+  voidFormUnlocked: boolean;
+  trueNameUnlocked: boolean;
+  unlockedScenes: string[];
   lastDialogueAt: string | null;
   hasNewEvent: boolean;
+}
+
+export interface EchoFragment {
+  id: string;
+  companionId: string;
+  tier: 1 | 2;
+  name: string;
+  description: string;
+  passiveEffect: string;
+  upgradeLevel: number;
+  maxUpgradeLevel: number;
+}
+
+export interface ResonanceReward {
+  level: number;
+  type: "crystal" | "fragment" | "shards" | "scene" | "true_name" | "void_form";
+  label: string;
+  description: string;
+  amount?: number;
 }
