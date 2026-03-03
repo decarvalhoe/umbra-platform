@@ -11,6 +11,9 @@
     "declaration": false,
     "typeRoots": [
       "./node_modules"
+    ],
+    "lib": [
+      "ES2020"
     ]
   },
   "include": [
