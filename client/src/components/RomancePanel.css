@@ -1,0 +1,404 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UMBRA — Romance Hub Panel
+   Companion profiles, affinity bars, visual novel dialogue
+   Pop Cute Manga style — uses design tokens
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Panel overlay ──────────────────────────────────────────────── */
+.rp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 10, 0.85);
+  backdrop-filter: blur(8px);
+  animation: rp-fade-in 0.3s var(--ease-smooth) both;
+}
+
+@keyframes rp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel container ────────────────────────────────────────────── */
+.rp-panel {
+  width: 960px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
+  background: linear-gradient(135deg, rgba(15, 8, 24, 0.98) 0%, rgba(8, 4, 16, 0.99) 100%);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: rp-slide-in 0.4s var(--ease-bounce) both;
+  box-shadow: 0 0 80px rgba(255, 45, 120, 0.08), 0 0 200px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes rp-slide-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.rp-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.rp-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+.rp-title-icon {
+  color: var(--color-accent-pink);
+  margin-right: 8px;
+}
+
+.rp-close {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.rp-close:hover {
+  background: rgba(255, 45, 120, 0.1);
+  color: var(--color-accent-pink);
+}
+
+/* ── Content area ───────────────────────────────────────────────── */
+.rp-content {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Companion Grid ─────────────────────────────────────────────── */
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-md);
+}
+
+/* ── Companion Card ─────────────────────────────────────────────── */
+.rp-card {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--duration-normal) var(--ease-smooth),
+              border-color var(--duration-normal),
+              box-shadow var(--duration-normal);
+  position: relative;
+}
+
+.rp-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--card-accent);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5),
+              0 0 24px color-mix(in srgb, var(--card-accent) 25%, transparent);
+}
+
+/* New event indicator */
+.rp-new-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, var(--color-accent-pink), var(--color-accent-magenta));
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(255, 45, 120, 0.4);
+  animation: rp-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rp-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 45, 120, 0.6); }
+}
+
+/* ── Portrait area ──────────────────────────────────────────────── */
+.rp-portrait {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.rp-portrait-glyph {
+  font-size: 3.5rem;
+  opacity: 0.3;
+  color: var(--card-accent);
+  text-shadow: 0 0 30px var(--card-accent);
+  transition: opacity var(--duration-normal), transform var(--duration-normal);
+}
+
+.rp-card:hover .rp-portrait-glyph {
+  opacity: 0.6;
+  transform: scale(1.15);
+}
+
+/* Gradient overlay at portrait bottom */
+.rp-portrait::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(15, 8, 24, 1) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Card info ──────────────────────────────────────────────────── */
+.rp-info {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rp-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: var(--weight-bold);
+  color: var(--card-accent);
+  margin: 0;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--card-accent) 40%, transparent);
+}
+
+.rp-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.rp-meta-sep {
+  margin: 0 6px;
+  opacity: 0.4;
+}
+
+/* ── Affinity bar ───────────────────────────────────────────────── */
+.rp-affinity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rp-affinity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rp-affinity-label {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rp-affinity-label--unknown { color: #888; }
+.rp-affinity-label--familiar { color: var(--color-accent-cyan); }
+.rp-affinity-label--close_friend { color: #4caf50; }
+.rp-affinity-label--romantic_interest { color: var(--color-accent-pink); }
+.rp-affinity-label--deep_bond { color: var(--color-accent-gold); }
+
+.rp-affinity-value {
+  font-size: var(--text-2xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+}
+
+.rp-affinity-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.rp-affinity-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s var(--ease-smooth);
+  position: relative;
+}
+
+.rp-affinity-fill--unknown { background: #555; }
+.rp-affinity-fill--familiar { background: linear-gradient(90deg, #1a6b7c, var(--color-accent-cyan)); }
+.rp-affinity-fill--close_friend { background: linear-gradient(90deg, #2e7d32, #4caf50); }
+.rp-affinity-fill--romantic_interest { background: linear-gradient(90deg, #c2185b, var(--color-accent-pink)); }
+.rp-affinity-fill--deep_bond {
+  background: linear-gradient(90deg, #c8a000, var(--color-accent-gold));
+  box-shadow: 0 0 8px rgba(255, 225, 53, 0.4);
+}
+
+/* Gold shimmer for deep bond */
+.rp-affinity-fill--deep_bond::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: rp-shimmer 2s linear infinite;
+}
+
+@keyframes rp-shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Resonance level ────────────────────────────────────────────── */
+.rp-resonance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-2xs);
+  color: var(--color-text-secondary);
+}
+
+.rp-resonance-icon {
+  color: var(--color-accent-lavender);
+}
+
+.rp-resonance-bar {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.rp-resonance-fill {
+  height: 100%;
+  background: var(--color-accent-lavender);
+  border-radius: 1px;
+  transition: width 0.6s var(--ease-smooth);
+}
+
+/* ── Preference toggle ──────────────────────────────────────────── */
+.rp-pref {
+  display: flex;
+  gap: 4px;
+}
+
+.rp-pref-btn {
+  flex: 1;
+  padding: 4px 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.03em;
+}
+
+.rp-pref-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.rp-pref-btn--active {
+  border-color: var(--card-accent);
+  color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 10%, transparent);
+}
+
+/* ── Talk button ────────────────────────────────────────────────── */
+.rp-talk {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 20%, transparent), rgba(255, 255, 255, 0.04));
+  border: 1px solid color-mix(in srgb, var(--card-accent) 30%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  letter-spacing: 0.06em;
+}
+
+.rp-talk:hover:not(:disabled) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-accent) 30%, transparent), rgba(255, 255, 255, 0.06));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--card-accent) 20%, transparent);
+}
+
+.rp-talk:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rp-talk-cooldown {
+  font-size: var(--text-2xs);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-regular);
+  margin-left: 4px;
+}
+
+/* ── Description text ───────────────────────────────────────────── */
+.rp-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .rp-grid {
+    grid-template-columns: 1fr;
+  }
+  .rp-panel {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .rp-header {
+    padding: var(--space-md);
+  }
+  .rp-content {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 520px) {
+  .rp-grid {
+    gap: var(--space-sm);
+  }
+}

@@ -7,6 +7,7 @@ import { IdentitySetup } from "./components/IdentitySetup";
 import { HUD } from "./components/HUD";
 import { InventoryPanel } from "./components/InventoryPanel";
 import { GachaModal } from "./components/GachaModal";
+import { RomancePanel } from "./components/RomancePanel";
 import { restoreSession, logout } from "./nakama/auth";
 import { getPlayerProfile, getPlayerIdentity } from "./nakama/storage";
 import type { PlayerProfile, InventoryItem } from "./types/game";
@@ -24,6 +25,7 @@ function App() {
   const [inventory] = useState<InventoryItem[]>([]);
   const [showInventory, setShowInventory] = useState(false);
   const [showGacha, setShowGacha] = useState(false);
+  const [showRomance, setShowRomance] = useState(false);
   const [pityCounter, setPityCounter] = useState(0);
 
   useEffect(() => {
@@ -131,6 +133,7 @@ function App() {
       <div className="game-controls">
         <button onClick={() => setShowInventory(true)}>Inventaire</button>
         <button onClick={() => setShowGacha(true)}>Invocation</button>
+        <button onClick={() => setShowRomance(true)}>♡ Relations</button>
         <button onClick={handleLogout}>Déconnexion</button>
       </div>
       <InventoryPanel
@@ -143,6 +146,10 @@ function App() {
         onClose={() => setShowGacha(false)}
         pityCounter={pityCounter}
         onPityUpdate={setPityCounter}
+      />
+      <RomancePanel
+        isOpen={showRomance}
+        onClose={() => setShowRomance(false)}
       />
     </div>
   );
