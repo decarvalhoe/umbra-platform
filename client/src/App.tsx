@@ -14,6 +14,8 @@ import { HeroRoster } from "./components/HeroRoster";
 import { Bestiary } from "./components/Bestiary";
 import { BattlePass } from "./components/BattlePass";
 import { VoidArena } from "./components/VoidArena";
+import { LanguageSelector } from "./components/LanguageSelector";
+import { useI18n } from "./i18n";
 import { restoreSession, logout } from "./nakama/auth";
 import { getPlayerProfile, getPlayerIdentity } from "./nakama/storage";
 import type { PlayerProfile, InventoryItem } from "./types/game";
@@ -23,6 +25,7 @@ import "./App.css";
 type AppState = "landing" | "login" | "identity-setup" | "game";
 
 function App() {
+  const { t } = useI18n();
   const gameRef = useRef<HTMLDivElement>(null);
   const phaserGameRef = useRef<Game | null>(null);
   const [appState, setAppState] = useState<AppState>("landing");
@@ -143,16 +146,17 @@ function App() {
       />
       <div id="game-container" ref={gameRef} />
       <div className="game-controls">
-        <button onClick={() => setShowInventory(true)}>Inventaire</button>
-        <button onClick={() => setShowGacha(true)}>Invocation</button>
-        <button onClick={() => setShowRomance(true)}>♡ Relations</button>
-        <button onClick={() => setShowForge(true)}>🔥 Forge</button>
-        <button onClick={() => setShowEvents(true)}>⬡ Événements</button>
-        <button onClick={() => setShowRoster(true)}>⚔ Héros</button>
-        <button onClick={() => setShowBestiary(true)}>📖 Bestiaire</button>
-        <button onClick={() => setShowBattlePass(true)}>⚔ Battle Pass</button>
-        <button onClick={() => setShowArena(true)}>⚔ Arène</button>
-        <button onClick={handleLogout}>Déconnexion</button>
+        <button onClick={() => setShowInventory(true)}>{t("controls.inventory")}</button>
+        <button onClick={() => setShowGacha(true)}>{t("controls.gacha")}</button>
+        <button onClick={() => setShowRomance(true)}>♡ {t("controls.romance")}</button>
+        <button onClick={() => setShowForge(true)}>{t("controls.forge")}</button>
+        <button onClick={() => setShowEvents(true)}>{t("controls.events")}</button>
+        <button onClick={() => setShowRoster(true)}>{t("controls.heroes")}</button>
+        <button onClick={() => setShowBestiary(true)}>{t("controls.bestiary")}</button>
+        <button onClick={() => setShowBattlePass(true)}>{t("controls.battlePass")}</button>
+        <button onClick={() => setShowArena(true)}>{t("controls.arena")}</button>
+        <button onClick={handleLogout}>{t("auth.logout")}</button>
+        <LanguageSelector />
       </div>
       <InventoryPanel
         items={inventory}

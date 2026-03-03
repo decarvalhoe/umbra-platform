@@ -1,0 +1,234 @@
+{
+  "common": {
+    "close": "Fechar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "level": "Nível",
+    "tier": "Nível",
+    "free": "Grátis",
+    "premium": "Premium",
+    "claim": "Resgatar",
+    "refresh": "Atualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Nenhum",
+    "yes": "Sim",
+    "no": "Não",
+    "daysRemaining": "{count}d restantes",
+    "timeAgo": {
+      "minutes": "há {count}min",
+      "hours": "há {count}h",
+      "days": "há {count}d"
+    }
+  },
+  "landing": {
+    "title": "UMBRA",
+    "subtitle": "As sombras te chamam",
+    "enter": "Entrar na sombra",
+    "tagline": "Um mundo de trevas te espera"
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "username": "Nome de usuário",
+    "forgotPassword": "Esqueceu a senha?",
+    "loginButton": "Conectar",
+    "registerButton": "Cadastrar",
+    "guestLogin": "Jogar como convidado",
+    "logout": "Sair",
+    "orContinueWith": "Ou continue com"
+  },
+  "identity": {
+    "title": "Identidade do Personagem",
+    "displayName": "Nome de exibição",
+    "pronouns": "Pronomes",
+    "orientation": "Orientação",
+    "showOrientation": "Mostrar orientação",
+    "continue": "Continuar",
+    "pronounOptions": {
+      "il": "ele/dele",
+      "elle": "ela/dela",
+      "iel": "elu/delu",
+      "custom": "Personalizado"
+    }
+  },
+  "hud": {
+    "health": "Vida",
+    "dodge": "Esquiva",
+    "cendres": "Cinzas",
+    "eclats": "Estilhaços de Sombra",
+    "essence": "Essência Ancestral"
+  },
+  "controls": {
+    "inventory": "Inventário",
+    "gacha": "Invocação",
+    "romance": "Vínculos",
+    "forge": "Forja",
+    "events": "Eventos",
+    "heroes": "Heróis",
+    "bestiary": "Bestiário",
+    "battlePass": "Passe de Batalha",
+    "arena": "Arena",
+    "settings": "Configurações"
+  },
+  "inventory": {
+    "title": "Inventário",
+    "empty": "Sem itens",
+    "quantity": "Quantidade",
+    "rarity": {
+      "common": "Comum",
+      "rare": "Raro",
+      "epic": "Épico",
+      "legendary": "Lendário"
+    }
+  },
+  "gacha": {
+    "title": "Invocação das Sombras",
+    "singlePull": "Invocar ×1",
+    "multiPull": "Invocar ×10",
+    "pity": "Garantia em",
+    "banner": "Banner",
+    "rates": "Taxas de obtenção"
+  },
+  "romance": {
+    "title": "Vínculos de Afinidade",
+    "affinity": "Afinidade",
+    "resonance": "Ressonância",
+    "preference": "Preferência",
+    "dialogue": "Conversar",
+    "gift": "Presentear",
+    "preferences": {
+      "romance": "Romance",
+      "friendship": "Amizade",
+      "neutral": "Neutro"
+    },
+    "thresholds": {
+      "unknown": "Desconhecido/a",
+      "familiar": "Familiar",
+      "close_friend": "Amigo/a próximo/a",
+      "romantic_interest": "Interesse romântico",
+      "deep_bond": "Vínculo profundo"
+    }
+  },
+  "forge": {
+    "title": "Forja do Vazio",
+    "reforge": "Refusão de Runas",
+    "awakening": "Despertar de Equipamento",
+    "infusion": "Infusão de Corrupção",
+    "materials": "Materiais",
+    "cost": "Custo",
+    "result": "Resultado"
+  },
+  "events": {
+    "title": "Central de Eventos",
+    "calendar": "Calendário do Vazio",
+    "active": "Ativo",
+    "upcoming": "Em breve",
+    "ended": "Encerrado",
+    "progress": "Progresso",
+    "rewards": "Recompensas"
+  },
+  "heroes": {
+    "title": "Registro de Heróis",
+    "stats": "Atributos",
+    "skills": "Habilidades",
+    "personality": "Personalidade",
+    "lore": "História",
+    "owned": "Obtido",
+    "notOwned": "Não obtido",
+    "elements": {
+      "fire": "Fogo",
+      "ice": "Gelo",
+      "lightning": "Raio",
+      "shadow": "Sombra",
+      "light": "Luz",
+      "nature": "Natureza"
+    }
+  },
+  "bestiary": {
+    "title": "Bestiário do Vazio",
+    "discovered": "Descoberto",
+    "undiscovered": "Não descoberto",
+    "kills": "Derrotas",
+    "behavior": "Comportamento",
+    "teaches": "Ensino",
+    "tiers": {
+      "1": "Larvas",
+      "2": "Sombras",
+      "3": "Corrompidos",
+      "4": "Abissais",
+      "5": "Soberanos"
+    }
+  },
+  "battlePass": {
+    "title": "Passe de Batalha",
+    "season": "Temporada",
+    "goPremium": "Ativar Premium",
+    "xp": "XP",
+    "claimed": "Resgatado",
+    "locked": "Bloqueado"
+  },
+  "arena": {
+    "title": "Arena do Vazio",
+    "fight": "Combate",
+    "defense": "Defesa",
+    "leaderboard": "Classificação",
+    "history": "Histórico",
+    "attacks": "Ataques",
+    "arenaPoints": "Pontos de Arena",
+    "strategy": "Estratégia",
+    "strategies": {
+      "aggressive": "Agressivo",
+      "defensive": "Defensivo",
+      "counter": "Contra-ataque"
+    },
+    "tiers": {
+      "1": "Iniciado/a das Sombras",
+      "2": "Caminhante do Vazio",
+      "3": "Cavaleiro/a da Corrupção",
+      "4": "Guardião/ã do Abismo",
+      "5": "Soberano/a do Vazio"
+    },
+    "matchResult": {
+      "victory": "VITÓRIA",
+      "defeat": "DERROTA"
+    },
+    "defenseSetup": "Configuração da equipe de defesa",
+    "defenseDesc": "Selecione 3 companheiros e uma estratégia.",
+    "saveDefense": "Salvar defesa",
+    "launchCombat": "Iniciar combate",
+    "noAttacks": "Sem ataques restantes",
+    "newOpponent": "Novo oponente",
+    "rematch": "Revanche",
+    "weeklyRewards": "Recompensas semanais",
+    "recentFights": "Combates recentes",
+    "defenseLog": "Registro de defesa"
+  },
+  "talents": {
+    "title": "Árvore de Talentos",
+    "offense": "Ofensiva",
+    "defense": "Defesa",
+    "utility": "Utilidade",
+    "points": "Pontos disponíveis",
+    "allocate": "Atribuir",
+    "reset": "Reiniciar"
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "audio": "Áudio",
+    "music": "Música",
+    "sfx": "Efeitos sonoros",
+    "graphics": "Gráficos",
+    "fullscreen": "Tela cheia",
+    "notifications": "Notificações"
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "common": {
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "level": "Level",
+    "tier": "Tier",
+    "free": "Free",
+    "premium": "Premium",
+    "claim": "Claim",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "daysRemaining": "{count}d remaining",
+    "timeAgo": {
+      "minutes": "{count}min ago",
+      "hours": "{count}h ago",
+      "days": "{count}d ago"
+    }
+  },
+  "landing": {
+    "title": "UMBRA",
+    "subtitle": "The shadows are calling",
+    "enter": "Enter the shadow",
+    "tagline": "A world of darkness awaits"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "forgotPassword": "Forgot password?",
+    "loginButton": "Sign in",
+    "registerButton": "Sign up",
+    "guestLogin": "Play as guest",
+    "logout": "Logout",
+    "orContinueWith": "Or continue with"
+  },
+  "identity": {
+    "title": "Character Identity",
+    "displayName": "Display Name",
+    "pronouns": "Pronouns",
+    "orientation": "Orientation",
+    "showOrientation": "Show orientation",
+    "continue": "Continue",
+    "pronounOptions": {
+      "il": "he/him",
+      "elle": "she/her",
+      "iel": "they/them",
+      "custom": "Custom"
+    }
+  },
+  "hud": {
+    "health": "Health",
+    "dodge": "Dodge",
+    "cendres": "Cinders",
+    "eclats": "Shadow Shards",
+    "essence": "Ancient Essence"
+  },
+  "controls": {
+    "inventory": "Inventory",
+    "gacha": "Summoning",
+    "romance": "Bonds",
+    "forge": "Forge",
+    "events": "Events",
+    "heroes": "Heroes",
+    "bestiary": "Bestiary",
+    "battlePass": "Battle Pass",
+    "arena": "Arena",
+    "settings": "Settings"
+  },
+  "inventory": {
+    "title": "Inventory",
+    "empty": "No items",
+    "quantity": "Quantity",
+    "rarity": {
+      "common": "Common",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    }
+  },
+  "gacha": {
+    "title": "Shadow Summoning",
+    "singlePull": "Summon ×1",
+    "multiPull": "Summon ×10",
+    "pity": "Guaranteed in",
+    "banner": "Banner",
+    "rates": "Drop rates"
+  },
+  "romance": {
+    "title": "Affinity Bonds",
+    "affinity": "Affinity",
+    "resonance": "Resonance",
+    "preference": "Preference",
+    "dialogue": "Talk",
+    "gift": "Gift",
+    "preferences": {
+      "romance": "Romance",
+      "friendship": "Friendship",
+      "neutral": "Neutral"
+    },
+    "thresholds": {
+      "unknown": "Unknown",
+      "familiar": "Familiar",
+      "close_friend": "Close Friend",
+      "romantic_interest": "Romantic Interest",
+      "deep_bond": "Deep Bond"
+    }
+  },
+  "forge": {
+    "title": "Void Forge",
+    "reforge": "Rune Reforging",
+    "awakening": "Equipment Awakening",
+    "infusion": "Corruption Infusion",
+    "materials": "Materials",
+    "cost": "Cost",
+    "result": "Result"
+  },
+  "events": {
+    "title": "Event Hub",
+    "calendar": "Void Calendar",
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "ended": "Ended",
+    "progress": "Progress",
+    "rewards": "Rewards"
+  },
+  "heroes": {
+    "title": "Hero Roster",
+    "stats": "Stats",
+    "skills": "Skills",
+    "personality": "Personality",
+    "lore": "Lore",
+    "owned": "Owned",
+    "notOwned": "Not owned",
+    "elements": {
+      "fire": "Fire",
+      "ice": "Ice",
+      "lightning": "Lightning",
+      "shadow": "Shadow",
+      "light": "Light",
+      "nature": "Nature"
+    }
+  },
+  "bestiary": {
+    "title": "Void Bestiary",
+    "discovered": "Discovered",
+    "undiscovered": "Undiscovered",
+    "kills": "Kills",
+    "behavior": "Behavior",
+    "teaches": "Teaches",
+    "tiers": {
+      "1": "Larvae",
+      "2": "Shades",
+      "3": "Corrupted",
+      "4": "Abyssal",
+      "5": "Sovereigns"
+    }
+  },
+  "battlePass": {
+    "title": "Battle Pass",
+    "season": "Season",
+    "goPremium": "Go Premium",
+    "xp": "XP",
+    "claimed": "Claimed",
+    "locked": "Locked"
+  },
+  "arena": {
+    "title": "Void Arena",
+    "fight": "Fight",
+    "defense": "Defense",
+    "leaderboard": "Leaderboard",
+    "history": "History",
+    "attacks": "Attacks",
+    "arenaPoints": "Arena Points",
+    "strategy": "Strategy",
+    "strategies": {
+      "aggressive": "Aggressive",
+      "defensive": "Defensive",
+      "counter": "Counter-Attack"
+    },
+    "tiers": {
+      "1": "Shadow Initiate",
+      "2": "Void Walker",
+      "3": "Corruption Knight",
+      "4": "Abyss Warden",
+      "5": "Void Sovereign"
+    },
+    "matchResult": {
+      "victory": "VICTORY",
+      "defeat": "DEFEAT"
+    },
+    "defenseSetup": "Defense team setup",
+    "defenseDesc": "Select 3 companions and a strategy.",
+    "saveDefense": "Save defense",
+    "launchCombat": "Launch combat",
+    "noAttacks": "No attacks remaining",
+    "newOpponent": "New opponent",
+    "rematch": "Rematch",
+    "weeklyRewards": "Weekly rewards",
+    "recentFights": "Recent fights",
+    "defenseLog": "Defense log"
+  },
+  "talents": {
+    "title": "Talent Tree",
+    "offense": "Offense",
+    "defense": "Defense",
+    "utility": "Utility",
+    "points": "Available points",
+    "allocate": "Allocate",
+    "reset": "Reset"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "audio": "Audio",
+    "music": "Music",
+    "sfx": "Sound Effects",
+    "graphics": "Graphics",
+    "fullscreen": "Fullscreen",
+    "notifications": "Notifications"
+  }
+}
