@@ -129,12 +129,10 @@ const rpcSavePlayerProfile: nkruntime.RpcFunction = function (
   }
 
   const profile = objects[0].value as PlayerProfile;
-  const updated: PlayerProfile = {
-    ...profile,
-    ...updates,
-    userId, // Prevent userId override
+  const updated = Object.assign({}, profile, updates, {
+    userId: userId, // Prevent userId override
     updatedAt: new Date().toISOString(),
-  };
+  }) as PlayerProfile;
 
   nk.storageWrite([
     {
@@ -359,11 +357,11 @@ function initializeNewPlayer(
 
   const now = new Date().toISOString();
   const profile: PlayerProfile = {
-    userId,
-    username: username || `player_${userId.substring(0, 8)}`,
+    userId: userId,
+    username: username || ("player_" + userId.substring(0, 8)),
     level: 1,
     xp: 0,
-    stats: { ...DEFAULT_STATS },
+    stats: Object.assign({}, DEFAULT_STATS) as PlayerProfile["stats"],
     talents: {
       offense: {},
       defense: {},
