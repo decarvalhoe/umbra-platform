@@ -556,7 +556,7 @@ function TerminalLines() {
     { text: "> Génération Void Summoning... Convergence pull 73/90", color: "#ff2d78", delay: 0 },
     { text: "  ✓ Rituel 4 étapes — Rift prismatique (5★ incoming)", color: "#b39ddb", delay: 0.5 },
     { text: "> Shadow Vigil — Rapport de Kaelan...", color: "#ffe135", delay: 1 },
-    { text: '  "J'ai trouvé 3 runes Corrupted et quelque chose d'autre."', color: "#ff6b35", delay: 1.5 },
+    { text: `  "J'ai trouvé 3 runes Corrupted et quelque chose d'autre."`, color: "#ff6b35", delay: 1.5 },
     { text: "> Void Hierarchy : spawn Tier III Sentinels (floor 8)", color: "#ff2d78", delay: 2 },
     { text: "  ✓ Void Stalker ×2 · Crystal Golem ×1 ♡", color: "#00bcd4", delay: 2.5 },
     { text: "> Personal Quest : Nyx (Affinité 65 → milestone 75)...", color: "#ffe135", delay: 3 },
