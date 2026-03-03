@@ -3,11 +3,11 @@
    Dark Fantasy · Interactive · Cinematic
 ═══════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Raleway:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Raleway:wght@300;400;600&display=swap');
 
 /* ── Variables ─────────────────────────────────────────────────── */
 :root {
-  --umbra-black: #050508;
+  --umbra-black: #0a0a0f;
   --umbra-dark: #0a0a12;
   --umbra-purple: #6c3483;
   --umbra-purple-light: #9b59b6;
@@ -17,8 +17,33 @@
   --umbra-text: #e8e0f0;
   --umbra-text-dim: #8e7a9e;
   --font-title: 'Cinzel Decorative', 'Cinzel', serif;
-  --font-body: 'Raleway', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
   --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Skip link (keyboard / AT users) ──────────────────────────── */
+.lp-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 99999;
+  padding: 0.6rem 1.2rem;
+  background: #ff2d78;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.lp-skip-link:focus { top: 1rem; outline: 3px solid #ffe135; outline-offset: 2px; }
+
+/* ── Focus styles — always visible ────────────────────────────── */
+.lp-root :focus-visible {
+  outline: 2px solid #ff2d78;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* ── Reset & Base ──────────────────────────────────────────────── */
@@ -27,13 +52,17 @@
   background: var(--umbra-black);
   color: var(--umbra-text);
   overflow-x: hidden;
-  cursor: none;
   scroll-behavior: smooth;
 }
 
-.lp-root * {
-  cursor: none;
-  box-sizing: border-box;
+.lp-root * { box-sizing: border-box; }
+
+/* Custom cursor only on fine-pointer (mouse) devices */
+@media (pointer: fine) {
+  .lp-root { cursor: none; }
+  .lp-root *:not(.lp-skip-link):not(a):not(button):not([role="button"]):not(input):not(select):not(textarea) {
+    cursor: none;
+  }
 }
 
 /* ── Custom Cursor ─────────────────────────────────────────────── */
@@ -1058,4 +1087,31 @@
 
 .lp-center {
   text-align: center;
+}
+
+/* ── dl/dt/dd stat layout (semantic stat row) ──────────────────── */
+.lp-stat-row { list-style: none; margin: 0; padding: 0; }
+.lp-stat dt.lp-stat-label { font-size: 0.75rem; color: var(--umbra-text-dim); text-transform: uppercase; letter-spacing: 0.08em; order: 2; margin: 0; }
+.lp-stat dd.lp-stat-num   { font-size: 2.2rem; font-weight: 900; margin: 0; order: 1; }
+
+/* ── prefers-reduced-motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lp-root,
+  .lp-root * {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lp-hero-bg { transform: none !important; }
+  .lp-speed-lines,
+  .lp-glitch,
+  .lp-canvas,
+  .lp-cursor,
+  .lp-cursor-trail { display: none !important; }
+  /* Reveal sections without motion */
+  .lp-slide-in,
+  .lp-slide-in-right,
+  .lp-card-in,
+  .lp-visible { opacity: 1 !important; transform: none !important; }
 }

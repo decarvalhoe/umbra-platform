@@ -163,11 +163,21 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
       {/* Panel */}
       <div className={`ls-panel ${shake ? "ls-shake" : ""}`}>
 
+        {/* Back to landing */}
+        <button
+          className="ls-back"
+          onClick={() => window.history.back()}
+          type="button"
+        >
+          ← Retour
+        </button>
+
         {/* Logo */}
         <div className="ls-logo-wrap">
           <div className="ls-logo-rune" />
           <h1 className="ls-logo">UMBRA</h1>
           <p className="ls-logo-sub">L'IA écrit ton histoire~ ♡</p>
+          <p className="ls-logo-tags">⚔️ Roguelite · 💜 Otome LGBTQ+ · 🤖 AI-Powered</p>
         </div>
 
         {/* Tabs */}
@@ -277,11 +287,11 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
 
         {/* Guest */}
         <button className="ls-btn ls-btn--ghost" onClick={handleGuest} disabled={loading}>
-          Continuer en invité
+          Explorer en tant qu'Invité·e
         </button>
 
         {/* Footer note */}
-        <p className="ls-note">✦ Free to Play · Cross-platform · LGBTQ+ friendly ✦</p>
+        <p className="ls-note">✦ Free to Play · Cross-platform · LGBTQ+ Friendly · AI-Powered ✦</p>
       </div>
     </div>
   );
