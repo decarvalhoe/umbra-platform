@@ -23,6 +23,7 @@ export class AttackState extends EnemyState {
   }
 
   enter(): void {
+    this.enemy.playAnim('attack')
     this.elapsed = 0
     this.hasHit = false
 

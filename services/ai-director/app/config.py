@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     pool_threshold_dungeons_10room: int = 5
     pool_threshold_narratives_choice: int = 15
 
+    # Batch generation settings
+    pool_batch_size: int = 5  # Default items per batch when not filling to threshold
+    pool_replenish_on_pop: bool = True  # Auto-trigger replenishment when pool is low
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
     def get_pool_thresholds(self) -> dict[str, int]:

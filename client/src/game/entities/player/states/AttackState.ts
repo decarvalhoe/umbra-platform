@@ -82,7 +82,7 @@ export class AttackState extends PlayerState {
     // Stop movement during attack
     this.player.setVelocity(0, 0)
 
-    // this.player.anims.play(`player-attack-${this.player.comboStep}`, true)
+    this.player.playAnim(`player-attack-${this.player.comboStep}`)
 
     // Emit event for UI / sound with enriched combo data
     const comboHit = this.buildComboHit(hand)

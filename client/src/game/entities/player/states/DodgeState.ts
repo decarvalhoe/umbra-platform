@@ -52,6 +52,7 @@ export class DodgeState extends PlayerState {
   }
 
   enter(): void {
+    this.player.playAnim('player-dodge')
     this.elapsed = 0
     this.iframesActive = false
 

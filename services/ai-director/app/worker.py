@@ -7,7 +7,7 @@ celery_app = Celery(
     "ai_director",
     broker=os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/1"),
     backend=os.getenv("CELERY_RESULT_BACKEND", "redis://localhost:6379/1"),
-    include=["app.tasks.generation", "app.tasks.pool_monitor"],
+    include=["app.tasks.generation", "app.tasks.pool_monitor", "app.tasks.pool_generation"],
 )
 
 celery_app.conf.update(

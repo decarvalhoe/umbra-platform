@@ -129,12 +129,10 @@ const rpcSavePlayerProfile: nkruntime.RpcFunction = function (
   }
 
   const profile = objects[0].value as PlayerProfile;
-  const updated: PlayerProfile = {
-    ...profile,
-    ...updates,
-    userId, // Prevent userId override
+  const updated = Object.assign({}, profile, updates, {
+    userId: userId, // Prevent userId override
     updatedAt: new Date().toISOString(),
-  };
+  }) as PlayerProfile;
 
   nk.storageWrite([
     {
@@ -326,9 +324,8 @@ const rpcGetLeaderboard: nkruntime.RpcFunction = function (
   payload: string
 ): string {
   const input = payload ? JSON.parse(payload) : {};
-  const seasonId =
-    input.seasonId ||
-    `season_${new Date().getFullYear()}_${String(Math.ceil((new Date().getMonth() + 1) / 3)).padStart(2, "0")}`;
+  var q = Math.ceil((new Date().getMonth() + 1) / 3);
+  const seasonId = input.seasonId || ("season_" + new Date().getFullYear() + "_" + (q < 10 ? "0" + q : "" + q));
   const limit = input.limit || 20;
 
   const records = nk.leaderboardRecordsList(seasonId, undefined, limit, undefined, 0);
@@ -360,11 +357,11 @@ function initializeNewPlayer(
 
   const now = new Date().toISOString();
   const profile: PlayerProfile = {
-    userId,
-    username: username || `player_${userId.substring(0, 8)}`,
+    userId: userId,
+    username: username || ("player_" + userId.substring(0, 8)),
     level: 1,
     xp: 0,
-    stats: { ...DEFAULT_STATS },
+    stats: Object.assign({}, DEFAULT_STATS) as PlayerProfile["stats"],
     talents: {
       offense: {},
       defense: {},
@@ -441,14 +438,9 @@ const InitModule: nkruntime.InitModule = function (
   initializer.registerAfterAuthenticateDevice(afterAuthenticateDevice);
 
   // Seasonal leaderboard
-  const quarter = String(Math.ceil((new Date().getMonth() + 1) / 3)).padStart(2, "0");
-  const seasonId = `season_${new Date().getFullYear()}_${quarter}`;
-  nk.leaderboardCreate(
-    seasonId,
-    true,
-    nkruntime.SortOrder.DESCENDING,
-    nkruntime.Operator.BEST
-  );
+  var q2 = Math.ceil((new Date().getMonth() + 1) / 3);
+  var seasonId = "season_" + new Date().getFullYear() + "_" + (q2 < 10 ? "0" + q2 : "" + q2);
+  nk.leaderboardCreate(seasonId, true, "desc" as any, "best" as any);
 
   logger.info("Umbra Platform initialized — Season: %s", seasonId);
 };

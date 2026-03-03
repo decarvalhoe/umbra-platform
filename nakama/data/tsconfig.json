@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "target": "ES5",
+    "module": "ES2015",
     "outDir": "dist",
     "rootDir": ".",
     "strict": true,
@@ -10,8 +9,21 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": false,
-    "typeRoots": ["./node_modules"]
+    "typeRoots": [
+      "./node_modules"
+    ],
+    "lib": [
+      "ES2020"
+    ]
   },
-  "include": ["main.ts", "rpc/**/*.ts", "hooks/**/*.ts", "nakama-runtime.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "main.ts",
+    "rpc/**/*.ts",
+    "hooks/**/*.ts",
+    "nakama-runtime.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
