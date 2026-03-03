@@ -252,3 +252,64 @@ export interface FestivalGift {
   giftIcon: string;
   revealed: boolean;
 }
+
+// ── Hero Roster — AI-Generated Heroes ───────────────────────────
+
+export type HeroElement = "fire" | "ice" | "lightning" | "shadow" | "light" | "nature";
+
+export type HeroRarity = 3 | 4 | 5;
+
+export type PersonalityArchetype = "protector" | "rival" | "mentor" | "trickster" | "enigma";
+
+export interface HeroStats {
+  strength: number;
+  agility: number;
+  intelligence: number;
+  willpower: number;
+  charisma: number;
+}
+
+export interface HeroDerivedStats {
+  hp: number;
+  mp: number;
+  attack: number;
+  defense: number;
+  critRate: number;
+}
+
+export interface HeroSkill {
+  id: string;
+  name: string;
+  description: string;
+  type: "active" | "passive";
+  element?: HeroElement;
+  manaCost?: number;
+  cooldown?: number;
+}
+
+export interface Hero {
+  id: string;
+  name: string;
+  title: string;
+  rarity: HeroRarity;
+  level: number;
+  element: HeroElement;
+  baseStats: HeroStats;
+  derivedStats: HeroDerivedStats;
+  affinities: Partial<Record<HeroElement, number>>;
+  skills: HeroSkill[];
+  personality: {
+    archetype: PersonalityArchetype;
+    traits: string[];
+    alignment: string;
+  };
+  lore: {
+    origin: string;
+    motivation: string;
+    fragments: string[];
+  };
+  portraitUrl: string | null;
+  glyph: string;
+  color: string;
+  owned: boolean;
+}
