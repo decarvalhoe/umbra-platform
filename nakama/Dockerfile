@@ -8,5 +8,7 @@ RUN npx tsc
 FROM registry.heroiclabs.com/heroiclabs/nakama:3.21.1
 COPY --from=builder /build/dist/ /nakama/data/modules/
 COPY local.yml /nakama/local.yml
+COPY start.sh /nakama/start.sh
+RUN chmod +x /nakama/start.sh
 ENTRYPOINT []
-CMD ["/bin/sh", "-c", "/nakama/nakama migrate up --config /nakama/local.yml && /nakama/nakama --config /nakama/local.yml"]
+CMD ["/nakama/start.sh"]
