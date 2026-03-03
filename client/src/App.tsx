@@ -12,6 +12,7 @@ import { VoidForgePanel } from "./components/VoidForgePanel";
 import { EventHub } from "./components/EventHub";
 import { HeroRoster } from "./components/HeroRoster";
 import { Bestiary } from "./components/Bestiary";
+import { BattlePass } from "./components/BattlePass";
 import { restoreSession, logout } from "./nakama/auth";
 import { getPlayerProfile, getPlayerIdentity } from "./nakama/storage";
 import type { PlayerProfile, InventoryItem } from "./types/game";
@@ -34,6 +35,7 @@ function App() {
   const [showEvents, setShowEvents] = useState(false);
   const [showRoster, setShowRoster] = useState(false);
   const [showBestiary, setShowBestiary] = useState(false);
+  const [showBattlePass, setShowBattlePass] = useState(false);
   const [pityCounter, setPityCounter] = useState(0);
 
   useEffect(() => {
@@ -146,6 +148,7 @@ function App() {
         <button onClick={() => setShowEvents(true)}>⬡ Événements</button>
         <button onClick={() => setShowRoster(true)}>⚔ Héros</button>
         <button onClick={() => setShowBestiary(true)}>📖 Bestiaire</button>
+        <button onClick={() => setShowBattlePass(true)}>⚔ Battle Pass</button>
         <button onClick={handleLogout}>Déconnexion</button>
       </div>
       <InventoryPanel
@@ -178,6 +181,10 @@ function App() {
       <Bestiary
         isOpen={showBestiary}
         onClose={() => setShowBestiary(false)}
+      />
+      <BattlePass
+        isOpen={showBattlePass}
+        onClose={() => setShowBattlePass(false)}
       />
     </div>
   );

@@ -336,3 +336,31 @@ export interface BestiaryEntry {
   discovered: boolean;
   killCount: number;
 }
+
+// ── Battle Pass ─────────────────────────────────────────────────
+
+export type BattlePassRewardType = "currency" | "cosmetic" | "rune" | "material" | "companion" | "title";
+
+export interface BattlePassReward {
+  id: string;
+  tier: number;
+  track: "free" | "premium";
+  type: BattlePassRewardType;
+  label: string;
+  icon: string;
+  amount?: number;
+}
+
+export interface BattlePassSeason {
+  seasonId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  maxTier: number;
+  isPremium: boolean;
+  currentTier: number;
+  currentXp: number;
+  xpPerTier: number;
+  claimedRewards: string[];
+  rewards: BattlePassReward[];
+}
