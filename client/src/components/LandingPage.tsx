@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import "./LandingPage.css";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -24,12 +24,14 @@ const MANGA_COLORS = [
   "#b39ddb", "#ff80ab", "#ea80fc", "#ffffff",
 ] as const;
 
-const ROMANCE_CHARACTERS = [
-  { name: "Kaelan",    role: "Forgeron Maudit",       orientation: "Hétérosexuel",  color: "#ff6b35", img: "/li_kaelan.png",    pronouns: "il/lui",   desc: "Bourru protecteur. Forger une arme avec lui, c'est lui confier une partie de ton âme." },
-  { name: "Lyra",      role: "Archiviste Spectrale",  orientation: "Bisexuelle",     color: "#b39ddb", img: "/li_lyra.png",      pronouns: "elle/la",  desc: "Spectrale et curieuse. Elle cartographie l'Umbra depuis des siècles — et vient de te remarquer." },
-  { name: "Nyx",       role: "Marchand du Vide",      orientation: "Pansexuel·le",   color: "#ffe135", img: "/li_nyx.png",       pronouns: "iel/ellui",desc: "Entité pansexuelle du commerce interdit. Leurs prix sont... négociables. Avec intérêt." },
-  { name: "Seraphina", role: "Paladine Déchue",        orientation: "Lesbienne",      color: "#ff2d78", img: "/li_seraphina.png", pronouns: "elle/la",  desc: "Paladine déchue cherchant la rédemption. Sa lumière vacille — mais ne s'éteint jamais." },
-  { name: "Ronan",     role: "Barde Itinérant",        orientation: "Gay",            color: "#00bcd4", img: "/li_ronan.png",     pronouns: "il/lui",   desc: "Barde itinérant. Son sourire cache une mélancolie profonde. La musique est son armure." },
+// Hero cards affichées dans la section Void Summoning — aperçu du roster infini
+const ROSTER_PREVIEW = [
+  { name: "Void Revenant",    rarity: 5, role: "DPS · Ombre",      color: "#ff2d78", tag: "5★", img: "/hero_card_5star.png",  desc: "Maîtresse des lames corrompues. Son passé est scellé dans le Vide." },
+  { name: "Spectre Errant",   rarity: 4, role: "Support · Spectral", color: "#b39ddb", tag: "4★", img: null,                   desc: "Entité ancienne. Protège ses alliés avec des boucliers de mémoire." },
+  { name: "Forgeron Maudit",  rarity: 5, role: "Tank · Forge",       color: "#ff6b35", tag: "5★", img: null,                   desc: "Chaque arme qu'il forge porte une malédiction... et une promesse." },
+  { name: "Archiviste Spectrale", rarity: 4, role: "Mage · Archives", color: "#00bcd4", tag: "4★", img: null,                desc: "Cartographie l'Umbra depuis des siècles. Ses sorts réécrivent la réalité." },
+  { name: "Marchand du Vide", rarity: 5, role: "Utilitaire · Commerce", color: "#ffe135", tag: "5★", img: null,              desc: "Ses prix sont négociables. Ses intentions, moins." },
+  { name: "???  ???",          rarity: 0, role: "Inconnu · Prochain Banner", color: "#ea80fc", tag: "???", img: null,         desc: "L'AI Director prépare quelque chose de nouveau..." },
 ] as const;
 
 const MASCOT_LINES = [
@@ -49,7 +51,7 @@ const FEATURES = [
   { icon: "🌙", title: "Shadow Vigil",      desc: "3 compagnons patrouillent en ton absence. Cap 12h. Rapport narratif IA personnalisé au retour.",                        color: "#00bcd4", tag: "IDLE"    },
   { icon: "⚡", title: "Void Arena",        desc: "PvP asynchrone. Défie les équipes IA des autres. 5 tiers : Shadow Initiate → Void Sovereign. Saisons hebdomadaires.",  color: "#ffe135", tag: "PVP"     },
   { icon: "🔨", title: "Void Forge",        desc: "Rune Reforging, Equipment Awakening, Corruption Infusion. Kaelan t'attend à la forge dès Affinité 10.",                 color: "#ff6b35", tag: "CRAFT"   },
-  { icon: "💜", title: "Resonance Bond",    desc: "15 niveaux par compagnon. Echo Fragments équippables. True Name au niveau 10. Void Form au niveau 15.",                 color: "#ea80fc", tag: "ROMANCE" },
+  { icon: "💜", title: "Resonance Bond",    desc: "15 niveaux par héros invoqué. Echo Fragments équippables. True Name au niveau 10. Void Form au niveau 15. Chaque héros a sa propre histoire.",                 color: "#ea80fc", tag: "ROMANCE" },
 ] as const;
 
 const CLASSES = [
@@ -449,8 +451,8 @@ function LoreSection() {
               <dd className="lp-stat-num">∞</dd>
             </div>
             <div className="lp-stat">
-              <dt className="lp-stat-label">Compagnons</dt>
-              <dd className="lp-stat-num">5</dd>
+              <dt className="lp-stat-label">Héros</dt>
+              <dd className="lp-stat-num">∞</dd>
             </div>
             <div className="lp-stat">
               <dt className="lp-stat-label">Types d'ennemis</dt>
@@ -560,67 +562,202 @@ function ClassesSection() {
   );
 }
 
-// ── RomanceSection ────────────────────────────────────────────────────────────
+// ── VoidSummoningSection ─────────────────────────────────────────────────────
 
-interface RomanceSectionProps {
+interface VoidSummoningSectionProps {
   spawnRef: React.MutableRefObject<SpawnFn | null>;
 }
 
-function RomanceSection({ spawnRef }: RomanceSectionProps) {
+function VoidSummoningSection({ spawnRef }: VoidSummoningSectionProps) {
   const ref = useRef<HTMLElement>(null);
   const visible = useIntersection(ref);
+  const [activeCard, setActiveCard] = React.useState<number | null>(null);
+  const [pulseCount, setPulseCount] = React.useState(0);
+
+  // Simulate gacha "pull" animation on banner click
+  const handleBannerClick = React.useCallback((e: React.MouseEvent) => {
+    spawnRef.current?.(e.clientX, e.clientY, true);
+    setPulseCount((n) => n + 1);
+  }, [spawnRef]);
 
   return (
     <section
       ref={ref}
-      className="lp-section lp-romance"
+      className="lp-section lp-void-summoning"
       id="lp-romance"
-      aria-labelledby="romance-title"
+      aria-labelledby="summoning-title"
     >
+      {/* Ambient background glow */}
+      <div className="lp-void-bg" aria-hidden="true">
+        <div className="lp-void-orb lp-void-orb--1" />
+        <div className="lp-void-orb lp-void-orb--2" />
+        <div className="lp-void-orb lp-void-orb--3" />
+      </div>
+
       <div className="lp-section-inner">
-        <div className="lp-manga-tag" aria-hidden="true">💜 RENCONTRES</div>
-        <h2 className="lp-section-title lp-center" id="romance-title">
-          Des liens forgés <span className="lp-title-accent">entre les runs</span>
+        {/* Header */}
+        <div className="lp-manga-tag lp-tag--gacha" aria-hidden="true">✦ VOID SUMMONING</div>
+        <h2 className="lp-section-title lp-center" id="summoning-title">
+          Un roster <span className="lp-title-accent">infini</span> t'attend
         </h2>
-        <p className="lp-body-text lp-center" style={{ maxWidth: 640, margin: "0 auto 2.5rem" }}>
-          Umbra est un jeu pour <strong>tout le monde</strong>. Choisis tes pronoms, ton genre,
-          ton orientation. Configure ta <strong>Relationship Preference</strong> par compagnon :
-          Romance, Amitié Profonde, ou Neutre. L'IA génère des dialogues uniques basés sur ton
-          affinité (0→100) et ton niveau de Résonance (1→15).
-          <span className="lp-wink"> Polyamour accepté~ ♡</span>
+        <p className="lp-body-text lp-center" style={{ maxWidth: 680, margin: "0 auto 1rem" }}>
+          L'<strong>AI Director</strong> génère chaque héros de toutes pièces — apparence, personnalité,
+          histoire, skills, et potentiel de romance. Chaque invocation est unique. Chaque lien est réel.
         </p>
-        <ul className="lp-romance-grid" role="list">
-          {ROMANCE_CHARACTERS.map((li, i) => (
-            <li
-              key={li.name}
-              className={`lp-romance-card${visible ? " lp-card-in" : ""}`}
-              style={{ animationDelay: `${i * 0.12}s`, "--card-color": li.color } as React.CSSProperties}
-              onMouseEnter={(e) => spawnRef.current?.(e.clientX, e.clientY, true)}
-            >
-              <div className="lp-romance-portrait-wrap">
-                <img
-                  src={li.img}
-                  alt={`Portrait de ${li.name}`}
-                  className="lp-romance-portrait"
-                  loading="lazy"
-                  width={120}
-                  height={160}
-                />
-                <div className="lp-romance-orientation-badge">{li.orientation}</div>
-              </div>
-              <div className="lp-romance-info">
-                <div className="lp-romance-pronouns">{li.pronouns}</div>
-                <h3 className="lp-romance-name" style={{ color: li.color }}>{li.name}</h3>
-                <div className="lp-romance-role">{li.role}</div>
-                <p className="lp-romance-desc">{li.desc}</p>
-                <div className="lp-romance-hearts" aria-hidden="true">♡ ♡ ♡ ♡ ♡</div>
-              </div>
-            </li>
-          ))}
+        <p className="lp-body-text lp-center" style={{ maxWidth: 680, margin: "0 auto 2.5rem", opacity: 0.8 }}>
+          Umbra est un jeu pour <strong>tout le monde</strong> : pronoms libres, orientations respectées,
+          polyamour accepté. Configure ta <strong>Relationship Preference</strong> par héros —
+          Romance, Amitié Profonde, ou Neutre.
+          <span className="lp-wink"> ♡</span>
+        </p>
+
+        {/* Pity / Banner info bar */}
+        <div className="lp-pity-bar" role="complementary" aria-label="Informations sur le système de pity">
+          <div className="lp-pity-item">
+            <span className="lp-pity-icon" aria-hidden="true">🌀</span>
+            <span><strong>Soft Pity</strong> dès 70 invocations</span>
+          </div>
+          <div className="lp-pity-sep" aria-hidden="true">·</div>
+          <div className="lp-pity-item">
+            <span className="lp-pity-icon" aria-hidden="true">💎</span>
+            <span><strong>Hard Pity</strong> garanti à 90</span>
+          </div>
+          <div className="lp-pity-sep" aria-hidden="true">·</div>
+          <div className="lp-pity-item">
+            <span className="lp-pity-icon" aria-hidden="true">🤖</span>
+            <span><strong>IA</strong> génère chaque héros</span>
+          </div>
+          <div className="lp-pity-sep" aria-hidden="true">·</div>
+          <div className="lp-pity-item">
+            <span className="lp-pity-icon" aria-hidden="true">♾️</span>
+            <span><strong>Roster infini</strong> procédural</span>
+          </div>
+        </div>
+
+        {/* Hero cards grid */}
+        <ul className="lp-roster-grid" role="list">
+          {ROSTER_PREVIEW.map((hero, i) => {
+            const isUnknown = hero.rarity === 0;
+            const is5Star = hero.rarity === 5;
+            const isActive = activeCard === i;
+            return (
+              <li
+                key={hero.name}
+                className={[
+                  "lp-hero-card",
+                  is5Star ? "lp-hero-card--5star" : "",
+                  isUnknown ? "lp-hero-card--unknown" : "",
+                  visible ? "lp-card-in" : "",
+                  isActive ? "lp-hero-card--active" : "",
+                ].join(" ").trim()}
+                style={{
+                  animationDelay: `${i * 0.1}s`,
+                  "--card-color": hero.color,
+                } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  setActiveCard(i);
+                  if (is5Star) spawnRef.current?.(e.clientX, e.clientY, true);
+                }}
+                onMouseLeave={() => setActiveCard(null)}
+                onFocus={() => setActiveCard(i)}
+                onBlur={() => setActiveCard(null)}
+                tabIndex={0}
+                role="article"
+                aria-label={`${hero.name} — ${hero.role}`}
+              >
+                {/* Rarity badge */}
+                <div
+                  className={`lp-hero-rarity ${
+                    is5Star ? "lp-hero-rarity--5" :
+                    isUnknown ? "lp-hero-rarity--unknown" :
+                    "lp-hero-rarity--4"
+                  }`}
+                  aria-label={`Rareté ${hero.tag}`}
+                >
+                  {hero.tag}
+                </div>
+
+                {/* Portrait / silhouette */}
+                <div className="lp-hero-portrait-wrap">
+                  {hero.img ? (
+                    <img
+                      src={hero.img}
+                      alt={`Illustration de ${hero.name}`}
+                      className="lp-hero-portrait"
+                      loading="lazy"
+                      width={140}
+                      height={200}
+                    />
+                  ) : isUnknown ? (
+                    <div className="lp-hero-silhouette lp-hero-silhouette--mystery" aria-hidden="true">
+                      <span className="lp-mystery-glyph">?</span>
+                    </div>
+                  ) : (
+                    <div
+                      className="lp-hero-silhouette"
+                      style={{ background: `linear-gradient(180deg, ${hero.color}33 0%, ${hero.color}88 100%)` }}
+                      aria-hidden="true"
+                    >
+                      <span className="lp-hero-silhouette-glyph" aria-hidden="true">✦</span>
+                    </div>
+                  )}
+                  {/* Shimmer overlay on 5★ */}
+                  {is5Star && <div className="lp-hero-shimmer" aria-hidden="true" />}
+                </div>
+
+                {/* Info */}
+                <div className="lp-hero-info">
+                  <h3
+                    className="lp-hero-name"
+                    style={{ color: isUnknown ? "#ea80fc" : hero.color }}
+                  >
+                    {hero.name}
+                  </h3>
+                  <div className="lp-hero-role">{hero.role}</div>
+                  <p className="lp-hero-desc">{hero.desc}</p>
+                  {/* Resonance level preview */}
+                  {!isUnknown && (
+                    <div className="lp-hero-resonance" aria-label="Niveaux de résonance disponibles">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <span
+                          key={j}
+                          className={`lp-res-dot${isActive && j < 3 ? " lp-res-dot--active" : ""}`}
+                          aria-hidden="true"
+                        />
+                      ))}
+                      <span className="lp-res-label">Résonance 1–15</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Glow border */}
+                <div className="lp-hero-glow" aria-hidden="true" />
+              </li>
+            );
+          })}
         </ul>
+
+        {/* Summoning CTA */}
+        <div className="lp-summoning-cta">
+          <button
+            className="lp-btn lp-btn--gacha"
+            onClick={handleBannerClick}
+            aria-label="Ouvrir le Void Summoning Ritual — invoquer un héros"
+            key={pulseCount}
+          >
+            <span aria-hidden="true" className="lp-btn-sparkle">🌀</span>
+            VOID SUMMONING RITUAL
+            <span aria-hidden="true" className="lp-btn-sparkle">🌀</span>
+          </button>
+          <p className="lp-summoning-disclaimer">
+            ✦ Probabilités affichées en jeu · Monétisation éthique · Free to Play ✦
+          </p>
+        </div>
+
+        {/* LGBTQ+ note */}
         <p className="lp-romance-note">
           <span className="lp-wink">
-            ✦ Pronoms libres · Polyamour · Orientations respectées · Dialogues IA personnalisés ✦
+            ✦ Pronoms libres · Polyamour · LGBTQ+ friendly · Dialogues IA personnalisés ✦
           </span>
         </p>
       </div>
@@ -822,7 +959,7 @@ export function LandingPage({ onEnter }: LandingPageProps) {
         <LoreSection />
         <FeaturesSection />
         <ClassesSection />
-        <RomanceSection spawnRef={spawnRef} />
+        <VoidSummoningSection spawnRef={spawnRef} />
         <AISection />
         <FinalCTA onEnter={onEnter} spawnRef={spawnRef} />
       </main>

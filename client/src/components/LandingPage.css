@@ -51,7 +51,7 @@
   font-family: var(--font-body);
   background: var(--umbra-black);
   color: var(--umbra-text);
-  overflow-x: hidden;
+  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
@@ -923,68 +923,203 @@
   .lp-hero-character { display: none; }
 }
 
-/* ── Romance Section ───────────────────────────────────────────── */
-.lp-romance {
-  background: linear-gradient(180deg, #0a0a12 0%, #12071a 50%, #0a0a12 100%);
+/* ── Void Summoning Section ─────────────────────────────────────── */
+.lp-void-summoning {
+  background: linear-gradient(180deg, #0a0a12 0%, #0d0520 40%, #12071a 70%, #0a0a12 100%);
   position: relative;
   overflow: hidden;
 }
 
-.lp-romance::before {
-  content: '';
+/* Ambient orbs */
+.lp-void-bg {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(255, 45, 120, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(179, 157, 219, 0.06) 0%, transparent 70%);
   pointer-events: none;
+  z-index: 0;
+}
+.lp-void-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 8s ease-in-out infinite alternate;
+}
+.lp-void-orb--1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+.lp-void-orb--2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(179,157,219,0.1) 0%, transparent 70%);
+  top: 30%; right: -80px;
+  animation-delay: -3s;
+}
+.lp-void-orb--3 {
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(0,188,212,0.08) 0%, transparent 70%);
+  bottom: -80px; left: 40%;
+  animation-delay: -5s;
+}
+@keyframes orbFloat {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, -40px) scale(1.1); }
 }
 
-.lp-romance-grid {
+/* Manga tag variant */
+.lp-tag--gacha {
+  background: linear-gradient(135deg, rgba(179,157,219,0.25), rgba(255,45,120,0.25));
+  border-color: rgba(179,157,219,0.4);
+  color: #ea80fc;
+}
+
+/* Pity info bar */
+.lp-pity-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(179,157,219,0.15);
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
+  margin: 0 auto 2.5rem;
+  max-width: 860px;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  color: var(--umbra-text);
+  position: relative;
+  z-index: 1;
+}
+.lp-pity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lp-pity-icon { font-size: 1rem; }
+.lp-pity-sep {
+  color: rgba(255,255,255,0.2);
+  font-size: 1.2rem;
+}
+
+/* Hero cards roster grid */
+.lp-roster-grid {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1.2rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
 }
-
 @media (max-width: 1200px) {
-  .lp-romance-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-roster-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 768px) {
-  .lp-romance-grid { grid-template-columns: repeat(2, 1fr); }
+  .lp-roster-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
-  .lp-romance-grid { grid-template-columns: 1fr; }
+  .lp-roster-grid { grid-template-columns: 1fr; }
 }
 
-.lp-romance-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Base hero card */
+.lp-hero-card {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.3s var(--transition-smooth), border-color 0.3s, box-shadow 0.3s;
+  cursor: pointer;
   opacity: 0;
   transform: translateY(30px);
+  transition: transform 0.35s var(--transition-smooth), border-color 0.3s, box-shadow 0.3s;
+  outline: none;
 }
-
-.lp-romance-card.lp-card-in {
+.lp-hero-card.lp-card-in {
   animation: cardIn 0.6s var(--transition-smooth) forwards;
 }
-
-.lp-romance-card:hover {
-  transform: translateY(-8px) scale(1.02);
+.lp-hero-card:hover,
+.lp-hero-card--active {
+  transform: translateY(-10px) scale(1.03);
   border-color: var(--card-color, #ff2d78);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 20px color-mix(in srgb, var(--card-color, #ff2d78) 30%, transparent);
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.5),
+    0 0 24px color-mix(in srgb, var(--card-color, #ff2d78) 35%, transparent);
+}
+.lp-hero-card:focus-visible {
+  outline: 2px solid var(--card-color, #ff2d78);
+  outline-offset: 3px;
 }
 
-.lp-romance-portrait-wrap {
+/* 5★ golden shimmer border */
+.lp-hero-card--5star {
+  border-color: rgba(255,225,53,0.25);
+}
+.lp-hero-card--5star:hover {
+  border-color: #ffe135;
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.5),
+    0 0 32px rgba(255,225,53,0.3),
+    0 0 60px rgba(255,45,120,0.15);
+}
+
+/* Mystery card */
+.lp-hero-card--unknown {
+  border-color: rgba(234,128,252,0.2);
+  background: rgba(234,128,252,0.04);
+}
+.lp-hero-card--unknown:hover {
+  border-color: #ea80fc;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 28px rgba(234,128,252,0.3);
+}
+
+/* Rarity badge */
+.lp-hero-rarity {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(8px);
+}
+.lp-hero-rarity--5 {
+  background: linear-gradient(135deg, rgba(255,225,53,0.3), rgba(255,140,0,0.3));
+  border: 1px solid rgba(255,225,53,0.5);
+  color: #ffe135;
+  text-shadow: 0 0 8px #ffe135;
+}
+.lp-hero-rarity--4 {
+  background: rgba(179,157,219,0.2);
+  border: 1px solid rgba(179,157,219,0.4);
+  color: #b39ddb;
+}
+.lp-hero-rarity--unknown {
+  background: rgba(234,128,252,0.15);
+  border: 1px solid rgba(234,128,252,0.3);
+  color: #ea80fc;
+  animation: rarityPulse 2s ease-in-out infinite;
+}
+@keyframes rarityPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; text-shadow: 0 0 10px #ea80fc; }
+}
+
+/* Portrait area */
+.lp-hero-portrait-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 2/3;
   overflow: hidden;
+  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
 }
-
-.lp-romance-portrait {
+.lp-hero-portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -992,90 +1127,200 @@
   transition: transform 0.4s var(--transition-smooth);
   filter: brightness(0.9) saturate(1.1);
 }
-
-.lp-romance-card:hover .lp-romance-portrait {
+.lp-hero-card:hover .lp-hero-portrait {
   transform: scale(1.06);
   filter: brightness(1) saturate(1.2);
 }
 
-.lp-romance-orientation-badge {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 3px 12px;
-  font-size: 0.65rem;
-  font-family: var(--font-body);
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.05em;
-  white-space: nowrap;
+/* Silhouette placeholder */
+.lp-hero-silhouette {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(255,45,120,0.08) 0%, rgba(179,157,219,0.15) 100%);
+}
+.lp-hero-silhouette--mystery {
+  background: linear-gradient(180deg, rgba(234,128,252,0.06) 0%, rgba(100,0,150,0.2) 100%);
+  animation: mysteryPulse 3s ease-in-out infinite;
+}
+@keyframes mysteryPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.lp-hero-silhouette-glyph {
+  font-size: 3rem;
+  color: var(--card-color, #ff2d78);
+  opacity: 0.4;
+  text-shadow: 0 0 20px currentColor;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.lp-hero-card:hover .lp-hero-silhouette-glyph {
+  opacity: 0.8;
+  transform: scale(1.2);
+}
+.lp-mystery-glyph {
+  font-size: 4rem;
+  font-family: var(--font-title);
+  font-weight: 900;
+  color: #ea80fc;
+  opacity: 0.5;
+  text-shadow: 0 0 30px #ea80fc;
+  animation: mysteryPulse 2s ease-in-out infinite;
 }
 
-.lp-romance-info {
-  padding: 1rem;
+/* 5★ shimmer overlay */
+.lp-hero-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,225,53,0.12) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSlide 3s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes shimmerSlide {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Hero info panel */
+.lp-hero-info {
+  padding: 0.9rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
-
-.lp-romance-pronouns {
-  font-size: 0.65rem;
-  font-family: var(--font-body);
-  color: var(--umbra-text-dim);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.lp-romance-name {
+.lp-hero-name {
   font-family: var(--font-title);
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin: 0;
-  text-shadow: 0 0 12px currentColor;
+  text-shadow: 0 0 10px currentColor;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-.lp-romance-role {
-  font-size: 0.7rem;
+.lp-hero-role {
+  font-size: 0.62rem;
   font-family: var(--font-body);
   color: var(--umbra-text-dim);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-
-.lp-romance-desc {
-  font-size: 0.78rem;
+.lp-hero-desc {
+  font-size: 0.72rem;
   font-family: var(--font-body);
   color: var(--umbra-text);
-  line-height: 1.5;
+  line-height: 1.45;
   margin: 0.2rem 0 0;
-  opacity: 0.85;
+  opacity: 0.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.lp-romance-hearts {
-  font-size: 0.8rem;
-  color: var(--card-color, #ff2d78);
-  letter-spacing: 0.2em;
+/* Resonance dots */
+.lp-hero-resonance {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-top: 0.4rem;
-  opacity: 0.5;
+}
+.lp-res-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.lp-res-dot--active {
+  background: var(--card-color, #ff2d78);
+  box-shadow: 0 0 6px var(--card-color, #ff2d78);
+  border-color: transparent;
+}
+.lp-res-label {
+  font-size: 0.58rem;
+  font-family: var(--font-body);
+  color: var(--umbra-text-dim);
+  letter-spacing: 0.06em;
+  margin-left: 4px;
+}
+
+/* Glow border effect */
+.lp-hero-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  opacity: 0;
   transition: opacity 0.3s;
+  box-shadow: inset 0 0 20px color-mix(in srgb, var(--card-color, #ff2d78) 20%, transparent);
 }
-
-.lp-romance-card:hover .lp-romance-hearts {
+.lp-hero-card:hover .lp-hero-glow,
+.lp-hero-card--active .lp-hero-glow {
   opacity: 1;
-  text-shadow: 0 0 8px var(--card-color, #ff2d78);
 }
 
+/* Gacha CTA button */
+.lp-summoning-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+.lp-btn--gacha {
+  background: linear-gradient(135deg, #6a0dad 0%, #b31c6e 50%, #6a0dad 100%);
+  background-size: 200% 100%;
+  border: 1px solid rgba(179,157,219,0.4);
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-position 0.4s, box-shadow 0.3s, transform 0.2s;
+  box-shadow: 0 4px 24px rgba(106,13,173,0.4), 0 0 0 0 rgba(179,157,219,0.3);
+  animation: gachaPulse 3s ease-in-out infinite;
+}
+.lp-btn--gacha:hover {
+  background-position: 100% 0;
+  box-shadow: 0 8px 40px rgba(179,157,219,0.4), 0 0 60px rgba(255,45,120,0.2);
+  transform: translateY(-3px) scale(1.03);
+  animation: none;
+}
+@keyframes gachaPulse {
+  0%, 100% { box-shadow: 0 4px 24px rgba(106,13,173,0.4), 0 0 0 0 rgba(179,157,219,0.3); }
+  50% { box-shadow: 0 4px 24px rgba(106,13,173,0.4), 0 0 0 8px rgba(179,157,219,0); }
+}
+.lp-summoning-disclaimer {
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  color: var(--umbra-text-dim);
+  letter-spacing: 0.06em;
+}
+
+/* Romance note (reused) */
 .lp-romance-note {
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   font-size: 0.8rem;
   color: var(--umbra-text-dim);
   letter-spacing: 0.08em;
+  position: relative;
+  z-index: 1;
 }
 
 .lp-center {
